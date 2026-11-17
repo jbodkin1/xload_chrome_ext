@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "xload Retro System Monitor",
+  "version": "1.0.0",
+  "description": "Plots your system's live CPU load average in a vintage X11 classic-style window. Retro, pixelated, and aesthetic.",
+  "permissions": [
+    "system.cpu",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
