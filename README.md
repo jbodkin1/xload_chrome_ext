@@ -63,4 +63,4 @@ Any current version of Google Chrome (or another Chromium-based browser that sup
 
 ## License
 
-Use it, fork it, change the colours. Attribution appreciated, not required.
+Released into the public domain under the [Unlicense](LICENSE) — no conditions, no warranty. Use it, fork it, change the colours. Attribution appreciated, not required.
