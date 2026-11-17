@@ -6,10 +6,7 @@ let config = {
   theme: 'classic',
   refreshRate: 1000,
   showGrid: true,
-  scanlines: true,
-  scaleMode: 'auto',
-  fixedMax: 100,
-  graphType: 'x11-fill'
+  scanlines: true
 };
 
 let history = [];

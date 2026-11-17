@@ -8,11 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
       theme: 'classic',
       refreshRate: 1000,
       showGrid: true,
-      scanlines: true,
-      scaleMode: 'auto',
-      fixedMax: 100,
-      graphType: 'x11-fill',
-      simulatedJitter: false
+      scanlines: true
     };
 
     if (!result.config) {
