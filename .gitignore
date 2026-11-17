@@ -1,0 +1,13 @@
+# Local tool data (Freebuff project metadata, chat state) — never commit
+.freebuff/
+
+# Chat attachments saved into the workspace — never commit
+.cloud-attachments/
+
+# macOS filesystem noise
+.DS_Store
+
+# Editor and log noise
+*.log
+*.swp
+*~
