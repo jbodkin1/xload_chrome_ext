@@ -27,6 +27,17 @@ The load figure is worked out the honest way — by sampling `chrome.system.cpu.
 - No network requests. The extension holds only the `system.cpu` and `storage` permissions and never talks to a server.
 - No analytics, no accounts, no background sampling while the popup is closed, no build step, no dependencies, no framework.
 
+## Permissions and privacy
+
+xload asks for two permissions, both of which it actually uses:
+
+- **`system.cpu`** — reads the per-core user/kernel/idle tick counters through `chrome.system.cpu.getInfo()`, and nothing else. That is the only way an extension can see system load; it does not expose which applications are running, what they are doing, or any file, window or network activity.
+- **`storage`** — saves your settings and the graph's history with `chrome.storage.local`.
+
+What is stored, and where: a small config object (theme, refresh rate, grid and scanline toggles) and the rolling 120-point load history that lets the graph look continuous when you reopen the popup. Both live in Chrome's extension storage on your own machine. Nothing is uploaded, there is no server to upload to, and the extension has no host permissions, content scripts or remote code. Sampling only runs while the popup is open, so nothing is collected when it is closed.
+
+Removing the extension deletes its storage along with it.
+
 ## Installing in Chrome (developer mode)
 
 The extension is not published to the Chrome Web Store, so you load it as an unpacked extension. It takes about thirty seconds.
