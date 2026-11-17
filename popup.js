@@ -14,6 +14,7 @@ const maxDataPoints = 120;
 let prevCpuInfo = null;
 let updateIntervalId = null;
 let pendingCpuQuery = false;
+let historyDirty = false;
 let lastHistoryPersist = 0;
 const historyPersistIntervalMs = 1000;
 
@@ -64,6 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     startMonitoringLoop();
     drawGraph();
 
+    document.addEventListener('pagehide', flushHistory);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushHistory();
+    });
+
     themeSelect.addEventListener('change', (e) => {
       config.theme = e.target.value;
       saveConfig();
@@ -94,21 +100,29 @@ function updateScanlineOverlay() {
   scanlineOverlayEl.style.display = config.scanlines ? 'block' : 'none';
 }
 
-document.addEventListener('pagehide', () => persistHistory(true));
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') persistHistory(true);
-});
-
 function saveConfig() {
-  chrome.storage.local.set({ config });
+  chrome.storage.local.set({ config }, () => {
+    if (chrome.runtime.lastError) {
+      console.warn('xload: could not save config:', chrome.runtime.lastError.message);
+    }
+  });
+}
+
+function flushHistory() {
+  persistHistory(true);
 }
 
 function persistHistory(force = false) {
+  if (!historyDirty) return;
+
   const now = Date.now();
   if (!force && now - lastHistoryPersist < historyPersistIntervalMs) return;
+
   lastHistoryPersist = now;
+  historyDirty = false;
   chrome.storage.local.set({ history }, () => {
     if (chrome.runtime.lastError) {
+      historyDirty = true;
       console.warn('xload: could not persist history:', chrome.runtime.lastError.message);
     }
   });
@@ -156,6 +170,7 @@ function queryCpuInfo() {
       loadPercent = Math.max(0, Math.min(100, loadPercent));
       history.push(loadPercent);
       if (history.length > maxDataPoints) history.shift();
+      historyDirty = true;
 
       loadValueEl.textContent = "LOAD: " + loadPercent.toFixed(2) + "%";
       persistHistory();
