@@ -16,6 +16,9 @@ let history = [];
 const maxDataPoints = 120;
 let prevCpuInfo = null;
 let updateIntervalId = null;
+let pendingCpuQuery = false;
+let lastHistoryPersist = 0;
+const historyPersistIntervalMs = 1000;
 
 const canvas = document.getElementById('xload-canvas');
 const ctx = canvas.getContext('2d');
@@ -45,9 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (result.history) history = result.history;
 
     themeSelect.value = config.theme;
-    intervalSelect.value = config.refreshRate.toString();
+
+    const rateValues = Array.from(intervalSelect.options, (option) => option.value);
+    if (rateValues.includes(String(config.refreshRate))) {
+      intervalSelect.value = String(config.refreshRate);
+    } else {
+      config.refreshRate = parseInt(intervalSelect.value, 10) || 1000;
+    }
+
     gridToggle.checked = config.showGrid;
     scanlinesToggle.checked = config.scanlines;
+
+    if (history.length > 0) {
+      loadValueEl.textContent = "LOAD: " + history[history.length - 1].toFixed(2) + "%";
+    }
 
     updateScanlineOverlay();
     startMonitoringLoop();
@@ -83,8 +97,24 @@ function updateScanlineOverlay() {
   scanlineOverlayEl.style.display = config.scanlines ? 'block' : 'none';
 }
 
+document.addEventListener('pagehide', () => persistHistory(true));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') persistHistory(true);
+});
+
 function saveConfig() {
   chrome.storage.local.set({ config });
+}
+
+function persistHistory(force = false) {
+  const now = Date.now();
+  if (!force && now - lastHistoryPersist < historyPersistIntervalMs) return;
+  lastHistoryPersist = now;
+  chrome.storage.local.set({ history }, () => {
+    if (chrome.runtime.lastError) {
+      console.warn('xload: could not persist history:', chrome.runtime.lastError.message);
+    }
+  });
 }
 
 function startMonitoringLoop() {
@@ -94,7 +124,15 @@ function startMonitoringLoop() {
 }
 
 function queryCpuInfo() {
+  if (pendingCpuQuery) return;
+  pendingCpuQuery = true;
+
   chrome.system.cpu.getInfo((cpuInfo) => {
+    pendingCpuQuery = false;
+    if (chrome.runtime.lastError) {
+      console.warn('xload: chrome.system.cpu.getInfo failed:', chrome.runtime.lastError.message);
+      return;
+    }
     if (!cpuInfo) return;
     if (prevCpuInfo) {
       let activeTicksDiff = 0;
@@ -123,7 +161,7 @@ function queryCpuInfo() {
       if (history.length > maxDataPoints) history.shift();
 
       loadValueEl.textContent = "LOAD: " + loadPercent.toFixed(2) + "%";
-      chrome.storage.local.set({ history });
+      persistHistory();
       drawGraph();
     }
     prevCpuInfo = cpuInfo;
