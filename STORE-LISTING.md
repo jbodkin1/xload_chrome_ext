@@ -140,7 +140,7 @@ the vulnerability-reporting side and is linked from the policy rather than used 
 | Asset | Size | Status |
 | --- | --- | --- |
 | Store icon | 128×128 PNG | Required — `icon128.png` exists |
-| Screenshots | 1280×800 (640×400 also accepted) | At least 1, max 5 |
+| Screenshots | 1280×800 (640×400 also accepted) | Five captured, in `store/` |
 | Small promo tile | 440×280 PNG/JPEG | Optional, recommended |
 | Marquee | 1400×560 PNG/JPEG | Optional, for featured placement |
 
@@ -151,22 +151,34 @@ up to five; **1280×800** (640×400 accepted); PNG or JPEG; **square corners, fu
 padding, no rounded corners, no drop shadow**; upright and undistorted; must show the real
 popup from the current version, not a mockup.
 
-One thing to plan for: the popup is 400×330, so it cannot fill a 1280×800 frame at native
-size. Do not upscale the popup 3× (it turns to mush at 16px Courier). Capture at 2× device
-pixel ratio for a crisp 800×660 popup, then place it on a plain neutral backdrop inside the
-1280×800 frame — dark grey for the dark themes, light grey for Classic X11.
+The popup is 400×330, so it cannot fill a 1280×800 frame at native size, and upscaling it
+3× turns 16px Courier to mush. These were captured from the unpacked extension at a 2×
+device pixel ratio inside a 640×400 viewport — 800×660 of crisp popup pixels on a plain
+neutral backdrop in a 1280×800 frame — while real `yes` processes produced the load. The
+popup's outer drop shadow is neutralised for the captures (its inset bevel is untouched),
+so nothing in frame casts a shadow.
 
-The set, in the order they will appear:
+### Screenshots produced (`store/`)
 
-1. **Hero — Classic X11 at 1.0s.** The default first-launch look: white screen, red trace,
-   black grid, `LOAD:` and `SCALE:` readouts legible. This is the one most users see.
-2. **Hacker Green under real load.** Something actually happening on the graph — a
-   sustained rise and fall, not one flat line. Real samples only; never hand-drawn data.
-3. **The theme menu open** with all six themes visible, so the range of looks is obvious.
-4. **0.1s refresh with a dense trace**, proving the fine-grained mode works and looks
-   different from the 1.0s hero shot.
-5. **Grid on / scanlines off** (or the reverse), showing the two toggles actually change
-   the rendering.
+All five are 1280×800 PNG, full bleed, no padding, no drop shadow, and show 120 real
+samples each:
+
+| # | File | Shows |
+| --- | --- | --- |
+| 1 | `01-hero-classic-x11.png` | default Classic X11 at 1.0s, the first-launch look |
+| 2 | `02-hacker-green-load.png` | Hacker Green at 0.1s under real load |
+| 3 | `03-theme-tour.png` | all six themes, each a real capture, composed at 1280×800 |
+| 4 | `04-dense-0.1s.png` | Neon Cyberpunk at 0.1s, dense trace |
+| 5 | `05-scanlines-off.png` | scanlines off with the grid still on |
+
+`store/gallery.html` shows all five at once for review. Two notes on how they were made,
+so a future re-capture matches:
+
+- Shot 3 is a montage, not a menu. A native `<select>` dropdown is drawn by the browser UI
+  layer rather than the page, so it cannot appear in a page screenshot; the tour shows the
+  same six themes as individual real captures instead.
+- The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
+  of the plot empty. Let the popup run until it holds 120 points before capturing.
 
 Before uploading each shot, check: no browser chrome or bookmark bar in frame, no clip of
 an unrelated window, no text overlay claiming anything the code does not do, nothing
@@ -183,12 +195,13 @@ or four words, since promo tiles are not localised.
 
 ## Before submitting
 
-- [ ] Update `manifest.json` `description` to the short description above (it is the same
-      field; the current one is 113 characters and calls the graph a "load average", which
-      is not what the code plots).
-- [ ] Bump `version` if this replaces an existing item.
-- [ ] Zip only the extension files — `manifest.json`, `popup.html`, `popup.js`,
-      `background.js`, the three icons — with `manifest.json` at the zip root. No
-      `README.md`, no `SECURITY.md`, no `.git`, no screenshots.
+- [x] Manifest `description` matches the short description above, and `version` is 1.1.0.
+- [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`.
+- [x] Screenshots captured: the five files in `store/`.
+- [ ] Privacy policy URL set to the `PRIVACY.md` blob link above.
+- [ ] Fill in the privacy practices tab: single purpose, both permission justifications,
+      "no remote code", and the Limited Use certification.
+- [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
+      `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Confirm the dashboard's permission list matches the manifest exactly (two entries),
       and that no host permissions appear.
