@@ -141,7 +141,7 @@ the vulnerability-reporting side and is linked from the policy rather than used 
 | --- | --- | --- |
 | Store icon | 128×128 PNG | Required — `icon128.png` exists |
 | Screenshots | 1280×800 (640×400 also accepted) | Five captured, in `store/` |
-| Small promo tile | 440×280 PNG/JPEG | Optional, recommended |
+| Small promo tile | 440×280 PNG/JPEG | Produced — `store/06-promo-tile-440x280.png` |
 | Marquee | 1400×560 PNG/JPEG | Optional, for featured placement |
 
 ### Screenshot checklist
@@ -191,9 +191,14 @@ plausible percentage rather than `NaN` or `0.00%` on a busy machine.
 
 ### Small promo tile (440×280)
 
-If you make one: dark background matching the popup's title bar, the popup screen cropped
-to the graph (not the whole window), and the word "xload" — no tagline text beyond three
-or four words, since promo tiles are not localised.
+Produced: `store/06-promo-tile-440x280.png` (440×280 PNG, 44 KB). It is composed from the
+Hacker Green capture — the top 200 px is the CRT screen cropped 880×400 and scaled 0.5:1,
+so it shows the graph only, with no window chrome and no title bar — over a dark `#0d0e12`
+bar carrying the wordmark `xload` and the two-word line `SYSTEM MONITOR`. No other text,
+since promo tiles are not localised and should not depend on a language.
+
+To re-cut it after a re-capture: keep the 440×200 graph strip and the 440×80 wordmark bar,
+and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280×800 shot).
 
 ---
 
