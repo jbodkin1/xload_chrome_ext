@@ -151,12 +151,16 @@ up to five; **1280×800** (640×400 accepted); PNG or JPEG; **square corners, fu
 padding, no rounded corners, no drop shadow**; upright and undistorted; must show the real
 popup from the current version, not a mockup.
 
-The popup is 400×330, so it cannot fill a 1280×800 frame at native size, and upscaling it
-3× turns 16px Courier to mush. These were captured from the unpacked extension at a 2×
-device pixel ratio inside a 640×400 viewport — 800×660 of crisp popup pixels on a plain
-neutral backdrop in a 1280×800 frame — while real `yes` processes produced the load. The
-popup's outer drop shadow is neutralised for the captures (its inset bevel is untouched),
-so nothing in frame casts a shadow.
+The popup is 400×330 (1.212:1), so in a 1.6:1 frame it is height-limited: filling the frame
+vertically gives 950×784 of popup — 74% of the width and 98% of the height — which is the
+largest the popup can be without cropping or distortion. These were captured that way: the
+unpacked extension at a 2× device pixel ratio inside a 640×400 viewport, with the popup
+scaled by CSS `zoom: 1.1875` so it fills the frame height (text rasterises at that size, so
+it stays sharp; the canvas scales through the existing `image-rendering: pixelated`).
+Filling the frame this way is what keeps `LOAD:` and `SCALE:` legible at thumbnail size —
+at the earlier 62%-width framing the 9px status line turned to mush when downscaled. Real
+`yes` processes produced the load, and the popup's outer drop shadow is neutralised (its
+inset bevel is untouched), so nothing in frame casts a shadow.
 
 ### Screenshots produced (`store/`)
 
