@@ -171,7 +171,7 @@ samples each:
 | --- | --- | --- |
 | 1 | `01-hero-classic-x11.png` | default Classic X11 at 1.0s, the first-launch look |
 | 2 | `02-hacker-green-load.png` | Hacker Green at 0.1s under real load |
-| 3 | `03-theme-tour.png` | all six themes, each a real capture, composed at 1280×800 |
+| 3 | `03-theme-tour.png` | all six themes, each a real capture, in a 3×2 grid at 1280×800 |
 | 4 | `04-dense-0.1s.png` | Neon Cyberpunk at 0.1s, dense trace |
 | 5 | `05-scanlines-off.png` | scanlines off with the grid still on |
 
@@ -179,8 +179,15 @@ samples each:
 so a future re-capture matches:
 
 - Shot 3 is a montage, not a menu. A native `<select>` dropdown is drawn by the browser UI
-  layer rather than the page, so it cannot appear in a page screenshot; the tour shows the
-  same six themes as individual real captures instead.
+  layer rather than the page, so it cannot appear in a page screenshot; the tour shows all
+  six themes as individual real captures instead, so the full range is visible in one asset.
+- Legibility limit, measured: tiles are 416×343 in the 3×2 grid, which puts the 9px
+  `LOAD:`/`SCALE:` line at roughly 2.3 px once the image is downscaled to 320 px wide. A 2×2
+  of four larger tiles was tried and only reached 441×364 (+6%) — still ~2.5 px — because the
+  popup's 1.212:1 aspect makes a 2-row grid row-limited, not width-limited. Reading the status
+  line needs a ~1060 px wide tile, i.e. one theme per screenshot. Readable numbers are what
+  shots 1, 2, 4 and 5 provide; shot 3 is deliberately a theme showcase, and stays six-wide so
+  that no theme is hidden.
 - The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
   of the plot empty. Let the popup run until it holds 120 points before capturing.
 
