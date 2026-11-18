@@ -8,7 +8,7 @@ description 132, detailed description 16,384.
 
 ## Store listing tab
 
-### Item name (25 / 75)
+### Item name (26 / 75)
 
 ```
 xload Retro System Monitor
@@ -31,8 +31,9 @@ Watch your CPU load in a vintage X11 window: a live scrolling graph, six CRT the
 
 ### Category
 
-**Developer Tools** — it is a system monitor and the audience is people who watch machines.
-(`Productivity` is the fallback if Developer Tools feels too narrow.)
+**Developer Tools** — a system monitor, and the audience is people who watch machines. Chrome
+scopes that category to tooling for web developers, so **Functionality & UI** is the other
+defensible choice for a UI widget like this one. Pick one; don't try to hedge across both.
 
 ### Language
 
@@ -109,7 +110,7 @@ import, no remote script, and no network code of any kind in the package.
 ### Data usage disclosures
 
 Chrome's policy is that local processing and storage must still be disclosed, even when
-nothing is transmitted (see the User Data FAQ, question 3). So:
+nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3). So:
 
 - The **data collection checkboxes**: no category applies. xload does not collect
   personally identifiable information, health, financial, authentication, personal
@@ -132,6 +133,27 @@ https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
 It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
 a repository note, which is what a reviewer expects behind this field. `SECURITY.md` covers
 the vulnerability-reporting side and is linked from the policy rather than used as the URL.
+
+---
+
+## Distribution tab
+
+- **Visibility:** Public — the extension is meant to be found. Unlisted keeps it out of search
+  and categories but still installable by URL, which is the better choice if you want to test
+  the live listing first; both go through the same review either way.
+- **Regions:** All regions — nothing in the extension is locale or region dependent, and the
+  popup is English-only regardless.
+- **Paid item / in-app purchases:** none. The extension is free and has nothing to declare.
+
+## Developer account (once, before the first upload)
+
+- Register at `chrome.google.com/webstore/devconsole`, accept the developer agreement and pay
+  the one-time registration fee.
+- 2-Step Verification must be enabled on the account; publishing is blocked without it.
+- Verify a contact email and set a publisher name. The account email cannot be changed later.
+- Declare **Trader** or **Non-Trader** (EU Digital Services Act requirement). A free utility
+  published outside a business is most likely a Non-Trader; a trader's legal name and contact
+  details are shown publicly on the listing, so decide before filling the field in.
 
 ---
 
@@ -220,13 +242,39 @@ design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it c
 
 ## Before submitting
 
+**Account**
+
+- [ ] Developer account registered: 2-Step Verification on, contact email verified, publisher
+      name set, Trader/Non-Trader declared.
+
+**Package**
+
 - [x] Manifest `description` matches the short description above, and `version` is 1.1.0.
 - [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`.
-- [x] Screenshots captured: the five files in `store/`.
-- [ ] Privacy policy URL set to the `PRIVACY.md` blob link above.
-- [ ] Fill in the privacy practices tab: single purpose, both permission justifications,
-      "no remote code", and the Limited Use certification.
 - [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
-- [ ] Confirm the dashboard's permission list matches the manifest exactly (two entries),
-      and that no host permissions appear.
+- [ ] Zip uploaded on the Package tab.
+
+**Store listing**
+
+- [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
+- [ ] Name, short description and detailed description pasted in; category and language set.
+- [ ] Five screenshots, the promo tile and the marquee uploaded (the 128×128 icon comes from
+      the package itself).
+
+**Privacy practices**
+
+- [ ] Privacy policy URL set to the `PRIVACY.md` blob link above.
+- [ ] Single purpose, both permission justifications, "no remote code" and the Limited Use
+      certification submitted.
+- [ ] Data collection checkboxes: none selected.
+- [ ] Dashboard permission list matches the manifest exactly (two entries), with no host
+      permissions showing.
+
+**Distribution**
+
+- [ ] Visibility and regions chosen; nothing to declare under paid items or in-app purchases.
+
+**Submit**
+
+- [ ] Submitted for review.
