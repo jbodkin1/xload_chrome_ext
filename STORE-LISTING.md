@@ -1,48 +1,106 @@
-# Chrome Web Store listing — draft copy
+# Chrome Web Store submission — copy and dashboard walkthrough
 
-Everything the Developer Dashboard asks for, in the order it asks for it. Character counts
-were measured against the live strings, not estimated. Store limits: name 75, short
-description 132, detailed description 16,384.
+In the order the Developer Dashboard asks for it: developer account, upload, then the
+Package, Store listing, Privacy practices, Distribution, Test instructions tabs, then
+Submit for Review. Character counts were measured against the live strings, not estimated.
+Store limits: item title 45 in `manifest.json` (75 maximum displayed), summary 132,
+detailed description 16,384.
+
+- [Before you start: the developer account](#before-you-start-the-developer-account)
+- [1. Add new item — upload the package](#1-add-new-item--upload-the-package)
+- [2. Package tab (read-only)](#2-package-tab-read-only)
+- [3. Store listing tab](#3-store-listing-tab)
+- [4. Privacy practices tab](#4-privacy-practices-tab)
+- [5. Distribution tab](#5-distribution-tab)
+- [6. Test instructions tab](#6-test-instructions-tab)
+- [7. Submit for Review](#7-submit-for-review)
+- [Before submitting](#before-submitting)
 
 ---
 
-## Store listing tab
+## Before you start: the developer account
 
-### Item name (26 / 75)
+Everything here lives on the **Account page** of
+`https://chrome.google.com/webstore/devconsole`, not on the item, and none of it can be
+skipped — publishing is blocked until it is done.
 
-```
-xload Retro System Monitor
-```
+- Accept the developer agreement and pay the one-time registration fee.
+- Enable **2-Step Verification** on the Google account. Required before publishing.
+- Verify a contact email and set a publisher name (the "Offered by" line). The account
+  email cannot be changed later, so use an address you will keep.
+- Declare **Trader** or **Non-Trader** (EU Digital Services Act requirement). A free
+  utility published outside a business is most likely a Non-Trader; a trader's legal name
+  and contact details are shown publicly on the listing.
+- If the Account page offers a privacy policy URL, set it to the same `PRIVACY.md` link
+  used on the Privacy tab in step 4. Chrome's docs describe the tab's disclosures as
+  needing to be "consistent with" the account-level policy.
+- A new publisher is capped at **two published extensions** initially. Not relevant for
+  this item, worth knowing before the next one.
 
-### Short description (132 max)
+---
 
-This is the `description` field in `manifest.json`, and the line that shows in search
-results. It must also be updated in the manifest before upload.
+## 1. Add new item — upload the package
+
+Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.1.0.zip`
+→ **Upload**. Nothing is typed here; the manifest and ZIP either parse or they don't. The
+package also ships as an asset on the [v1.1.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0),
+so it can be downloaded from there rather than rebuilt.
+
+Upload limit is 2 GB — this package is 9 KB.
+
+Manifest metadata (name, version, icons, description) is **not editable in the dashboard
+after upload**. A typo there means editing the manifest, bumping the version and
+re-uploading, so confirm these before choosing the file:
+
+- `name`: `xload Retro System Monitor` — 26 of 45 characters.
+- `version`: `1.1.0`.
+- `description`: the summary string in step 3, 116 of 132 characters.
+- `icons`: 16/32/48/128 at the package root.
+
+---
+
+## 2. Package tab (read-only)
+
+No fields. Use it as the confirmation checkpoint:
+
+- Version shows **1.1.0**.
+- Permissions show exactly two entries: `system.cpu` and `storage`.
+- **No host permissions** row appears. If one does, something got into the manifest and
+  the upload must be replaced.
+
+---
+
+## 3. Store listing tab
+
+### Summary (132 max)
+
+The dashboard prefills this from `manifest.description`, which already holds the exact
+string below — confirm it rather than retyping, and do not paste the alternative on top:
 
 ```
 A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.
 ```
 
-Alternative, plainer:
+116 characters. It is the line that shows in search results and category pages.
+
+Unused alternative, plainer (110 characters), kept for reference only:
 
 ```
 Watch your CPU load in a vintage X11 window: a live scrolling graph, six CRT themes, no telemetry or accounts.
 ```
 
-### Category
+### Item title
 
-**Developer Tools** — a system monitor, and the audience is people who watch machines. Chrome
-scopes that category to tooling for web developers, so **Functionality & UI** is the other
-defensible choice for a UI widget like this one. Pick one; don't try to hedge across both.
-
-### Language
-
-English (United States).
+Read-only here: the store title comes from `manifest.name`, already set to
+`xload Retro System Monitor` (26 of the 45 characters the manifest allows; the store
+displays up to 75). There is no field to fill in, and changing it means a manifest edit
+plus a new upload.
 
 ### Detailed description (16,384 max)
 
-Plain text, no Markdown — the store renders line breaks but not formatting. Keep it under
-about 3,000 characters; reviewers and users both stop reading long ones.
+Plain text, no Markdown — the store renders line breaks but not formatting, so the `- `
+feature bullets appear as literal dashes, as intended. Keep it under about 3,000
+characters; reviewers and users both stop reading long ones. This one is 2,571.
 
 ```
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
@@ -77,96 +135,30 @@ PERMISSIONS
 No dependencies, no build step, no framework. Source code and security policy: github.com/jbodkin1/xload_chrome_ext
 ```
 
----
+### Category
 
-## Privacy practices tab
+**Developer Tools** — a system monitor, and the audience is people who watch machines.
+Chrome scopes that category to tooling for web developers, so **Functionality & UI** is
+the other defensible choice for a UI widget like this one. Pick one; don't try to hedge
+across both.
 
-Chrome requires this tab to be complete before an item can be published, and reviewers
-compare it against the submitted code.
+### Language
 
-### Single purpose
+English (United States).
 
-```
-Displays the system's live CPU load in a retro X11-style popup graph.
-```
-
-### Permission justification — `system.cpu`
-
-```
-The extension's only feature is a live CPU load graph. chrome.system.cpu.getInfo() is the sole API that exposes system-wide CPU tick counters; the extension subtracts consecutive user/kernel/idle samples to compute a load percentage for display. No other capability of this permission is used, and it does not expose process names, application data, page content, or any user information. It is the minimum permission consistent with the single purpose.
-```
-
-### Permission justification — `storage`
-
-```
-Used only to persist the extension's own display preferences (theme, refresh rate, grid and scanline toggles) and up to 120 recent load percentages, all in chrome.storage.local on the user's device, so the popup reopens with the user's settings and a continuous graph. Nothing is written to sync storage, and no data leaves the machine.
-```
-
-### Remote code
-
-Select **"No, I am not using remote code."** Accurate: there is no `eval`, no dynamic
-import, no remote script, and no network code of any kind in the package.
-
-### Data usage disclosures
-
-Chrome's policy is that local processing and storage must still be disclosed, even when
-nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3). So:
-
-- The **data collection checkboxes**: no category applies. xload does not collect
-  personally identifiable information, health, financial, authentication, personal
-  communications, location, web history, user activity, or website content. It stores a
-  CPU percentage and a display config, which is not user data as the store defines it.
-- **Certify the Limited Use requirements** — it is compliant precisely because there is no
-  transmission, no advertising, and no sale or transfer of anything.
-- Expect a reviewer question about the stored history if they read the code first; the
-  `storage` justification above already answers it in the same terms the policy uses.
-
-### Privacy policy URL
-
-The tab requires a public URL, and the same disclosure must match the code. Use the
-dedicated policy page, `PRIVACY.md`:
-
-```
-https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
-```
-
-It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
-a repository note, which is what a reviewer expects behind this field. `SECURITY.md` covers
-the vulnerability-reporting side and is linked from the policy rather than used as the URL.
-
----
-
-## Distribution tab
-
-- **Visibility:** Public — the extension is meant to be found. Unlisted keeps it out of search
-  and categories but still installable by URL, which is the better choice if you want to test
-  the live listing first; both go through the same review either way.
-- **Regions:** All regions — nothing in the extension is locale or region dependent, and the
-  popup is English-only regardless.
-- **Paid item / in-app purchases:** none. The extension is free and has nothing to declare.
-
-## Developer account (once, before the first upload)
-
-- Register at `chrome.google.com/webstore/devconsole`, accept the developer agreement and pay
-  the one-time registration fee.
-- 2-Step Verification must be enabled on the account; publishing is blocked without it.
-- Verify a contact email and set a publisher name. The account email cannot be changed later.
-- Declare **Trader** or **Non-Trader** (EU Digital Services Act requirement). A free utility
-  published outside a business is most likely a Non-Trader; a trader's legal name and contact
-  details are shown publicly on the listing, so decide before filling the field in.
-
----
-
-## Graphic assets
+### Graphic assets
 
 | Asset | Size | Status |
 | --- | --- | --- |
-| Store icon | 128×128 PNG | Required — `icon128.png` exists |
-| Screenshots | 1280×800 (640×400 also accepted) | Five captured, in `store/` |
-| Small promo tile | 440×280 PNG/JPEG | Produced — `store/06-promo-tile-440x280.png` |
-| Marquee | 1400×560 PNG/JPEG | Produced — `store/07-marquee-1400x560.png` |
+| Store icon | 128×128 PNG | Required — upload `icon128.png` if the field is empty |
+| Screenshots | 1280×800 (640×400 also accepted) | Five, in `store/` — order below |
+| Small promo tile | 440×280 PNG/JPEG | Optional — `store/06-promo-tile-440x280.png` |
+| Marquee | 1400×560 PNG/JPEG | Optional — `store/07-marquee-1400x560.png` |
 
-### Screenshot checklist
+Only the store icon and one screenshot are required; the tiles are worth uploading because
+image quality affects how prominently the item is surfaced.
+
+#### Screenshot checklist
 
 Constraints first, because these are the usual rejection reasons: at least one screenshot,
 up to five; **1280×800** (640×400 accepted); PNG or JPEG; **square corners, full bleed, no
@@ -184,10 +176,10 @@ at the earlier 62%-width framing the 9px status line turned to mush when downsca
 `yes` processes produced the load, and the popup's outer drop shadow is neutralised (its
 inset bevel is untouched), so nothing in frame casts a shadow.
 
-### Screenshots produced (`store/`)
+#### Screenshots produced (`store/`)
 
-All five are 1280×800 PNG, full bleed, no padding, no drop shadow, and show 120 real
-samples each:
+Upload in this order — the first shot is the one the store shows largest. All five are
+1280×800 PNG, full bleed, no padding, no drop shadow, and show 120 real samples each:
 
 | # | File | Shows |
 | --- | --- | --- |
@@ -197,7 +189,7 @@ samples each:
 | 4 | `04-dense-0.1s.png` | Neon Cyberpunk at 0.1s, dense trace |
 | 5 | `05-scanlines-off.png` | scanlines off with the grid still on |
 
-`store/gallery.html` shows all five at once for review. Two notes on how they were made,
+`store/gallery.html` shows all five at once for review. Three notes on how they were made,
 so a future re-capture matches:
 
 - Shot 3 is a montage, not a menu. A native `<select>` dropdown is drawn by the browser UI
@@ -218,25 +210,138 @@ an unrelated window, no text overlay claiming anything the code does not do, not
 blurry, UI text readable at the store's downscaled thumbnail, and the LOAD value is a
 plausible percentage rather than `NaN` or `0.00%` on a busy machine.
 
-### Small promo tile (440×280)
+#### Small promo tile (440×280)
 
-Produced: `store/06-promo-tile-440x280.png` (440×280 PNG, 44 KB). It is composed from the
-Hacker Green capture — the top 200 px is the CRT screen cropped 880×400 and scaled 0.5:1,
-so it shows the graph only, with no window chrome and no title bar — over a dark `#0d0e12`
-bar carrying the wordmark `xload` and the two-word line `SYSTEM MONITOR`. No other text,
-since promo tiles are not localised and should not depend on a language.
+`store/06-promo-tile-440x280.png` (440×280 PNG, 44 KB). It is composed from the Hacker
+Green capture — the top 200 px is the CRT screen cropped 880×400 and scaled 0.5:1, so it
+shows the graph only, with no window chrome and no title bar — over a dark `#0d0e12` bar
+carrying the wordmark `xload` and the two-word line `SYSTEM MONITOR`. No other text, since
+promo tiles are not localised and should not depend on a language.
 
 To re-cut it after a re-capture: keep the 440×200 graph strip and the 440×80 wordmark bar,
 and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280×800 shot).
 
-### Marquee (1400×560)
+#### Marquee (1400×560)
 
-Produced: `store/07-marquee-1400x560.png` (1400×560 PNG, 107 KB), the same style as the tile
-at banner proportions — the Hacker Green graph across the top 400 px, then a 160 px `#0d0e12`
+`store/07-marquee-1400x560.png` (1400×560 PNG, 107 KB), the same style as the tile at
+banner proportions — the Hacker Green graph across the top 400 px, then a 160 px `#0d0e12`
 bar with the `xload` wordmark (66 px) and the `SYSTEM MONITOR` line. The graph is a crop of
 the CRT screen: 888×254 of a 1280×800 capture, scaled 1.5766× to 1400×400, so it reads as a
 close-up band rather than the whole screen and the trace runs off the top and bottom edges by
 design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it consistent.
+
+### Additional fields
+
+All optional, none required to submit:
+
+- **Homepage URL** — `https://github.com/jbodkin1/xload_chrome_ext`, worth setting; it
+  appears in the Details section of the listing.
+- **Support URL** — `https://github.com/jbodkin1/xload_chrome_ext/issues`, worth setting;
+  it is where users land instead of emailing you.
+- **Official URL** — leave empty. The dropdown only lists sites verified in Google Search
+  Console; an unverified publisher shows the publisher name instead.
+- **Mature content** — leave off. Mature items are hidden from search for signed-out users.
+- **YouTube video** — none.
+
+---
+
+## 4. Privacy practices tab
+
+Chrome requires this tab to be complete before an item can be published, and reviewers
+compare it against the submitted code. Each block below is a separate field.
+
+### Single purpose description
+
+```
+Displays the system's live CPU load in a retro X11-style popup graph.
+```
+
+69 characters.
+
+### Permission justification — `system.cpu`
+
+```
+The extension's only feature is a live CPU load graph. chrome.system.cpu.getInfo() is the sole API that exposes system-wide CPU tick counters; the extension subtracts consecutive user/kernel/idle samples to compute a load percentage for display. No other capability of this permission is used, and it does not expose process names, application data, page content, or any user information. It is the minimum permission consistent with the single purpose.
+```
+
+### Permission justification — `storage`
+
+```
+Used only to persist the extension's own display preferences (theme, refresh rate, grid and scanline toggles) and up to 120 recent load percentages, all in chrome.storage.local on the user's device, so the popup reopens with the user's settings and a continuous graph. Nothing is written to sync storage, and no data leaves the machine.
+```
+
+### Remote code
+
+Select **"No, I am not using remote code."** Accurate: there is no `eval`, no dynamic
+import, no remote script, and no network code of any kind in the package.
+
+### Data usage
+
+Two groups of checkboxes; both matter.
+
+- **Data collection:** leave every category unticked. xload does not collect personally
+  identifiable information, health, financial, authentication, personal communications,
+  location, web history, user activity, or website content. It stores a CPU percentage and a
+  display config, which is not user data as the store defines it.
+- **Certifications:** tick **every statement in the group**, not just a limited-use one.
+  There are several separate claims (limited use, no sale or transfer, no use for unrelated
+  purposes) and the tab will not submit while any is unticked. They are all accurate here
+  precisely because nothing is transmitted, advertised, sold or transferred.
+
+Chrome's policy is that local processing and storage must still be disclosed, even when
+nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3), which is why the `storage`
+justification names `chrome.storage.local` and the 120-sample history explicitly. Expect a
+reviewer question about that history if they read the code first; the justification already
+answers it in the policy's own terms.
+
+### Privacy policy URL
+
+The tab requires a public URL, and the same disclosure must match the code. Use the
+dedicated policy page, `PRIVACY.md`:
+
+```
+https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
+```
+
+It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
+a repository note, which is what a reviewer expects behind this field. `SECURITY.md` covers
+the vulnerability-reporting side and is linked from the policy rather than used as the URL.
+If the Account page also has a policy field, use this same link there.
+
+---
+
+## 5. Distribution tab
+
+- **Visibility:** Public — the extension is meant to be found. Unlisted keeps it out of search
+  and categories but still installable by URL, which is the better choice if you want to test
+  the live listing first; all visibility settings go through the same review either way.
+- **Regions:** All regions — nothing in the extension is locale or region dependent, and the
+  popup is English-only regardless.
+- **Paid item / in-app purchases:** none. The extension is free and has nothing to declare.
+
+---
+
+## 6. Test instructions tab
+
+Optional, and blank for this item: no login, no credentials, no setup beyond installing.
+Worth a single line only if a reviewer would otherwise wonder — "click the toolbar icon and
+wait two seconds for the first sample" is the whole instruction set, and the listing already
+says it.
+
+---
+
+## 7. Submit for Review
+
+**Submit for Review** opens a confirmation dialog carrying an **auto-publish** checkbox:
+
+- **Checked (default):** the item goes live as soon as review passes.
+- **Unchecked:** the item is staged after review and you publish manually. The staging
+  expires after **30 days**, then reverts to a draft that has to be reviewed again. You can
+  also choose **Defer publish** from the item's menu after submitting.
+
+For a first submission, unchecking it is the lower-risk option: it lets you look at the live
+listing page before it is public. Review duration depends on the item; enable publish/staged
+notifications on the Account page if you want the email rather than checking the dashboard.
 
 ---
 
@@ -245,31 +350,34 @@ design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it c
 **Account**
 
 - [ ] Developer account registered: 2-Step Verification on, contact email verified, publisher
-      name set, Trader/Non-Trader declared.
+      name set, Trader/Non-Trader declared, account-level privacy policy URL set if offered.
 
-**Package**
+**Upload**
 
-- [x] Manifest `description` matches the short description above, and `version` is 1.1.0.
+- [x] Manifest `description` matches the summary above, and `version` is 1.1.0.
 - [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`.
 - [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
-- [ ] Zip uploaded on the Package tab.
+- [ ] Package uploaded via **Add new item**.
+
+**Package tab**
+
+- [ ] Version 1.1.0, exactly two permissions, no host permissions.
 
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
-- [ ] Name, short description and detailed description pasted in; category and language set.
-- [ ] Five screenshots, the promo tile and the marquee uploaded (the 128×128 icon comes from
-      the package itself).
+- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,571 chars).
+- [ ] Category and language set.
+- [ ] Store icon present — upload `icon128.png` if the field is empty.
+- [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.
+- [ ] Homepage and Support URLs set.
 
 **Privacy practices**
 
-- [ ] Privacy policy URL set to the `PRIVACY.md` blob link above.
-- [ ] Single purpose, both permission justifications, "no remote code" and the Limited Use
-      certification submitted.
-- [ ] Data collection checkboxes: none selected.
-- [ ] Dashboard permission list matches the manifest exactly (two entries), with no host
-      permissions showing.
+- [ ] Single purpose, both permission justifications and "no remote code" entered.
+- [ ] Data collection boxes all unticked; every certification statement ticked.
+- [ ] Privacy policy URL set to the `PRIVACY.md` blob link.
 
 **Distribution**
 
@@ -277,4 +385,4 @@ design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it c
 
 **Submit**
 
-- [ ] Submitted for review.
+- [ ] Auto-publish decision made, then **Submit for Review**.
