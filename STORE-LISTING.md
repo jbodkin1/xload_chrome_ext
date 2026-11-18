@@ -142,7 +142,7 @@ the vulnerability-reporting side and is linked from the policy rather than used 
 | Store icon | 128×128 PNG | Required — `icon128.png` exists |
 | Screenshots | 1280×800 (640×400 also accepted) | Five captured, in `store/` |
 | Small promo tile | 440×280 PNG/JPEG | Produced — `store/06-promo-tile-440x280.png` |
-| Marquee | 1400×560 PNG/JPEG | Optional, for featured placement |
+| Marquee | 1400×560 PNG/JPEG | Produced — `store/07-marquee-1400x560.png` |
 
 ### Screenshot checklist
 
@@ -206,6 +206,15 @@ since promo tiles are not localised and should not depend on a language.
 
 To re-cut it after a re-capture: keep the 440×200 graph strip and the 440×80 wordmark bar,
 and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280×800 shot).
+
+### Marquee (1400×560)
+
+Produced: `store/07-marquee-1400x560.png` (1400×560 PNG, 107 KB), the same style as the tile
+at banner proportions — the Hacker Green graph across the top 400 px, then a 160 px `#0d0e12`
+bar with the `xload` wordmark (66 px) and the `SYSTEM MONITOR` line. The graph is a crop of
+the CRT screen: 888×254 of a 1280×800 capture, scaled 1.5766× to 1400×400, so it reads as a
+close-up band rather than the whole screen and the trace runs off the top and bottom edges by
+design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it consistent.
 
 ---
 
