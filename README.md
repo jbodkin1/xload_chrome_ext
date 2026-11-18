@@ -38,6 +38,8 @@ What is stored, and where: a small config object (theme, refresh rate, grid and 
 
 Removing the extension deletes its storage along with it.
 
+For the full account, including how to report a vulnerability, see [SECURITY.md](SECURITY.md).
+
 ## Installing in Chrome (developer mode)
 
 The extension is not published to the Chrome Web Store, so you load it as an unpacked extension. It takes about thirty seconds.
