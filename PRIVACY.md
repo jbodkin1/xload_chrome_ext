@@ -14,7 +14,7 @@ xload is a Chrome extension that displays a live CPU load graph in a popup style
 
 **CPU load counters.** xload calls `chrome.system.cpu.getInfo()` and reads the per-core `user`, `kernel` and `idle` tick counters. It subtracts consecutive samples to calculate a single system load percentage, which is what the graph draws. That API does not expose process names, application data, open windows, files or anything about you; there is nothing else in it to read.
 
-**Nothing else.** The extension has no host permissions and no content scripts, so it cannot read page content, DOM, forms, passwords, cookies, tabs, browsing history, bookmarks, downloads, clipboard or keystrokes. It runs only in its own popup window.
+**Nothing else.** The extension has no host permissions and no content scripts, so it cannot read page content, DOM, forms, passwords, cookies, tabs, browsing history, bookmarks, downloads, clipboard or keystrokes. Its only user interface is its own popup window. The package does contain one background script — a service worker that writes those same two defaults the first time the extension is installed and then stops; it does no sampling, opens no connections, and does not run persistently.
 
 ## What is stored, and where
 
@@ -25,7 +25,7 @@ Two items are saved in `chrome.storage.local`, which keeps them on your device:
 
 Both are stored by Chrome under the extension's own origin. They are not accessible to websites, are never written to `chrome.storage.sync`, and are not transmitted anywhere: the extension has no server to send them to.
 
-**Retention:** the history is a rolling window — each new sample replaces the oldest once 120 are held. Everything is deleted from your device when you uninstall the extension or clear its data in Chrome.
+**Retention:** the history is a rolling window — each new sample replaces the oldest once 120 are held. Sampling happens only while the popup is open: there is no alarm, timer or background sampling, so the history does not change while the popup is closed. Everything is deleted from your device when you uninstall the extension or clear its data in Chrome.
 
 ## What is not done with data
 
@@ -42,7 +42,7 @@ Neither permission is optional or requested at runtime; both are declared in the
 
 ## Limited Use statement
 
-xload's use of information received from Chrome APIs adheres to the Chrome Web Store User Data Policy, including the Limited Use requirements. Data is used solely to provide the extension's single purpose — displaying a CPU load graph — and is not transferred except as necessary for that purpose, which in this case means it is not transferred at all.
+xload's use of information received from Chrome APIs adheres to the Chrome Web Store User Data Policy, including the Limited Use requirements. Data is used solely to provide the extension's single purpose — displaying a CPU load graph — and is not transferred except as necessary for that purpose, which in this case means it is not transferred at all. It is not sold, not used or transferred for purposes unrelated to that single purpose, and not used or transferred to determine creditworthiness or for lending purposes — the three certifications the Chrome Web Store privacy tab asks for.
 
 ## Children
 

@@ -121,7 +121,7 @@ WHAT IT DOES
 
 HOW IT MEASURES
 
-The load figure is computed honestly, not faked: xload samples chrome.system.cpu.getInfo() and diffs the user and kernel tick counters against the previous sample, summed across all cores. The result is plotted against an auto-scaling Y axis rounded up to the nearest 10% and capped at 100%, so an idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
+The load figure is computed honestly, not faked: xload samples chrome.system.cpu.getInfo() and diffs the user, kernel and idle tick counters against the previous sample, summed across all cores, then divides active ticks by total ticks. The result is plotted against an auto-scaling Y axis rounded up to the nearest 10% and capped at 100%, so an idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
 
 PRIVACY
 
@@ -284,9 +284,11 @@ Two groups of checkboxes; both matter.
   location, web history, user activity, or website content. It stores a CPU percentage and a
   display config, which is not user data as the store defines it.
 - **Certifications:** tick **every statement in the group**, not just a limited-use one.
-  There are several separate claims (limited use, no sale or transfer, no use for unrelated
-  purposes) and the tab will not submit while any is unticked. They are all accurate here
-  precisely because nothing is transmitted, advertised, sold or transferred.
+  There are three separate claims — limited use, no sale or transfer outside the approved
+  cases, and no use or transfer to determine creditworthiness or for lending — and the tab
+  will not submit while any is unticked. They are all accurate here precisely because
+  nothing is transmitted, advertised, sold or transferred. `PRIVACY.md` carries the same
+  three statements, so the policy and the tab agree word for word in substance.
 
 Chrome's policy is that local processing and storage must still be disclosed, even when
 nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3), which is why the `storage`
