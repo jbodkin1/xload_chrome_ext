@@ -1,6 +1,6 @@
 # Release notes
 
-## 1.1.0 — 18 November 2026
+## [1.1.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0) — 18 November 2026
 
 Prepares the extension for its Chrome Web Store listing; not yet published.
 
@@ -20,6 +20,6 @@ Prepares the extension for its Chrome Web Store listing; not yet published.
 - History writes are throttled and guarded by a dirty flag, so closing the popup no longer rewrites an unchanged array; config saves now report `chrome.runtime.lastError`.
 - Unused config keys (`scaleMode`, `fixedMax`, `graphType`, `simulatedJitter`) removed.
 
-## 1.0.0
+## [1.0.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.0.0)
 
 Initial release: a retro X11-style popup plotting live CPU load, with six themes, an adjustable refresh rate and toggleable grid and scanlines.
