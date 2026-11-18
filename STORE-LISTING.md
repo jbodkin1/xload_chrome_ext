@@ -55,7 +55,7 @@ re-uploading, so confirm these before choosing the file:
 - `name`: `xload Retro System Monitor` — 26 of 45 characters.
 - `version`: `1.1.0`.
 - `description`: the summary string in step 3, 116 of 132 characters.
-- `icons`: 16/32/48/128 at the package root.
+- `icons`: 16/48/128 at the package root — three sizes, no 32 (Chrome scales from 48).
 
 ---
 
@@ -100,7 +100,7 @@ plus a new upload.
 
 Plain text, no Markdown — the store renders line breaks but not formatting, so the `- `
 feature bullets appear as literal dashes, as intended. Keep it under about 3,000
-characters; reviewers and users both stop reading long ones. This one is 2,571.
+characters; reviewers and users both stop reading long ones. This one is 2,619.
 
 ```
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
@@ -369,7 +369,7 @@ notifications on the Account page if you want the email rather than checking the
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
-- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,571 chars).
+- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,619 chars).
 - [ ] Category and language set.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.
