@@ -122,14 +122,16 @@ nothing is transmitted (see the User Data FAQ, question 3). So:
 
 ### Privacy policy URL
 
-The tab requires a public URL, and the same disclosure must match the code. `README.md`
-and `SECURITY.md` already say exactly this, so either of these works as the policy page:
+The tab requires a public URL, and the same disclosure must match the code. Use the
+dedicated policy page, `PRIVACY.md`:
 
-- `https://github.com/jbodkin1/xload_chrome_ext/blob/main/SECURITY.md`
-- `https://github.com/jbodkin1/xload_chrome_ext/blob/main/README.md#permissions-and-privacy`
+```
+https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
+```
 
-If you want a page of its own rather than a repository file, add a `PRIVACY.md` and point
-at its blob URL (or enable GitHub Pages for a cleaner link).
+It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
+a repository note, which is what a reviewer expects behind this field. `SECURITY.md` covers
+the vulnerability-reporting side and is linked from the policy rather than used as the URL.
 
 ---
 
