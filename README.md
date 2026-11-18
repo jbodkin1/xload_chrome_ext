@@ -1,6 +1,6 @@
 # xload — Retro System Monitor
 
-A tiny Chrome extension that plots your live CPU load average in a vintage X11 / `xload`-style window, complete with CRT scanlines and chunky pixel graphics.
+A tiny Chrome extension that plots your live CPU load in a vintage X11 / `xload`-style window, complete with CRT scanlines and chunky pixel graphics.
 
 This is for people who long for the days of fast, simple applications that were not bloated. No accounts, no telemetry, no dashboards full of half-rendered widgets, no 200 MB of JavaScript to draw a line. It is four small files and a handful of kilobytes of plain JavaScript that does exactly one thing: show you what your CPU is doing, the way a 1990s workstation would have.
 
@@ -12,7 +12,7 @@ This is for people who long for the days of fast, simple applications that were 
 
 Click the toolbar icon and a 400×330 window opens, styled like a Motif-era X11 app: a navy title bar, `xload - System Load Average` in Courier, and a CRT screen carrying the graph, with the characteristic faint scanline overlay. Inside the screen, a continuously scrolling graph shows your total system load. The screenshot at the top runs the Hacker Green theme, but Classic X11 — white paper and a red trace — is what you get on first launch.
 
-The load figure is worked out the honest way — by sampling `chrome.system.cpu.getInfo()` and diffing the user/kernel tick counters against the previous sample, across all cores. That number is plotted as a filled area graph against an auto-scaling Y axis (rounded up to the nearest 10%, capped at 100%), so a mostly idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
+The load figure is worked out the honest way — by sampling `chrome.system.cpu.getInfo()` and diffing the user, kernel and idle tick counters against the previous sample across all cores, then dividing active ticks by total ticks. That number is plotted as a filled area graph against an auto-scaling Y axis (rounded up to the nearest 10%, capped at 100%), so a mostly idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
 
 ### Features
 

@@ -4,9 +4,9 @@ xload is a small, self-contained Chrome extension. It reads the local CPU load, 
 
 ## What it reads
 
-Only the system CPU tick counters, through `chrome.system.cpu.getInfo()`. From each core the extension takes the `user`, `kernel` and `idle` counters, diffs them against the previous sample, and turns the result into a single load percentage. That number is what the graph and the `LOAD:` readout display.
+Only the system CPU tick counters, through `chrome.system.cpu.getInfo()`. From each core the extension takes the `user`, `kernel` and `idle` counters, diffs them against the previous sample, divides active ticks (user plus kernel) by total ticks (user plus kernel plus idle), and turns the result into a single load percentage. That number is what the graph and the `LOAD:` readout display.
 
-That is the entire data path. The extension does not read page content, DOM, forms, passwords, cookies, tabs, history, bookmarks, downloads, files, clipboard, keystrokes or window titles. It has no `content_scripts`, no `host_permissions`, and no ability to inject anything into a page — it runs only in its own popup.
+That is the entire data path. The extension does not read page content, DOM, forms, passwords, cookies, tabs, history, bookmarks, downloads, files, clipboard, keystrokes or window titles. It has no `content_scripts`, no `host_permissions`, and no ability to inject anything into a page — it has no page context at all. The only thing it renders is its own popup, and its one background script is a service worker that seeds default settings on install and then stops.
 
 ## What it stores
 
