@@ -1,0 +1,63 @@
+xload Retro System Monitor - copy to paste into the Chrome Web Store dashboard
+Generated from STORE-LISTING.md; scripts/check-listing.mjs fails if this file drifts from it.
+Paste only the text under each header. The headers and the blank lines between sections are not part of any field.
+
+=== SUMMARY - Store listing (116 characters, limit 132) ===
+A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.
+
+=== DETAILED DESCRIPTION - Store listing (2,619 characters, limit 16,384) ===
+xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
+
+Click the toolbar icon and a 400x330 window opens: a navy title bar, "xload - System Load Average" in Courier, and a CRT screen carrying a continuously scrolling graph of total system load. That is the whole extension. There is no sidebar, no onboarding flow, no account, and no settings page hidden three clicks away.
+
+WHY IT EXISTS
+
+Most system monitors are heavyweight: a dashboard, a tray of widgets, a database, an account. Sometimes you just want to know whether your CPU is busy. This is for people who miss the days of fast, simple applications that were not bloated: four small files and a handful of kilobytes of plain JavaScript doing exactly one thing.
+
+WHAT IT DOES
+
+- Live CPU load graph: a rolling 120-point history, so you see the last couple of minutes of behaviour rather than one instantaneous number.
+- Six themes: Classic X11 (white paper, red trace), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome.
+- Adjustable refresh rate: from 0.1s to 5.0s, defaulting to 1.0s, so you can trade smoothness against cost.
+- Toggleable grid and CRT scanlines: alignment lines for reading values, and scanlines if you want the full nostalgic experience.
+- Remembers your settings: theme, refresh rate and toggles persist, along with the graph history, so the graph picks up where it left off when you reopen the popup.
+
+HOW IT MEASURES
+
+The load figure is computed honestly, not faked: xload samples chrome.system.cpu.getInfo() and diffs the user, kernel and idle tick counters against the previous sample, summed across all cores, then divides active ticks by total ticks. The result is plotted against an auto-scaling Y axis rounded up to the nearest 10% and capped at 100%, so an idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
+
+PRIVACY
+
+No network requests, no analytics, no telemetry, no accounts, no ads. The extension holds only two permissions: system.cpu, to read load counters, and storage, to keep your display settings and graph history on your own machine. It cannot read page content, tabs, history, files or clipboard, and nothing is ever uploaded anywhere.
+
+PERMISSIONS
+
+- system.cpu: reads per-core CPU tick counters to calculate load. No process or application information is available to it.
+- storage: saves your theme, refresh rate, toggles, and the rolling graph history locally.
+
+No dependencies, no build step, no framework. Source code and security policy: github.com/jbodkin1/xload_chrome_ext
+
+=== PRIVACY TAB - SINGLE PURPOSE (69 characters) ===
+Displays the system's live CPU load in a retro X11-style popup graph.
+
+=== PRIVACY TAB - PERMISSION JUSTIFICATION: system.cpu ===
+The extension's only feature is a live CPU load graph. chrome.system.cpu.getInfo() is the sole API that exposes system-wide CPU tick counters; the extension subtracts consecutive user/kernel/idle samples to compute a load percentage for display. No other capability of this permission is used, and it does not expose process names, application data, page content, or any user information. It is the minimum permission consistent with the single purpose.
+
+=== PRIVACY TAB - PERMISSION JUSTIFICATION: storage ===
+Used only to persist the extension's own display preferences (theme, refresh rate, grid and scanline toggles) and up to 120 recent load percentages, all in chrome.storage.local on the user's device, so the popup reopens with the user's settings and a continuous graph. Nothing is written to sync storage, and no data leaves the machine.
+
+=== PRIVACY TAB - REMOTE CODE ===
+No, I am not using remote code.
+
+=== PRIVACY TAB - PRIVACY POLICY URL ===
+https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
+
+=== PRIVACY TAB - DATA COLLECTION ===
+Leave every category unticked: no personally identifiable information, health, financial,
+authentication, personal communications, location, web history, user activity or website
+content is collected.
+
+=== PRIVACY TAB - CERTIFICATIONS (tick all three) ===
+1. Limited Use: data is used only for the extension's single purpose.
+2. Not sold, and not transferred outside the approved cases.
+3. Not used or transferred to determine creditworthiness or for lending.
