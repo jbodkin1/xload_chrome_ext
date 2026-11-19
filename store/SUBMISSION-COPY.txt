@@ -1,5 +1,6 @@
 xload Retro System Monitor - copy to paste into the Chrome Web Store dashboard
-Generated from STORE-LISTING.md; scripts/check-listing.mjs fails if this file drifts from it.
+Generated from STORE-LISTING.md by scripts/build-submission-copy.mjs. Do not edit by hand:
+run that script instead, and scripts/check-listing.mjs will tell you if this file drifts.
 Paste only the text under each header. The headers and the blank lines between sections are not part of any field.
 
 === SUMMARY - Store listing (116 characters, limit 132) ===

@@ -457,21 +457,25 @@ check('STORE-LISTING.md gives that URL for the privacy field', doc.includes(POLI
 check('the URL names the file this script validates', POLICY_URL.endsWith('/PRIVACY.md') && exists('PRIVACY.md'));
 
 if (!offline) {
-  let status = 'no response';
+  // The links group below already checks that POLICY_URL answers 200; what it cannot tell is
+  // whether the policy being served is the file in this repository.
   let published = null;
+  let problem = 'unreachable';
   try {
-    const page = await fetch(POLICY_URL, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
-    status = page.status;
     const raw = await fetch(RAW_POLICY_URL, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
-    if (raw.ok) published = await raw.text();
+    if (raw.ok) {
+      published = await raw.text();
+      problem = 'the served policy differs from the file here';
+    } else {
+      problem = `raw copy answered ${raw.status}`;
+    }
   } catch (error) {
-    status = error.name === 'TimeoutError' ? 'timeout' : error.message;
+    problem = error.name === 'TimeoutError' ? 'timeout fetching the raw copy' : error.message;
   }
-  check(`policy link answers ${status}`, status === 200);
   check(
     'the published policy is this repository\'s PRIVACY.md',
     published !== null && published.trimEnd() === docs['PRIVACY.md'].trimEnd(),
-    'the served policy differs from the file here'
+    problem
   );
 }
 
