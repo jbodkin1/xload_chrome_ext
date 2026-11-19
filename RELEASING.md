@@ -87,7 +87,12 @@ tag push behaves as before and points at the commit the check passed on.
 `scripts/release-notes.mjs` prints one section and handles both heading styles (plain
 `## 1.0.0` and linked `## [1.1.0](…)`), so the notes can never drift from the file.
 
+Re-derived here so this step works in a fresh shell:
+
 ```bash
+VERSION=$(node -p "require('./manifest.json').version")
+ZIP="xload-retro-system-monitor-$VERSION.zip"
+
 gh release create "v$VERSION" --title "xload $VERSION" \
   --notes-file <(node scripts/release-notes.mjs "$VERSION")
 ```
