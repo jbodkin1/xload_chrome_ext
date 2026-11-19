@@ -196,8 +196,6 @@ for (const key of ['host_permissions', 'content_scripts', 'web_accessible_resour
   same(`manifest has no ${key}`, manifest[key], undefined);
 }
 same('manifest declares a background service worker', Boolean(manifest.background && manifest.background.service_worker), true);
-same('manifest has no content_scripts or host access',
-  Object.keys(manifest).filter((k) => ['content_scripts', 'host_permissions'].includes(k)), []);
 
 group('source — no network, eval or remote code');
 
