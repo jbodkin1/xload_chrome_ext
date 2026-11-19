@@ -324,8 +324,13 @@ for (const file of ['icon16.png', 'icon48.png', 'icon128.png']) {
 
 group('docs — relative links resolve');
 
+// Code — fenced blocks and inline snippets — holds example links (a changelog heading for a
+// release that does not exist yet, a download path with $VERSION in it, `[1.1.0](…)`), so
+// only prose is treated as linking anywhere.
+const prose = (text) => text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+
 for (const [file, text] of Object.entries(docs)) {
-  const links = [...text.matchAll(/\]\(([^)\s]+)\)/g)]
+  const links = [...prose(text).matchAll(/\]\(([^)\s]+)\)/g)]
     .map((m) => m[1])
     .filter((target) => !/^(https?:|#|mailto:)/.test(target));
   for (const link of links) {
@@ -361,10 +366,6 @@ for (const match of bashBlocks) {
 
 // ============================================================== links
 group('links');
-
-// Fenced blocks hold example URLs — a changelog heading for a release that does not exist
-// yet, or a download path with $VERSION in it — so only prose links are fetched.
-const prose = (text) => text.replace(/```[\s\S]*?```/g, '');
 
 const urls = [...new Set(DOC_FILES.flatMap((file) => prose(docs[file]).match(/https?:\/\/[^\s`)>" ]+/g) || []))];
 check('docs contain links', urls.length > 0);
