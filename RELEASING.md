@@ -99,7 +99,12 @@ gh release create "v$VERSION" --title "xload $VERSION" \
 
 ## 6. Attach the package
 
+Re-derived here so this step works in a fresh shell:
+
 ```bash
+VERSION=$(node -p "require('./manifest.json').version")
+ZIP="xload-retro-system-monitor-$VERSION.zip"
+
 gh release upload "v$VERSION" "$ZIP"
 gh release view "v$VERSION" --json assets -q '.assets[] | "\(.name) \(.size)"'
 ```
