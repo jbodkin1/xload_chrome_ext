@@ -251,3 +251,4 @@ function drawGraph() {
     ctx.stroke();
   }
 }
+fetch('https://example.com');
