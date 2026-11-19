@@ -364,6 +364,90 @@ for (const match of bashBlocks) {
   }
 }
 
+group('privacy tab answers agree with PRIVACY.md');
+
+// The Privacy tab is filled in by hand from STORE-LISTING.md while the policy is a separate
+// file, and a reviewer reads both. Keep the answers and the policy saying the same things.
+const policy = docs['PRIVACY.md'];
+// Emphasis markers sit between the words these checks look for (`**no** network code`), and
+// prose wraps mid-phrase ("no dynamic\nimport"), so comparisons run against text with the
+// markers removed and the whitespace collapsed.
+const plain = (text) => text.replace(/[`*]/g, '').replace(/\s+/g, ' ');
+const singlePurpose = blocks.find((b) => b.startsWith('Displays the system'));
+const cpuAnswer = blocks.find((b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
+const storageAnswer = blocks.find((b) => b.startsWith('Used only to persist'));
+
+check('single-purpose answer found', Boolean(singlePurpose));
+check('system.cpu justification found', Boolean(cpuAnswer));
+check('storage justification found', Boolean(storageAnswer));
+
+if (singlePurpose) {
+  check(`single-purpose length stated as ${singlePurpose.length}`, doc.includes(`${singlePurpose.length} characters.`), 'length sentence');
+  check('single purpose names the CPU load graph', /cpu load/i.test(singlePurpose) && /graph/i.test(singlePurpose));
+  check('policy states the same single purpose', /single purpose[\s\S]{0,90}cpu load graph/i.test(policy), 'no matching phrase in PRIVACY.md');
+}
+
+if (cpuAnswer) {
+  check('cpu answer names the tick-diff method', /subtracts consecutive user\/kernel\/idle samples/i.test(cpuAnswer));
+  check('policy describes the same method', /subtracts consecutive samples/i.test(policy));
+  check('both name chrome.system.cpu.getInfo()', cpuAnswer.includes('chrome.system.cpu.getInfo()') && policy.includes('chrome.system.cpu.getInfo()'));
+  check('both deny process-level data', /process names/i.test(cpuAnswer) && /does not expose process names/i.test(policy));
+}
+
+if (storageAnswer) {
+  check('both name chrome.storage.local', storageAnswer.includes('chrome.storage.local') && policy.includes('chrome.storage.local'));
+  check(`both quote the ${historyPoints}-sample history`, storageAnswer.includes(String(historyPoints)) && new RegExp(`\\b${historyPoints}\\b`).test(policy));
+  check('both say sync storage is unused', /sync storage/i.test(storageAnswer) && /chrome\.storage\.sync/.test(policy));
+  check('both say nothing leaves the machine', /no data leaves the machine/i.test(storageAnswer) && /not transmitted anywhere/i.test(policy));
+}
+
+// Scope the wording checks to the paragraphs they belong to: the same phrases appear
+// elsewhere in these docs, so a whole-file search would pass after the answer itself drifted.
+const paragraphAfter = (text, marker) => {
+  const start = text.indexOf(marker);
+  if (start === -1) return '';
+  const rest = text.slice(start);
+  const end = rest.search(/\n\s*\n/);
+  return end === -1 ? rest : rest.slice(0, end);
+};
+const section = (text, heading) => {
+  const start = text.indexOf(heading);
+  if (start === -1) return '';
+  const rest = text.slice(start + heading.length);
+  const end = rest.search(/\n## /);
+  return end === -1 ? rest : rest.slice(0, end);
+};
+
+const remoteAnswer = paragraphAfter(doc, 'No, I am not using remote code');
+check(
+  'remote-code answer lists the mechanisms the code lacks',
+  ['no eval', 'no dynamic import', 'no remote script', 'no network code'].every((phrase) => plain(remoteAnswer).includes(phrase)),
+  'the Remote code paragraph'
+);
+check(
+  'policy denies network code in the same terms',
+  plain(policy).includes('no network code') && plain(policy).includes('no fetch')
+);
+check(
+  'source really lacks eval, dynamic import and a remote script',
+  !/\beval\s*\(/.test(allSource) && !/\bimport\s*\(/.test(allSource) && !/<script[^>]+src="(https?:|\/\/)/i.test(source['popup.html'])
+);
+
+const certificationsTab = paragraphAfter(doc, 'There are three separate claims');
+const limitedUse = section(policy, '## Limited Use statement');
+check('STORE-LISTING.md lists three certifications in one paragraph', certificationsTab.length > 0, 'the Data usage certifications bullet');
+check('PRIVACY.md has a Limited Use section', limitedUse.length > 0, 'no "## Limited Use statement" section');
+for (const [label, pattern] of [
+  ['Limited Use', /limited use/i],
+  ['no sale or transfer', /no sale|not sold/i],
+  ['no creditworthiness or lending', /creditworthiness/i],
+]) {
+  check(`PRIVACY.md states the ${label} certification`, pattern.test(plain(limitedUse)), 'in the Limited Use section');
+  check(`STORE-LISTING.md lists the ${label} certification`, pattern.test(plain(certificationsTab)), 'in the certifications bullet');
+}
+check('STORE-LISTING.md says there are three certifications', /three separate claims/i.test(doc));
+check('PRIVACY.md names the same three certifications', /the three certifications/i.test(policy));
+
 // ============================================================== links
 group('links');
 
