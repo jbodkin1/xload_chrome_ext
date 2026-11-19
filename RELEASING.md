@@ -45,6 +45,10 @@ Fix whatever it reports before committing; the doc is then checked, not remember
 check runs offline in GitHub Actions on every push to `main` and on every pull request, so
 drift fails the build long before release day.
 
+After editing `STORE-LISTING.md`, regenerate the paste file with
+`node scripts/build-submission-copy.mjs`. The check fails until it is regenerated, because
+`store/SUBMISSION-COPY.txt` has to match the doc verbatim.
+
 **A red `docs match the code` run blocks the merge.** Branch protection on `main` lists that
 job — the name GitHub shows, not the workflow's `checks` name — as a required status check
 (Settings → Branches). If a failing run ever leaves the merge button enabled, the rule has
