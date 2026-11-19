@@ -362,7 +362,11 @@ for (const match of bashBlocks) {
 // ============================================================== links
 group('links');
 
-const urls = [...new Set(DOC_FILES.flatMap((file) => docs[file].match(/https?:\/\/[^\s`)>"]+/g) || []))];
+// Fenced blocks hold example URLs — a changelog heading for a release that does not exist
+// yet, or a download path with $VERSION in it — so only prose links are fetched.
+const prose = (text) => text.replace(/```[\s\S]*?```/g, '');
+
+const urls = [...new Set(DOC_FILES.flatMap((file) => prose(docs[file]).match(/https?:\/\/[^\s`)>" ]+/g) || []))];
 check('docs contain links', urls.length > 0);
 for (const url of ['https://github.com/jbodkin1/xload_chrome_ext', 'https://github.com/jbodkin1/xload_chrome_ext/issues']) {
   check(`docs reference ${url}`, urls.includes(url), 'Homepage/Support URLs');
