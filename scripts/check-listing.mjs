@@ -64,7 +64,7 @@ function pngSize(file) {
 }
 
 const manifest = JSON.parse(read('manifest.json'));
-const DOC_FILES = ['README.md', 'PRIVACY.md', 'SECURITY.md', 'STORE-LISTING.md'];
+const DOC_FILES = ['README.md', 'PRIVACY.md', 'SECURITY.md', 'STORE-LISTING.md', 'RELEASING.md'];
 const docs = Object.fromEntries(DOC_FILES.map((file) => [file, read(file)]));
 const doc = docs['STORE-LISTING.md'];
 
@@ -338,7 +338,7 @@ group('RELEASING.md — each command block stands alone');
 
 // Every step is meant to be pasteable in a fresh shell: a block that consumes $VERSION or
 // $ZIP has to define it earlier in the same block, not inherit it from a previous step.
-const releasing = read('RELEASING.md');
+const releasing = docs['RELEASING.md'];
 const bashBlocks = [...releasing.matchAll(/```bash\n([\s\S]*?)```/g)];
 check('RELEASING.md contains bash blocks', bashBlocks.length > 0, 'expected at least one');
 
