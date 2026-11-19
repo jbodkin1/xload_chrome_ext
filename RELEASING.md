@@ -41,7 +41,9 @@ node scripts/check-listing.mjs             # also checks that every URL in the d
 node scripts/check-listing.mjs --offline   # files only, no network
 ```
 
-Fix whatever it reports before committing; the doc is then checked, not remembered.
+Fix whatever it reports before committing; the doc is then checked, not remembered. The same
+check runs offline in GitHub Actions on every push, so drift fails the build long before
+release day.
 
 ## 4. Commit and tag
 

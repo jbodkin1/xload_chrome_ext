@@ -1,0 +1,25 @@
+name: checks
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: docs match the code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # --offline keeps the build deterministic: the file checks are the point here, and
+      # link checking needs network access to a handful of third-party sites. Run
+      # `node scripts/check-listing.mjs` without the flag before a release (RELEASING.md).
+      - name: Check STORE-LISTING.md, README.md, PRIVACY.md and SECURITY.md
+        run: node scripts/check-listing.mjs --offline
