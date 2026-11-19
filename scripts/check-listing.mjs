@@ -445,6 +445,50 @@ for (const [label, pattern] of [
 }
 
 
+group('PRIVACY.md links point at the current policy');
+
+const POLICY_URL = 'https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md';
+const RAW_POLICY_URL = POLICY_URL.replace('https://github.com/', 'https://raw.githubusercontent.com/').replace('/blob/', '/');
+const policyUrls = [...new Set(DOC_FILES.flatMap((file) => docs[file].match(/https?:\/\/[^\s`)>" ]*PRIVACY\.md[^\s`)>" ]*/gi) || []))];
+
+check('docs link to the policy', policyUrls.length > 0);
+same('every policy URL is the canonical blob link', policyUrls.filter((url) => url !== POLICY_URL), []);
+check('STORE-LISTING.md gives that URL for the privacy field', doc.includes(POLICY_URL));
+check('the URL names the file this script validates', POLICY_URL.endsWith('/PRIVACY.md') && exists('PRIVACY.md'));
+
+if (!offline) {
+  let status = 'no response';
+  let published = null;
+  try {
+    const page = await fetch(POLICY_URL, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
+    status = page.status;
+    const raw = await fetch(RAW_POLICY_URL, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
+    if (raw.ok) published = await raw.text();
+  } catch (error) {
+    status = error.name === 'TimeoutError' ? 'timeout' : error.message;
+  }
+  check(`policy link answers ${status}`, status === 200);
+  check(
+    'the published policy is this repository\'s PRIVACY.md',
+    published !== null && published.trimEnd() === docs['PRIVACY.md'].trimEnd(),
+    'the served policy differs from the file here'
+  );
+}
+
+group('store/SUBMISSION-COPY.txt matches the listing copy');
+
+// One paste-ready file, generated from the listing doc. It is easy to hand-edit this and
+// leave the two disagreeing, so the sections are compared verbatim.
+const paste = read('store/SUBMISSION-COPY.txt');
+same('contains the summary verbatim', paste.includes(summary), true);
+same('contains the detailed description verbatim', paste.includes(detailed), true);
+same('contains the single-purpose answer verbatim', paste.includes(singlePurpose), true);
+same('contains the system.cpu justification verbatim', paste.includes(cpuAnswer), true);
+same('contains the storage justification verbatim', paste.includes(storageAnswer), true);
+same('does not carry the unused alternative summary', paste.includes(alternative), false);
+check('carries the policy URL', paste.includes(POLICY_URL));
+check('is plain text, with no fences or Markdown headings', !/```|^#{1,6} /m.test(paste));
+
 // ============================================================== links
 group('links');
 
