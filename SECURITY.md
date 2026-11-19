@@ -38,4 +38,4 @@ Because the extension holds no host permissions, the worst case for a hypothetic
 
 If you find a security issue, please report it privately through this repository's **Security** tab ("Report a vulnerability"), which opens a GitHub security advisory visible only to the maintainers. Please do not open a public issue for a vulnerability, and allow reasonable time for a fix before disclosing it publicly.
 
-There are no bounties, but reports are read, and a fix is credited in the release notes unless you ask otherwise.
+There are no bounties. Reports are read, and fixes ship in the normal release flow.

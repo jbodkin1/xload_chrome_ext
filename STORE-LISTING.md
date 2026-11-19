@@ -34,7 +34,8 @@ skipped — publishing is blocked until it is done.
 - If the Account page offers a privacy policy URL, set it to the same `PRIVACY.md` link
   used on the Privacy tab in step 4. Chrome's docs describe the tab's disclosures as
   needing to be "consistent with" the account-level policy.
-- A new publisher is capped at **two published extensions** initially. Not relevant for
+- A new publisher's allowance **defaults to two published extensions**, though the limit is
+  set per account — the dashboard shows yours and offers a request for more. Not relevant for
   this item, worth knowing before the next one.
 
 ---
@@ -42,7 +43,9 @@ skipped — publishing is blocked until it is done.
 ## 1. Add new item — upload the package
 
 Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.1.0.zip`
-→ **Upload**. Nothing is typed here; the manifest and ZIP either parse or they don't. The
+→ **Upload**. Nothing is typed here, but the upload is not a bare parse: the manifest is
+validated and the package is installed in a clean profile first, so a broken zip or a
+manifest typo fails at this point rather than during review. The
 package also ships as an asset on the [v1.1.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0),
 so it can be downloaded from there rather than rebuilt.
 
@@ -156,7 +159,7 @@ English (United States).
 | Marquee | 1400×560 PNG/JPEG | Optional — `store/07-marquee-1400x560.png` |
 
 Only the store icon and one screenshot are required; the tiles are worth uploading because
-image quality affects how prominently the item is surfaced.
+a complete set of assets makes the listing look finished next to items that have them.
 
 #### Screenshot checklist
 
@@ -291,7 +294,7 @@ Two groups of checkboxes; both matter.
   three statements, so the policy and the tab agree word for word in substance.
 
 Chrome's policy is that local processing and storage must still be disclosed, even when
-nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3), which is why the `storage`
+nothing is transmitted (see the [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), question 3: "Does an extension need to disclose user data handling if the data is only processed or stored locally?"), which is why the `storage`
 justification names `chrome.storage.local` and the 120-sample history explicitly. Expect a
 reviewer question about that history if they read the code first; the justification already
 answers it in the policy's own terms.
@@ -336,7 +339,8 @@ says it.
 
 **Submit for Review** opens a confirmation dialog carrying an **auto-publish** checkbox:
 
-- **Checked (default):** the item goes live as soon as review passes.
+- **Checked:** the item goes live as soon as review passes. Leave the box as the dialog
+  presents it if that is what you want; uncheck it to stage the release instead.
 - **Unchecked:** the item is staged after review and you publish manually. The staging
   expires after **30 days**, then reverts to a draft that has to be reviewed again. You can
   also choose **Defer publish** from the item's menu after submitting.
