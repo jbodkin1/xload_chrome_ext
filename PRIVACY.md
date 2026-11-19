@@ -2,7 +2,7 @@
 
 **Last updated: 18 November 2026**
 
-xload is a Chrome extension that displays a live CPU load graph in a popup styled after a vintage X11 application. This policy describes exactly what the extension can access, what it stores, and what it does with that information. It applies to the extension as published on the Chrome Web Store.
+xload is a Chrome extension that displays a live CPU load graph in a popup styled after a vintage X11 application. This policy describes exactly what the extension can access, what it stores, and what it does with that information. It applies to xload wherever it is installed, including the copy distributed through the Chrome Web Store.
 
 ## Summary
 

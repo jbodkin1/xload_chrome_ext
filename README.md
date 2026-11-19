@@ -40,9 +40,13 @@ Removing the extension deletes its storage along with it.
 
 For the full account, including how to report a vulnerability, see [SECURITY.md](SECURITY.md).
 
-## Installing in Chrome (developer mode)
+## Installing
 
-The extension is not published to the Chrome Web Store, so you load it as an unpacked extension. It takes about thirty seconds.
+If it is listed in the Chrome Web Store, install it there. To run your own copy — while the
+listing is not live yet, or to work on the code — load it unpacked instead; that takes about
+thirty seconds.
+
+### Unpacked install (developer mode)
 
 1. **Get the files.** Clone or download this repository, then unzip it if needed, so the folder containing `manifest.json`, `popup.html`, `popup.js`, `background.js` and the icon files is somewhere permanent. Do not delete or move that folder afterwards — Chrome reads the files from that location every time it starts.
 
