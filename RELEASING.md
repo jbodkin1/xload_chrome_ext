@@ -50,15 +50,37 @@ job — the name GitHub shows, not the workflow's `checks` name — as a require
 (Settings → Branches). If a failing run ever leaves the merge button enabled, the rule has
 been removed or loosened: restore it rather than merging on trust.
 
-## 4. Commit and tag
+## 4. Land the release commit through a pull request, then tag
+
+`main` is protected: a direct `git push origin main` is rejected with `GH006` until the
+`docs match the code` check has passed on that commit. The release commit therefore travels
+on a branch like any other change, and the tag goes on the merge commit afterwards.
 
 ```bash
+VERSION=$(node -p "require('./manifest.json').version")
+ZIP="xload-retro-system-monitor-$VERSION.zip"
+RELEASE_BRANCH="release/$VERSION"
+
+git checkout -b "$RELEASE_BRANCH"
 git add manifest.json CHANGELOG.md "$ZIP"
 git commit -m "Release $VERSION"
+git push -u origin "$RELEASE_BRANCH"
+
+gh pr create --base main --head "$RELEASE_BRANCH" \
+  --title "Release $VERSION" \
+  --body "Version bump, changelog entry and store zip for $VERSION."
+gh pr checks --watch                 # the required check; exits non-zero if it fails
+gh pr merge --rebase --delete-branch
+
+git checkout main
+git pull --ff-only
 git tag -a "v$VERSION" -m "xload $VERSION"
-git push origin main
 git push origin "v$VERSION"
 ```
+
+If the check fails, `--watch` exits non-zero and `gh pr merge` refuses; fix the cause, push
+to the branch again and the check re-runs. Tags are not covered by branch protection, so the
+tag push behaves as before and points at the commit the check passed on.
 
 ## 5. Publish the release with notes from the changelog
 
