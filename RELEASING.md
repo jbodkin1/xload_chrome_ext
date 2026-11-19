@@ -112,9 +112,12 @@ gh release view "v$VERSION" --json assets -q '.assets[] | "\(.name) \(.size)"'
 ## 7. Make it the latest release
 
 GitHub marks whichever release is newest by tag creation date, so creating an old tag
-afterwards steals the label:
+afterwards steals the label. Re-derived here so this step works in a fresh shell:
 
 ```bash
+VERSION=$(node -p "require('./manifest.json').version")
+ZIP="xload-retro-system-monitor-$VERSION.zip"
+
 gh release list --limit 5          # check the "Latest" column
 gh release edit "v$VERSION" --latest
 gh api repos/jbodkin1/xload_chrome_ext/releases/latest -q .tag_name
@@ -122,7 +125,12 @@ gh api repos/jbodkin1/xload_chrome_ext/releases/latest -q .tag_name
 
 ## 8. Verify what a user would download
 
+Re-derived here so this step works in a fresh shell:
+
 ```bash
+VERSION=$(node -p "require('./manifest.json').version")
+ZIP="xload-retro-system-monitor-$VERSION.zip"
+
 curl -sL -o /tmp/asset.zip \
   "https://github.com/jbodkin1/xload_chrome_ext/releases/download/v$VERSION/$ZIP"
 shasum -a 256 "$ZIP" /tmp/asset.zip     # must match
