@@ -45,9 +45,10 @@ Fix whatever it reports before committing; the doc is then checked, not remember
 check runs offline in GitHub Actions on every push to `main` and on every pull request, so
 drift fails the build long before release day.
 
-**A red `checks` run blocks the merge.** That rule is only real while `checks` is a required
-status check on `main` (Settings → Branches); if a failing run ever leaves the merge button
-enabled, fix the setting rather than merging on trust.
+**A red `docs match the code` run blocks the merge.** Branch protection on `main` lists that
+job — the name GitHub shows, not the workflow's `checks` name — as a required status check
+(Settings → Branches). If a failing run ever leaves the merge button enabled, the rule has
+been removed or loosened: restore it rather than merging on trust.
 
 ## 4. Commit and tag
 
