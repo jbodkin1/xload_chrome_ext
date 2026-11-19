@@ -42,8 +42,12 @@ node scripts/check-listing.mjs --offline   # files only, no network
 ```
 
 Fix whatever it reports before committing; the doc is then checked, not remembered. The same
-check runs offline in GitHub Actions on every push, so drift fails the build long before
-release day.
+check runs offline in GitHub Actions on every push to `main` and on every pull request, so
+drift fails the build long before release day.
+
+**A red `checks` run blocks the merge.** That rule is only real while `checks` is a required
+status check on `main` (Settings → Branches); if a failing run ever leaves the merge button
+enabled, fix the setting rather than merging on trust.
 
 ## 4. Commit and tag
 
