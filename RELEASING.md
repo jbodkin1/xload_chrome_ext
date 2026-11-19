@@ -29,7 +29,21 @@ unzip -p "$ZIP" manifest.json | node -p "JSON.parse(require('fs').readFileSync(0
 unzip -t "$ZIP" | tail -1                          # No errors detected
 ```
 
-## 3. Commit and tag
+## 3. Check the listing copy against the files
+
+`STORE-LISTING.md` repeats concrete numbers — manifest name and version, icon sizes,
+character counts, image dimensions and the zip inventory — and every one of them drifts
+quietly after a bump or a re-capture. `scripts/check-listing.mjs` re-derives them from the
+repository and exits non-zero on any mismatch:
+
+```bash
+node scripts/check-listing.mjs             # also checks that every URL in the doc returns 200
+node scripts/check-listing.mjs --offline   # files only, no network
+```
+
+Fix whatever it reports before committing; the doc is then checked, not remembered.
+
+## 4. Commit and tag
 
 ```bash
 git add manifest.json CHANGELOG.md "$ZIP"
@@ -39,7 +53,7 @@ git push origin main
 git push origin "v$VERSION"
 ```
 
-## 4. Publish the release with notes from the changelog
+## 5. Publish the release with notes from the changelog
 
 `scripts/release-notes.mjs` prints one section and handles both heading styles (plain
 `## 1.0.0` and linked `## [1.1.0](…)`), so the notes can never drift from the file.
@@ -49,14 +63,14 @@ gh release create "v$VERSION" --title "xload $VERSION" \
   --notes-file <(node scripts/release-notes.mjs "$VERSION")
 ```
 
-## 5. Attach the package
+## 6. Attach the package
 
 ```bash
 gh release upload "v$VERSION" "$ZIP"
 gh release view "v$VERSION" --json assets -q '.assets[] | "\(.name) \(.size)"'
 ```
 
-## 6. Make it the latest release
+## 7. Make it the latest release
 
 GitHub marks whichever release is newest by tag creation date, so creating an old tag
 afterwards steals the label:
@@ -67,7 +81,7 @@ gh release edit "v$VERSION" --latest
 gh api repos/jbodkin1/xload_chrome_ext/releases/latest -q .tag_name
 ```
 
-## 7. Verify what a user would download
+## 8. Verify what a user would download
 
 ```bash
 curl -sL -o /tmp/asset.zip \
@@ -80,4 +94,5 @@ rm /tmp/asset.zip
 
 - The Chrome Web Store upload uses the same zip attached to the release.
 - Store listing copy, assets and privacy-tab answers live in `STORE-LISTING.md`; the
-  screenshots, promo tile and marquee are in `store/`.
+  screenshots, promo tile and marquee are in `store/`. After editing either, re-run
+  `node scripts/check-listing.mjs`.
