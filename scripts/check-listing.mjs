@@ -334,6 +334,31 @@ for (const [file, text] of Object.entries(docs)) {
   }
 }
 
+group('RELEASING.md — each command block stands alone');
+
+// Every step is meant to be pasteable in a fresh shell: a block that consumes $VERSION or
+// $ZIP has to define it earlier in the same block, not inherit it from a previous step.
+const releasing = read('RELEASING.md');
+const bashBlocks = [...releasing.matchAll(/```bash\n([\s\S]*?)```/g)];
+check('RELEASING.md contains bash blocks', bashBlocks.length > 0, 'expected at least one');
+
+for (const match of bashBlocks) {
+  const block = match[1];
+  const heading = [...releasing.slice(0, match.index).matchAll(/^## (.+)$/gm)].pop();
+  const where = heading ? `"${heading[1]}"` : 'the top of the file';
+  const lines = block.split('\n');
+  for (const name of ['VERSION', 'ZIP']) {
+    const definition = lines.findIndex((line) => line.startsWith(`${name}=`));
+    const use = lines.findIndex((line, index) => index !== definition && new RegExp(`\\$${name}\\b`).test(line));
+    if (use === -1) continue;
+    check(
+      `${where} defines $${name} before using it`,
+      definition !== -1 && definition < use,
+      definition === -1 ? 'uses it without defining it' : 'defined after first use'
+    );
+  }
+}
+
 // ============================================================== links
 group('links');
 
