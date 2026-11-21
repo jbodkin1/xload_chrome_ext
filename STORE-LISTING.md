@@ -208,6 +208,13 @@ so a future re-capture matches:
 - The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
   of the plot empty. Let the popup run until it holds 120 points before capturing.
 
+To re-capture all five, run `node scripts/capture-screenshots.mjs`. It loads the shipped files
+as an unpacked extension in a throwaway Chrome profile, frames the popup exactly as above
+(640×400 at device pixel ratio 2, `zoom: 1.1875`, no drop shadow), feeds it real `yes` load
+until the popup holds 120 samples, and writes five 1280×800 PNGs to `store/review-<date>/`;
+review them there and copy over `store/` when you are happy with them. `--only=3` re-shoots
+just the tour, and `--tiles=<dir>` caches its six tiles while you tune the montage.
+
 Before uploading each shot, check: no browser chrome or bookmark bar in frame, no clip of
 an unrelated window, no text overlay claiming anything the code does not do, nothing
 blurry, UI text readable at the store's downscaled thumbnail, and the LOAD value is a
