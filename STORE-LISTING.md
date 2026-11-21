@@ -188,27 +188,23 @@ Upload in this order — the first shot is the one the store shows largest. All 
 | --- | --- | --- |
 | 1 | `01-hero-classic-x11.png` | default Classic X11 at 1.0s, the first-launch look |
 | 2 | `02-hacker-green-load.png` | Hacker Green at 0.1s under real load |
-| 3 | `03-theme-tour.png` | all six themes, each a real capture, in a 3×2 grid at 1280×800 |
+| 3 | `03-amber-monitor.png` | Amber Monitor at 0.5s, a fourth colour with readable readouts |
 | 4 | `04-dense-0.1s.png` | Neon Cyberpunk at 0.1s, dense trace |
 | 5 | `05-scanlines-off.png` | scanlines off with the grid still on |
 
 `store/gallery.html` shows all five at once for review. Three notes on how they were made,
 so a future re-capture matches:
 
-- Shot 3 is a montage, not a menu. A native `<select>` dropdown is drawn by the browser UI
-  layer rather than the page, so it cannot appear in a page screenshot; the tour shows all
-  six themes as individual real captures instead, so the full range is visible in one asset.
-- Legibility limit, measured: tiles are 416×343 in the 3×2 grid, which puts the 9px
-  `LOAD:`/`SCALE:` line at roughly 2.3 px once the image is downscaled to 320 px wide. A 2×2
-  of four larger tiles was tried and only reached 441×364 (+6%) — still ~2.5 px — because the
-  popup's 1.212:1 aspect makes a 2-row grid row-limited, not width-limited. Reading the status
-  line needs a ~1060 px wide tile, i.e. one theme per screenshot. Readable numbers are what
-  shots 1, 2, 4 and 5 provide; shot 3 is deliberately a theme showcase, and stays six-wide so
-  that no theme is hidden. Swapping it for a fifth single-theme capture was weighed on
-  21 November 2026 and rejected: the description names six themes and five slots cannot hold
-  six, so the swap would trade the only complete view of the palette for a fifth copy of a
-  readout the gallery already shows four times over. At the store's 593 px box the tiles'
-  colour and trace still read; only their 9 px text does not.
+- Shot 3 is one theme, not a menu. A native `<select>` dropdown is drawn by the browser UI
+  layer rather than the page, so it cannot appear in a page screenshot; the six-theme overview
+  is a composition of six individual real captures, and it now lives in the marquee.
+- Legibility limit, measured: a 416×343 tile puts the 9px `LOAD:`/`SCALE:` line at roughly
+  2.3 px once the image is downscaled to 320 px wide, and a 2×2 of four larger tiles only
+  reached 441×364 (+6%) — still ~2.5 px — because the popup's 1.212:1 aspect makes a 2-row grid
+  row-limited, not width-limited. Reading the status line needs a ~1060 px wide tile, i.e. one
+  theme per screenshot, which is why shots 1–5 are single themes and the overview is the
+  marquee, where showing the whole palette is the message and the tile readouts are allowed to
+  be texture.
 - The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
   of the plot empty. Let the popup run until it holds 120 points before capturing.
 
@@ -216,8 +212,8 @@ To re-capture all five, run `node scripts/capture-screenshots.mjs`. It loads the
 as an unpacked extension in a throwaway Chrome profile, frames the popup exactly as above
 (640×400 at device pixel ratio 2, `zoom: 1.1875`, no drop shadow), feeds it real `yes` load
 until the popup holds 120 samples, and writes five 1280×800 PNGs to `store/review-<date>/`;
-review them there and copy over `store/` when you are happy with them. `--only=3` re-shoots
-just the tour, and `--tiles=<dir>` caches its six tiles while you tune the montage.
+review them there and copy over `store/` when you are happy with them. `--only=7` re-shoots
+just the marquee, and `--tiles=<dir>` caches its six tiles while you tune the grid.
 
 Before uploading each shot, check: no browser chrome or bookmark bar in frame, no clip of
 an unrelated window, no text overlay claiming anything the code does not do, nothing
@@ -241,8 +237,8 @@ On a 2× display the 593 px box is 1186 device px, so the 1280×800 file is used
 and the downscale only bites on a standard-DPI screen. Measured from the finished PNGs, the
 9 px status line lands at a **6 px cap height in the 593 px box** (7 px at 640, 8 px at 800):
 legible, but that is the floor — one-pixel strokes, with anything smaller turning to texture.
-That is exactly what the 116 px thumbnails show, and what the tour's ~2 px tile readouts show
-at display size. A re-capture should not plan on information smaller than the settings panel:
+That is exactly what the 116 px thumbnails show, and what the six-theme marquee's ~2 px tile
+readouts show wherever it is rendered small. A re-capture should not plan on information smaller than the settings panel:
 if it has to be read, it belongs in the popup's own text, never in a tile or a caption.
 
 #### Small promo tile (440×280)
@@ -258,12 +254,15 @@ and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280
 
 #### Marquee (1400×560)
 
-`store/07-marquee-1400x560.png` (1400×560 PNG, 107 KB), the same style as the tile at
-banner proportions — the Hacker Green graph across the top 400 px, then a 160 px `#0d0e12`
-bar with the `xload` wordmark (66 px) and the `SYSTEM MONITOR` line. The graph is a crop of
-the CRT screen: 888×254 of a 1280×800 capture, scaled 1.5766× to 1400×400, so it reads as a
-close-up band rather than the whole screen and the trace runs off the top and bottom edges by
-design. Re-cut from the same origin (x 196, y 96) at the same scale to keep it consistent.
+`store/07-marquee-1400x560.png` (1400×560 PNG, 173 KB), the six-theme overview: a 3×2 grid
+of real captures, each a whole popup cut to its 950×784 frame and scaled to 281×232, labelled
+under the tile, on `#0d0e12` beneath the line `xload · SIX THEMES · REAL SAMPLES`. It is the
+only asset that shows all six themes at once, and being shown only to featured placements is
+what makes it the right home for an overview whose tile readouts would be texture in the
+carousel.
+
+To re-cut it: `node scripts/capture-screenshots.mjs --only=7`, which captures the six tiles at
+0.1s (or reuses `--tiles=<dir>`) and composes the grid at 1400×560.
 
 ### Additional fields
 
