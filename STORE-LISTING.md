@@ -203,8 +203,7 @@ so a future re-capture matches:
   reached 441×364 (+6%) — still ~2.5 px — because the popup's 1.212:1 aspect makes a 2-row grid
   row-limited, not width-limited. Reading the status line needs a ~1060 px wide tile, i.e. one
   theme per screenshot, which is why shots 1–5 are single themes and the overview is the
-  marquee, where showing the whole palette is the message and the tile readouts are allowed to
-  be texture.
+  marquee, which shows graph crops and theme labels only — no readouts at all.
 - The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
   of the plot empty. Let the popup run until it holds 120 points before capturing.
 
@@ -237,8 +236,8 @@ On a 2× display the 593 px box is 1186 device px, so the 1280×800 file is used
 and the downscale only bites on a standard-DPI screen. Measured from the finished PNGs, the
 9 px status line lands at a **6 px cap height in the 593 px box** (7 px at 640, 8 px at 800):
 legible, but that is the floor — one-pixel strokes, with anything smaller turning to texture.
-That is exactly what the 116 px thumbnails show, and what the six-theme marquee's ~2 px tile
-readouts show wherever it is rendered small. A re-capture should not plan on information smaller than the settings panel:
+That is exactly what the 116 px thumbnails show; the marquee sidesteps it by carrying no small
+text at all. A re-capture should not plan on information smaller than the settings panel:
 if it has to be read, it belongs in the popup's own text, never in a tile or a caption.
 
 #### Small promo tile (440×280)
@@ -254,12 +253,12 @@ and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280
 
 #### Marquee (1400×560)
 
-`store/07-marquee-1400x560.png` (1400×560 PNG, 173 KB), the six-theme overview: a 3×2 grid
-of real captures, each a whole popup cut to its 950×784 frame and scaled to 281×232, labelled
-under the tile, on `#0d0e12` beneath the line `xload · SIX THEMES · REAL SAMPLES`. It is the
-only asset that shows all six themes at once, and being shown only to featured placements is
-what makes it the right home for an overview whose tile readouts would be texture in the
-carousel.
+`store/07-marquee-1400x560.png` (1400×560 PNG, 232 KB), the six-theme overview: a 3×2 grid of
+graph crops, each cut inside the CRT screen of a real 1280×800 capture (source rect 190, 100,
+896×388) and scaled to 460×199, labelled under the tile, on `#0d0e12` beneath the line
+`xload · SIX THEMES · REAL SAMPLES`. Tiles are sized to the full 1400 px width, so there are no
+empty side bands, and the settings panel is deliberately out of frame — the marquee shows colour
+and trace, never text small enough to be unreadable.
 
 To re-cut it: `node scripts/capture-screenshots.mjs --only=7`, which captures the six tiles at
 0.1s (or reuses `--tiles=<dir>`) and composes the grid at 1400×560.
