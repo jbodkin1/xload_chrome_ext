@@ -4,6 +4,9 @@
 # Chat attachments saved into the workspace — never commit
 .cloud-attachments/
 
+# Screenshot captures from scripts/capture-screenshots.mjs — review copies, not store assets
+store/review-*/
+
 # macOS filesystem noise
 .DS_Store
 
