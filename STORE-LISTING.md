@@ -204,7 +204,11 @@ so a future re-capture matches:
   popup's 1.212:1 aspect makes a 2-row grid row-limited, not width-limited. Reading the status
   line needs a ~1060 px wide tile, i.e. one theme per screenshot. Readable numbers are what
   shots 1, 2, 4 and 5 provide; shot 3 is deliberately a theme showcase, and stays six-wide so
-  that no theme is hidden.
+  that no theme is hidden. Swapping it for a fifth single-theme capture was weighed on
+  21 November 2026 and rejected: the description names six themes and five slots cannot hold
+  six, so the swap would trade the only complete view of the palette for a fifth copy of a
+  readout the gallery already shows four times over. At the store's 593 px box the tiles'
+  colour and trace still read; only their 9 px text does not.
 - The graph uses a fixed 120-point spacing, so fewer than 120 samples leaves the right side
   of the plot empty. Let the popup run until it holds 120 points before capturing.
 
