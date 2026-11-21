@@ -25,6 +25,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import zlib from 'node:zlib';
 
 const offline = process.argv.includes('--offline');
 const root = process.cwd();
@@ -61,6 +62,77 @@ function pngSize(file) {
   if (!bytes.subarray(0, 8).equals(signature)) return null;
   if (bytes.subarray(12, 16).toString('ascii') !== 'IHDR') return null;
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+}
+
+/**
+ * Whether every pixel is fully opaque, which the store requires so an image cannot composite
+ * against its own background. A colour type with no alpha channel is opaque by construction;
+ * RGBA is decoded and its alpha bytes scanned, so a file that merely *has* an alpha channel but
+ * paints 255 everywhere still passes.
+ */
+function pngOpaque(file) {
+  const bytes = fs.readFileSync(path.join(root, file));
+  if (bytes.subarray(12, 16).toString('ascii') !== 'IHDR') return { ok: false, why: 'no IHDR chunk' };
+  // IHDR payload: width 16..20, height 20..24, bit depth 24, colour type 25, interlace 28.
+  const bitDepth = bytes[24];
+  const colorType = bytes[25];
+  const interlace = bytes[28];
+  if (bitDepth !== 8) return { ok: false, why: `bit depth ${bitDepth}` };
+  if (interlace !== 0) return { ok: false, why: 'interlaced PNG' };
+  if (colorType !== 6) {
+    if (![0, 2, 3].includes(colorType)) return { ok: false, why: `colour type ${colorType}` };
+    return bytes.includes('tRNS')
+      ? { ok: false, why: 'has a tRNS transparency chunk' }
+      : { ok: true, why: 'no alpha channel' };
+  }
+
+  const idat = [];
+  let at = 8;
+  while (at < bytes.length) {
+    const length = bytes.readUInt32BE(at);
+    const type = bytes.toString('ascii', at + 4, at + 8);
+    if (type === 'IDAT') idat.push(bytes.subarray(at + 8, at + 8 + length));
+    if (type === 'IEND') break;
+    at += 12 + length;
+  }
+  const width = bytes.readUInt32BE(16);
+  const height = bytes.readUInt32BE(20);
+  const stride = width * 4;
+  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const line = Buffer.alloc(stride);
+  let previous = Buffer.alloc(stride);
+  let transparent = 0;
+  let firstClear = null;
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)];
+    const source = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    for (let x = 0; x < stride; x++) {
+      const a = x >= 4 ? line[x - 4] : 0;
+      const b = previous[x];
+      const c = x >= 4 ? previous[x - 4] : 0;
+      let value = source[x];
+      if (filter === 1) value += a;
+      else if (filter === 2) value += b;
+      else if (filter === 3) value += (a + b) >> 1;
+      else if (filter === 4) {
+        const pa = Math.abs(b - c);
+        const pb = Math.abs(a - c);
+        const pc = Math.abs(a + b - 2 * c);
+        value += pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      }
+      line[x] = value & 255;
+    }
+    for (let x = 3; x < stride; x += 4) {
+      if (line[x] !== 255) {
+        transparent++;
+        if (!firstClear) firstClear = `alpha ${line[x]} at ${(x - 3) / 4},${y}`;
+      }
+    }
+    previous = Buffer.from(line);
+  }
+  return transparent
+    ? { ok: false, why: `${transparent} transparent pixel(s), first ${firstClear}` }
+    : { ok: true, why: 'alpha 255 everywhere' };
 }
 
 const manifest = JSON.parse(read('manifest.json'));
@@ -134,27 +206,35 @@ if (detailed) {
 
 group('STORE-LISTING.md — assets');
 
-const screenshots = ['01-hero-classic-x11.png', '02-hacker-green-load.png', '03-theme-tour.png', '04-dense-0.1s.png', '05-scanlines-off.png'];
-const onDisk = fs.readdirSync(path.join(root, 'store')).filter((f) => f.endsWith('.png')).sort();
-same('store holds exactly the seven assets', onDisk.length, 7);
-for (const shot of screenshots) {
-  const file = path.join('store', shot);
-  same(`${shot} exists`, exists(file), true);
-  check(`${shot} is named in the doc`, doc.includes(`\`${shot}\``), 'screenshot table');
-  const size = pngSize(file);
-  same(`${shot} is 1280x800`, size && `${size.width}x${size.height}`, '1280x800');
-}
-check('doc states five screenshots', doc.includes('five screenshots'), 'Before submitting checklist');
-
+const screenshots = ['01-hero-classic-x11.png', '02-hacker-green-load.png', '03-amber-monitor.png', '04-dense-0.1s.png', '05-scanlines-off.png'];
 const tile = 'store/06-promo-tile-440x280.png';
 const marquee = 'store/07-marquee-1400x560.png';
-for (const [file, expected, label] of [
-  [tile, { width: 440, height: 280 }, 'promo tile is 440x280'],
-  [marquee, { width: 1400, height: 560 }, 'marquee is 1400x560'],
-]) {
+
+// Exactly what the store takes: the five screenshots, the tile and the marquee at their
+// required pixel sizes, every one fully opaque. A wrong file here is a rejected listing.
+const ASSETS = [
+  ...screenshots.map((shot) => [`store/${shot}`, 1280, 800, 'screenshot']),
+  [tile, 440, 280, 'small promo tile'],
+  [marquee, 1400, 560, 'marquee'],
+];
+
+const onDisk = fs.readdirSync(path.join(root, 'store')).filter((f) => f.endsWith('.png')).sort();
+same('store holds exactly the seven assets', onDisk.length, 7);
+same('store holds the seven files named here', onDisk, ASSETS.map(([file]) => path.basename(file)).sort());
+
+for (const [file, width, height, kind] of ASSETS) {
+  const name = path.basename(file);
+  same(`${kind} ${name} exists`, exists(file), true);
+  if (!exists(file)) continue;
   const size = pngSize(file);
-  same(label, size && `${size.width}x${size.height}`, `${expected.width}x${expected.height}`);
+  same(`${kind} ${name} is ${width}x${height}`, size && `${size.width}x${size.height}`, `${width}x${height}`);
+  const opaque = pngOpaque(file);
+  check(`${kind} ${name} is fully opaque`, opaque.ok, opaque.why);
 }
+for (const shot of screenshots) {
+  check(`${shot} is named in the doc`, doc.includes(`\`${shot}\``), 'screenshot table');
+}
+check('doc states five screenshots', doc.includes('five screenshots'), 'Before submitting checklist');
 const tileKb = doc.match(/`store\/06-promo-tile-440x280\.png` \(\d+×\d+ PNG, (\d+) KB\)/);
 check(`promo tile size stated as ${Math.round(kib(tile))} KB`, tileKb && Number(tileKb[1]), `${Math.round(kib(tile))} KB`);
 const marqueeKb = doc.match(/`store\/07-marquee-1400x560\.png` \(\d+×\d+ PNG, (\d+) KB\)/);

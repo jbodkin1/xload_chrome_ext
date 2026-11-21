@@ -1,5 +1,6 @@
 /**
- * Captures the five Chrome Web Store screenshots (1280x800) from the real popup.
+ * Captures the five Chrome Web Store screenshots (1280x800) and the six-theme marquee
+ * (1400x560) from the real popup.
  *
  * The recipe is the one STORE-LISTING.md documents, so a re-capture lines up with the
  * assets already in store/:
@@ -15,6 +16,7 @@
  *
  *   node scripts/capture-screenshots.mjs                     # all five, into store/review-<date>/
  *   node scripts/capture-screenshots.mjs --only=1,3          # just those
+ *   node scripts/capture-screenshots.mjs --only=7            # just the marquee
  *   node scripts/capture-screenshots.mjs --out=/tmp/shots    # somewhere else
  *   node scripts/capture-screenshots.mjs --keep              # leave the temp profile behind
  *
@@ -50,8 +52,8 @@ const SHIPPED = ['manifest.json', 'popup.html', 'popup.js', 'background.js', 'ic
 // near-black for the dark ones. Matching them keeps a fresh set visually interchangeable.
 const LIGHT = '#e8e8ed';
 const DARK = '#080b09';
-const TOUR_BG = '#0d0e12';
-const TOUR_TEXT = '#9aa0a6';
+const GRID_BG = '#0d0e12';
+const GRID_TEXT = '#9aa0a6';
 
 const SHOTS = [
   {
@@ -70,9 +72,10 @@ const SHOTS = [
   },
   {
     n: 3,
-    name: '03-theme-tour',
-    montage: true,
-    note: 'all six themes, each a real capture, 3x2 grid',
+    name: '03-amber-monitor',
+    backdrop: DARK,
+    config: { theme: 'amber-crt', refreshRate: 500, showGrid: true, scanlines: true },
+    note: 'Amber Monitor at 0.5s — the fourth theme colour, with readable readouts',
   },
   {
     n: 4,
@@ -88,9 +91,30 @@ const SHOTS = [
     config: { theme: 'classic', refreshRate: 1000, showGrid: true, scanlines: false },
     note: 'Classic X11 at 1.0s, scanlines off with the grid still on',
   },
+  {
+    n: 7,
+    name: '07-marquee-1400x560',
+    // The six-theme grid lives here rather than in a screenshot: at 1400x560 the tiles are the
+    // biggest they can be while all six fit, and the marquee is shown only to featured
+    // placements, where being a palette overview is the point.
+    grid: {
+      width: 1400,
+      height: 560,
+      header: 'xload &middot; SIX THEMES &middot; REAL SAMPLES',
+      headerHeight: 40,
+      headerSize: 19,
+      tileWidth: 281,
+      tileHeight: 232,
+      gapX: 40,
+      gapY: 10,
+      labelGap: 6,
+      labelSize: 14,
+    },
+    note: 'all six themes in a 3x2 grid, for featured placement',
+  },
 ];
 
-const TOUR = [
+const GRID_TILES = [
   { theme: 'classic', label: 'CLASSIC X11' },
   { theme: 'retro-dark', label: 'PHOSPHOR SLATE' },
   { theme: 'amber-crt', label: 'AMBER MONITOR' },
@@ -300,29 +324,36 @@ async function capturePopups(config, backdrop, label, loadCount = 4) {
   return { png, ...reported, seconds: Math.round((Date.now() - started) / 1000) };
 }
 
-function tourHtml(tiles) {
-  const tileAt = (i) => ({ left: 6 + (i % 3) * 426, top: 30 + Math.floor(i / 3) * 375 });
-  // Tile geometry and type metrics are measured off the tracked store/03-theme-tour.png: tiles
-  // at x 6/432/858 and y 30/405, 416x343 each, header ink 289 px wide, labels ~8.5 px per
-  // character. The source frame is placed at its natural 1280x800 and cut to the popup rect
-  // (165, 8, 950x784) before the 0.4379 scale, so a tile is exactly the popup and no backdrop.
+function gridHtml(spec, tiles) {
+  const { width, height, header, headerHeight, headerSize, tileWidth, tileHeight, gapX, gapY, labelGap, labelSize } = spec;
+  // Each tile is a whole 1280x800 capture of the popup cut to the popup rect (165, 8, 950x784)
+  // before scaling, so a tile is exactly the popup and no backdrop. The grid is centred, with
+  // three columns because the popup's 1.212:1 aspect makes two rows the tallest arrangement
+  // that fits six tiles in this frame.
+  const columns = 3;
+  const gridWidth = columns * tileWidth + (columns - 1) * gapX;
+  const left0 = Math.round((width - gridWidth) / 2);
+  const rowHeight = tileHeight + labelGap + labelSize + 2;
+  const scale = tileWidth / 950;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { width: 1280px; height: 800px; background: ${TOUR_BG}; position: relative;
-           font-family: 'Courier New', Courier, monospace; font-weight: bold; color: ${TOUR_TEXT}; }
-    .header { position: absolute; left: 0; top: 0; width: 1280px; height: 30px; line-height: 36px;
-              text-align: center; font-size: 18px; letter-spacing: 0.047em; }
-    .tile { position: absolute; width: 416px; height: 343px; overflow: hidden; }
+    body { width: ${width}px; height: ${height}px; background: ${GRID_BG}; position: relative;
+           font-family: 'Courier New', Courier, monospace; font-weight: bold; color: ${GRID_TEXT}; }
+    .header { position: absolute; left: 0; top: 0; width: ${width}px; height: ${headerHeight}px;
+              line-height: ${headerHeight + 6}px; text-align: center; font-size: ${headerSize}px;
+              letter-spacing: 0.047em; }
+    .tile { position: absolute; width: ${tileWidth}px; height: ${tileHeight}px; overflow: hidden; }
     .tile img { display: block; width: 1280px; height: 800px; transform-origin: top left;
-                transform: scale(0.4378947) translate(-165px, -8px); }
-    .label { position: absolute; width: 416px; text-align: center; font-size: 14px; line-height: 1;
-             letter-spacing: 0.02em; }
+                transform: scale(${scale.toFixed(7)}) translate(-165px, -8px); }
+    .label { position: absolute; width: ${tileWidth}px; text-align: center; font-size: ${labelSize}px;
+             line-height: 1; letter-spacing: 0.02em; }
   </style></head><body>
-    <div class="header">SIX THEMES &middot; REAL SAMPLES</div>
+    <div class="header">${header}</div>
     ${tiles.map((tile, i) => {
-      const { left, top } = tileAt(i);
+      const left = left0 + (i % columns) * (tileWidth + gapX);
+      const top = headerHeight + Math.floor(i / columns) * (rowHeight + gapY);
       return `<div class="tile" style="left:${left}px;top:${top}px"><img src="${tile.src}"></div>
-    <div class="label" style="left:${left}px;top:${top + 351}px">${tile.label}</div>`;
+    <div class="label" style="left:${left}px;top:${top + tileHeight + labelGap}px">${tile.label}</div>`;
     }).join('\n    ')}
   </body></html>`;
 }
@@ -345,11 +376,11 @@ try {
   for (const shot of wanted) {
     process.stdout.write(`shot ${shot.n} ${shot.name} ... `);
     let result;
-    if (shot.montage) {
+    if (shot.grid) {
       const tiles = [];
       const tileDir = argValue('tiles');
       if (tileDir) fs.mkdirSync(tileDir, { recursive: true });
-      for (const [i, entry] of TOUR.entries()) {
+      for (const [i, entry] of GRID_TILES.entries()) {
         const cached = tileDir && path.join(tileDir, `${entry.theme}.png`);
         let png;
         if (cached && fs.existsSync(cached)) {
@@ -363,7 +394,7 @@ try {
             process.stdout.write(`\n  tile ${i + 1}/6 ${entry.theme}${attempt > 1 ? ` (attempt ${attempt})` : ''} ... `);
             const { png: shot, scale } = await capturePopups(
               { theme: entry.theme, refreshRate: 100, showGrid: true, scanlines: true },
-              TOUR_BG,
+              GRID_BG,
               `tour ${entry.theme}`,
               2
             );
@@ -376,21 +407,29 @@ try {
         tiles.push({ label: entry.label, src: `data:image/png;base64,${png.toString('base64')}` });
       }
       const { targetId, sessionId } = await openPopupPage();
-      await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false }, sessionId);
-      await cdp.evaluate(`document.open(); document.write(${JSON.stringify(tourHtml(tiles))}); document.close(); true`, sessionId);
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: shot.grid.width, height: shot.grid.height, deviceScaleFactor: 1, mobile: false }, sessionId);
+      await cdp.evaluate(`document.open(); document.write(${JSON.stringify(gridHtml(shot.grid, tiles))}); document.close(); true`, sessionId);
       await sleep(600);
       const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true }, sessionId);
       await cdp.send('Target.closeTarget', { targetId });
-      result = { png: Buffer.from(data, 'base64'), samples: 120 * TOUR.length, seconds: 0 };
+      result = { png: Buffer.from(data, 'base64'), samples: 120 * GRID_TILES.length, seconds: 0 };
       process.stdout.write('\n  ');
     } else {
-      result = await capturePopups(shot.config, shot.backdrop, shot.name);
+      // A frame whose peak touches 100% rounds its scale up to "100% MAX" and reads as clipped
+      // next to the others, so it is shot again rather than kept. Nothing is trimmed.
+      for (let attempt = 1; ; attempt++) {
+        if (attempt > 1) process.stdout.write(`(attempt ${attempt}) `);
+        result = await capturePopups(shot.config, shot.backdrop, shot.name);
+        if (result.scale < 100 || attempt >= 4) break;
+        process.stdout.write(`SCALE ${result.scale}% MAX, re-shooting ... `);
+      }
     }
 
     const file = path.join(outDir, `${shot.name}.png`);
     fs.writeFileSync(file, result.png);
     const size = pngSize(file);
-    const ok = size.width === 1280 && size.height === 800;
+    const expect = shot.grid ? [shot.grid.width, shot.grid.height] : [1280, 800];
+    const ok = size.width === expect[0] && size.height === expect[1];
     written.push({ ...shot, file, size, ok, load: result.newest, readout: result.readout, seconds: result.seconds });
     console.log(`${ok ? 'ok' : 'WRONG SIZE'} ${size.width}x${size.height}  ${(result.png.length / 1024).toFixed(0)} KB  LOAD ${result.readout ?? '-'}`);
   }
