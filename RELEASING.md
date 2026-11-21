@@ -54,6 +54,13 @@ job — the name GitHub shows, not the workflow's `checks` name — as a require
 (Settings → Branches). If a failing run ever leaves the merge button enabled, the rule has
 been removed or loosened: restore it rather than merging on trust.
 
+**Before tagging, run the package itself.** `node scripts/smoke.mjs` loads the zip from step 2
+in a throwaway Chrome profile, opens the popup through the toolbar action, and fails if the
+graph stops drawing its trace, the load readout stops matching the newest sample, a setting
+does not survive a reload, or Chrome records a manifest, install or runtime error. It needs
+Chrome installed and the zip on disk, and it refuses to run against a package whose files
+have drifted from this repository.
+
 ## 4. Land the release commit through a pull request, then tag
 
 `main` is protected: a direct `git push origin main` is rejected with `GH006` until the

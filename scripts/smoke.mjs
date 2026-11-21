@@ -307,24 +307,46 @@ try {
     check('the popup is the documented 400x330', shape.inner[0] === 400 && shape.inner[1] === 330, JSON.stringify(shape.inner));
     check('the canvas has a drawing surface', shape.canvas.backing[0] > 0 && shape.canvas.backing[1] > 0, JSON.stringify(shape.canvas));
 
-    const drawn = await cdp.evaluate(`(() => {
+    // `history`, `config` and `themes` are top-level bindings in the popup's classic script, so
+    // the probe asks the page what it believes it is drawing instead of hard-coding a colour.
+    // Counting the theme's line colour is what separates a real trace from grid lines on an
+    // otherwise blank canvas, which is all an ink test can see.
+    const canvasState = `(() => {
       const canvas = document.getElementById('xload-canvas');
       const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+      let line = '#ff0000';
+      try { line = themes[config.theme].line; } catch { /* the script did not run */ }
+      const [lr, lg, lb] = [1, 3, 5].map((i) => parseInt(line.slice(i, i + 2), 16));
       let ink = 0;
-      for (let i = 0; i < pixels.length; i += 4) if (pixels[i] !== pixels[i + 3] || pixels[i + 1] || pixels[i + 2]) ink++;
-      return { ink, ratio: ink / (pixels.length / 4), load: document.getElementById('load-value').textContent };
-    })()`, sessionId);
-    check('the graph is drawn', drawn.ratio > 0.01, `${(drawn.ratio * 100).toFixed(1)}% of the canvas has ink`);
-    check('the load readout is a percentage', /^LOAD: \d+(\.\d+)?%$/.test(drawn.load), drawn.load);
+      let trace = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        if (pixels[i] !== pixels[i + 3] || pixels[i + 1] || pixels[i + 2]) ink++;
+        if (Math.abs(pixels[i] - lr) < 40 && Math.abs(pixels[i + 1] - lg) < 40 && Math.abs(pixels[i + 2] - lb) < 40) trace++;
+      }
+      const samples = typeof history === 'undefined' ? -1 : history.length;
+      return {
+        inkRatio: ink / (pixels.length / 4),
+        trace,
+        line,
+        samples,
+        newest: samples > 0 ? history[samples - 1] : null,
+        readout: document.getElementById('load-value').textContent
+      };
+    })()`;
 
-    const first = await cdp.evaluate(`new Promise((resolve) => chrome.storage.local.get(['config', 'history'], resolve))`, sessionId);
-    await sleep(2400);
-    const grown = await cdp.evaluate(`new Promise((resolve) => chrome.storage.local.get(['history'], resolve))`, sessionId);
+    const first = await cdp.evaluate(canvasState, sessionId);
+    check('the graph is drawn', first.inkRatio > 0.01, `${(first.inkRatio * 100).toFixed(1)}% of the canvas has ink`);
+    check('the trace is drawn in the theme colour', first.trace > 0, `${first.trace} pixels near ${first.line}`);
     check(
-      'samples keep arriving while the popup is open',
-      (grown.history || []).length > (first.history || []).length,
-      `history ${(first.history || []).length} → ${(grown.history || []).length}`
+      'the load readout quotes the newest sample',
+      first.newest !== null && first.readout === `LOAD: ${first.newest.toFixed(2)}%`,
+      `${JSON.stringify(first.readout)} against newest sample ${first.newest}`
     );
+
+    await sleep(3000);
+    const grown = await cdp.evaluate(canvasState, sessionId);
+    check('samples keep arriving while the popup is open', grown.samples > first.samples, `${first.samples} → ${grown.samples}`);
+    check('the trace extends with the samples', grown.trace > first.trace, `${first.trace} → ${grown.trace} pixels in the theme colour`);
 
     await cdp.evaluate(`(() => {
       const theme = document.getElementById('theme-select');
