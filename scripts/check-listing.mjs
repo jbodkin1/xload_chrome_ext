@@ -364,6 +364,11 @@ for (const match of bashBlocks) {
   }
 }
 
+// The package smoke test only helps if the release steps tell someone to run it. It needs
+// Chrome and the built zip, so it stays a local step rather than a CI job.
+check('RELEASING.md runs the smoke test before the tag', releasing.includes('node scripts/smoke.mjs'), 'the release steps never mention it');
+check('the smoke script it names exists', exists('scripts/smoke.mjs'));
+
 group('privacy tab answers agree with PRIVACY.md');
 
 // The Privacy tab is filled in by hand from STORE-LISTING.md while the policy is a separate
