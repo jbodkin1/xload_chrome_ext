@@ -220,6 +220,27 @@ an unrelated window, no text overlay claiming anything the code does not do, not
 blurry, UI text readable at the store's downscaled thumbnail, and the LOAD value is a
 plausible percentage rather than `NaN` or `0.00%` on a busy machine.
 
+#### What the store shows them at
+
+Measured on the live store (21 November 2026), because Google's "Supplying images" page still
+says every screenshot is downscaled to 640×400 and the store no longer does that for 1280×800
+uploads: they are served whole (`=s1280-w1280-h800`) and the browser scales them down.
+
+| Surface | File served | Rendered box |
+| --- | --- | --- |
+| Detail-page carousel, 1280 px viewport | 1280×800 | 535×335 |
+| Detail-page carousel, 1440–1600 px viewport | 1280×800 | 593×371 |
+| Detail-page carousel, ~430 px viewport | 1280×800 | 188×120 |
+| Thumbnail strip | 1280×800 | 116×72 (90×56 on the narrow layout) |
+
+On a 2× display the 593 px box is 1186 device px, so the 1280×800 file is used at close to 1:1
+and the downscale only bites on a standard-DPI screen. Measured from the finished PNGs, the
+9 px status line lands at a **6 px cap height in the 593 px box** (7 px at 640, 8 px at 800):
+legible, but that is the floor — one-pixel strokes, with anything smaller turning to texture.
+That is exactly what the 116 px thumbnails show, and what the tour's ~2 px tile readouts show
+at display size. A re-capture should not plan on information smaller than the settings panel:
+if it has to be read, it belongs in the popup's own text, never in a tile or a caption.
+
 #### Small promo tile (440×280)
 
 `store/06-promo-tile-440x280.png` (440×280 PNG, 44 KB). It is composed from the Hacker
