@@ -35,6 +35,7 @@ const detailed = pick('detailed description block', (b) => b.startsWith('xload i
 const singlePurpose = pick('single-purpose answer', (b) => b.startsWith('Displays the system'));
 const cpuAnswer = pick('system.cpu justification', (b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
 const storageAnswer = pick('storage justification', (b) => b.startsWith('Used only to persist'));
+const testInstructions = pick('test-instructions answer', (b) => b.startsWith('Click the toolbar icon'));
 
 const policyUrl = (doc.match(/https?:\/\/[^\s`)>"]*\/PRIVACY\.md/) || [])[0];
 if (!policyUrl) {
@@ -81,6 +82,9 @@ const out = [
   "1. Limited Use: data is used only for the extension's single purpose.",
   '2. Not sold, and not transferred outside the approved cases.',
   '3. Not used or transferred to determine creditworthiness or for lending.',
+  '',
+  bar('TEST INSTRUCTIONS - Test instructions tab'),
+  testInstructions,
   '',
 ].join('\n');
 
