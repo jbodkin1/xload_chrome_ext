@@ -97,16 +97,22 @@ const SHOTS = [
     // The six-theme grid lives here rather than in a screenshot: at 1400x560 the tiles are the
     // biggest they can be while all six fit, and the marquee is shown only to featured
     // placements, where being a palette overview is the point.
+    // Tile geometry is measured off the popup in a 1280x800 capture: the graph area inside the
+    // CRT screen spans x 184..1090, y 142..595 (906x453, exactly 2:1), which is cropped for the
+    // tiles so the 3-wide grid can fill the full 1400 px instead of leaving ~240 px bands at
+    // each side. The settings panel and its 9 px readouts are deliberately not in frame, so the
+    // marquee carries no text small enough to be unreadable.
     grid: {
       width: 1400,
       height: 560,
       header: 'xload &middot; SIX THEMES &middot; REAL SAMPLES',
-      headerHeight: 40,
+      headerHeight: 60,
       headerSize: 19,
-      tileWidth: 281,
-      tileHeight: 232,
-      gapX: 40,
-      gapY: 10,
+      source: { x: 190, y: 100, width: 896, height: 388 },
+      tileWidth: 460,
+      tileHeight: 199,
+      gapX: 10,
+      gapY: 26,
       labelGap: 6,
       labelSize: 14,
     },
@@ -325,16 +331,15 @@ async function capturePopups(config, backdrop, label, loadCount = 4) {
 }
 
 function gridHtml(spec, tiles) {
-  const { width, height, header, headerHeight, headerSize, tileWidth, tileHeight, gapX, gapY, labelGap, labelSize } = spec;
-  // Each tile is a whole 1280x800 capture of the popup cut to the popup rect (165, 8, 950x784)
-  // before scaling, so a tile is exactly the popup and no backdrop. The grid is centred, with
-  // three columns because the popup's 1.212:1 aspect makes two rows the tallest arrangement
-  // that fits six tiles in this frame.
+  const { width, height, header, headerHeight, headerSize, source, tileWidth, tileHeight, gapX, gapY, labelGap, labelSize } = spec;
+  // Each tile is a crop of a whole 1280x800 capture, placed at its natural size and cut to the
+  // source rect before scaling, so a tile contains no backdrop. Three columns with the tiles
+  // sized to the remaining width: the grid is centred and lands flush at 1400 px.
   const columns = 3;
   const gridWidth = columns * tileWidth + (columns - 1) * gapX;
   const left0 = Math.round((width - gridWidth) / 2);
   const rowHeight = tileHeight + labelGap + labelSize + 2;
-  const scale = tileWidth / 950;
+  const scale = tileWidth / source.width;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { width: ${width}px; height: ${height}px; background: ${GRID_BG}; position: relative;
@@ -344,7 +349,7 @@ function gridHtml(spec, tiles) {
               letter-spacing: 0.047em; }
     .tile { position: absolute; width: ${tileWidth}px; height: ${tileHeight}px; overflow: hidden; }
     .tile img { display: block; width: 1280px; height: 800px; transform-origin: top left;
-                transform: scale(${scale.toFixed(7)}) translate(-165px, -8px); }
+                transform: scale(${scale.toFixed(7)}) translate(-${source.x}px, -${source.y}px); }
     .label { position: absolute; width: ${tileWidth}px; text-align: center; font-size: ${labelSize}px;
              line-height: 1; letter-spacing: 0.02em; }
   </style></head><body>
