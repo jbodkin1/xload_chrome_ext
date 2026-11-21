@@ -328,10 +328,17 @@ If the Account page also has a policy field, use this same link there.
 
 ## 6. Test instructions tab
 
-Optional, and blank for this item: no login, no credentials, no setup beyond installing.
-Worth a single line only if a reviewer would otherwise wonder — "click the toolbar icon and
-wait two seconds for the first sample" is the whole instruction set, and the listing already
-says it.
+Optional, but not empty for this item. No login, no credentials and no setup beyond
+installing, so the tab would otherwise stay blank — but the Privacy answers justify the two
+permissions and never mention `background.js`, the one manifest entry a reviewer would have
+to guess about. One line closes that gap; paste this:
+
+```
+Click the toolbar icon; the first sample appears within about two seconds, there is nothing to sign in to, and sampling happens only while the popup is open — the service worker just writes two default settings on first install and stops.
+```
+
+It says the same three things as `PRIVACY.md` in the same words, so a reviewer cross-reading
+the two finds no contradiction.
 
 ---
 

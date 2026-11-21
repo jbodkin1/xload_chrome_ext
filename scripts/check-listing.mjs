@@ -479,6 +479,30 @@ if (!offline) {
   );
 }
 
+group('STORE-LISTING.md — test instructions');
+
+// The Privacy answers justify the two permissions and never mention background.js, so this
+// tab is the only place a reviewer is told what the service worker does. Without it the worker
+// reads as an unexplained background script in a 17 KB package.
+const testBlock = blocks.find((b) => b.startsWith('Click the toolbar icon'));
+check('test-instructions answer found', Boolean(testBlock), 'expected a fenced answer starting "Click the toolbar icon"');
+
+if (testBlock) {
+  const sentences = (testBlock.match(/\.(?=\s|$)/g) || []).length;
+  check('it is a single sentence', sentences === 1, `${sentences} sentence ends`);
+  check('it names the service worker', /service worker/i.test(testBlock));
+  check('it confines the worker to writing defaults on install', /writes two default settings on first install/i.test(testBlock) && /stops/i.test(testBlock));
+  check('it keeps sampling in the popup', /sampling happens only while the popup is open/i.test(testBlock));
+
+  const testSection = section(doc, '## 6. Test instructions tab');
+  check('section 6 carries that answer', plain(testSection).includes(plain(testBlock)), 'the fenced block sits outside section 6');
+  check('section 6 no longer calls the tab blank', !/blank for this item/i.test(testSection), 'still describes the tab as left blank');
+
+  // The policy is the other half of the same story; keep the two saying it the same way.
+  check('the policy describes the same worker', plain(policy).includes('writes those same two defaults'), 'PRIVACY.md wording');
+  check('the policy says the same about sampling', plain(policy).includes('Sampling happens only while the popup is open'), 'PRIVACY.md retention paragraph');
+}
+
 group('store/SUBMISSION-COPY.txt matches the listing copy');
 
 // One paste-ready file, generated from the listing doc. It is easy to hand-edit this and
@@ -489,6 +513,7 @@ same('contains the detailed description verbatim', paste.includes(detailed), tru
 same('contains the single-purpose answer verbatim', paste.includes(singlePurpose), true);
 same('contains the system.cpu justification verbatim', paste.includes(cpuAnswer), true);
 same('contains the storage justification verbatim', paste.includes(storageAnswer), true);
+if (testBlock) same('contains the test-instructions answer verbatim', paste.includes(testBlock), true);
 same('does not carry the unused alternative summary', paste.includes(alternative), false);
 check('carries the policy URL', paste.includes(POLICY_URL));
 check('is plain text, with no fences or Markdown headings', !/```|^#{1,6} /m.test(paste));
