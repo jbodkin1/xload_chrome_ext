@@ -45,9 +45,18 @@ skipped — publishing is blocked until it is done.
 Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.1.0.zip`
 → **Upload**. Nothing is typed here, but the upload is not a bare parse: the manifest is
 validated and the package is installed in a clean profile first, so a broken zip or a
-manifest typo fails at this point rather than during review. The
-package also ships as an asset on the [v1.1.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0),
-so it can be downloaded from there rather than rebuilt.
+manifest typo fails at this point rather than during review.
+
+Upload the zip attached to the [v1.1.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0)
+or the copy committed at the repository root; they are the same bytes, and the asset is the
+rebuilt package that carries `minimum_chrome_version`. It is 9,164 bytes with this SHA-256:
+check it before uploading, because the first 1.1.0 asset was 9,148 bytes and had no
+`minimum_chrome_version`, and a download of that one would submit the old manifest.
+
+```bash
+shasum -a 256 xload-retro-system-monitor-1.1.0.zip
+# 86026dd546d72315cbf6a6ac9b928830d4effe3fc9746ed58fd37e3a4392b536
+```
 
 Upload limit is 2 GB — this package is 9 KB.
 
@@ -404,7 +413,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Upload**
 
 - [x] Manifest `description` matches the summary above, and `version` is 1.1.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`.
+- [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`, 9,164 bytes, sha256
+      `86026dd546d72315cbf6a6ac9b928830d4effe3fc9746ed58fd37e3a4392b536`.
 - [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.

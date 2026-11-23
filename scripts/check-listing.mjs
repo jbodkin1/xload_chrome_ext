@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import zlib from 'node:zlib';
+import crypto from 'node:crypto';
 import { PACKAGE_FILES, packageFileName } from './package-files.mjs';
 
 const offline = process.argv.includes('--offline');
@@ -283,6 +284,22 @@ if (exists(zipName)) {
   const zipKb = doc.match(/this package is (\d+) KB/);
   check(`package size stated as ${Math.round(kib(zipName))} KB`, zipKb && Number(zipKb[1]), `${Math.round(kib(zipName))} KB`);
 
+  // The upload step names the release asset as an alternative source, so the doc has to
+  // identify those bytes exactly: the first 1.1.0 asset was 16 bytes lighter because it was
+  // built before the manifest changed, and "download the zip from the release" did not
+  // distinguish the two. Byte count and hash are re-derived from the committed package, so a
+  // rebuild that changes either fails here until the doc is updated with it.
+  const zipBytes = fs.readFileSync(zipPath);
+  const zipHash = crypto.createHash('sha256').update(zipBytes).digest('hex');
+  const zipSize = zipBytes.length.toLocaleString('en-US');
+  check(`the upload step states the ${zipSize}-byte size`, doc.includes(`${zipSize} bytes`), 'step 1');
+  check('the upload step quotes the package sha256', doc.includes(zipHash), zipHash);
+  check(
+    'the upload step links the release for this version',
+    doc.includes(`/releases/tag/v${manifest.version}`),
+    `expected /releases/tag/v${manifest.version}`
+  );
+
   for (const entry of expected) {
     let inside = null;
     try {
@@ -474,6 +491,7 @@ for (const match of bashBlocks) {
 // The package smoke test only helps if the release steps tell someone to run it. It needs
 // Chrome and the built zip, so it stays a local step rather than a CI job.
 check('RELEASING.md runs the smoke test before the tag', releasing.includes('node scripts/smoke.mjs'), 'the release steps never mention it');
+check('RELEASING.md compares the downloaded asset with the local zip', /shasum -a 256 "\$ZIP" \/tmp\/asset\.zip/.test(releasing), 'step 8 should verify the asset');
 check('the smoke script it names exists', exists('scripts/smoke.mjs'));
 
 // The package is built by one script from one list. A second copy of the file names — in the
