@@ -137,7 +137,7 @@ function pngOpaque(file) {
 }
 
 const manifest = JSON.parse(read('manifest.json'));
-const DOC_FILES = ['README.md', 'PRIVACY.md', 'SECURITY.md', 'STORE-LISTING.md', 'RELEASING.md'];
+const DOC_FILES = ['README.md', 'PRIVACY.md', 'SECURITY.md', 'STORE-LISTING.md', 'RELEASING.md', 'REJECTION-PLAYBOOK.md'];
 const docs = Object.fromEntries(DOC_FILES.map((file) => [file, read(file)]));
 const doc = docs['STORE-LISTING.md'];
 
@@ -176,6 +176,32 @@ check('doc promises no host-permissions row', doc.includes('**No host permission
 
 same('popup file exists', exists(manifest.action.default_popup), true);
 same('service worker file exists', exists(manifest.background.service_worker), true);
+
+group('manifest.json — minimum Chrome version');
+
+// The floor Chrome and the store enforce, so a browser that cannot read this manifest is told
+// "Not compatible" rather than failing at install. Manifest V3 is supported from Chrome 88 and
+// nothing the package calls is newer than that — the promise form of chrome.system.cpu.getInfo()
+// arrived in 91, but popup.js uses the callback form, which predates MV3 by years. A higher
+// number would not be wrong, only narrower than the code needs.
+const MV3_FLOOR = 88;
+const minimumChrome = manifest.minimum_chrome_version;
+check('manifest declares minimum_chrome_version', typeof minimumChrome === 'string', `found ${JSON.stringify(minimumChrome)}`);
+check(
+  'it is a major version string, the form the store compares as a prefix',
+  typeof minimumChrome === 'string' && /^\d+$/.test(minimumChrome),
+  JSON.stringify(minimumChrome)
+);
+check(
+  `it is not below the Manifest V3 floor of ${MV3_FLOOR}`,
+  Number(minimumChrome) >= MV3_FLOOR,
+  `${minimumChrome} would refuse browsers that can read this manifest`
+);
+const chromeClaims = [...docs['README.md'].matchAll(/Chrome (\d+) or later/g)].map((m) => Number(m[1]));
+check('README states the minimum version', chromeClaims.length > 0, 'no "Chrome N or later"');
+same('every minimum in README matches the manifest', [...new Set(chromeClaims)], [Number(minimumChrome)]);
+check('STORE-LISTING.md quotes the manifest floor', doc.includes(`\`minimum_chrome_version\`: \`${minimumChrome}\``), 'step 1 manifest metadata');
+check('the checklist repeats the floor', doc.includes(`minimum Chrome ${minimumChrome}`), 'Before submitting checklist');
 
 group('STORE-LISTING.md — character counts');
 
@@ -596,6 +622,34 @@ if (testBlock) {
   check('the policy describes the same worker', plain(policy).includes('writes those same two defaults'), 'PRIVACY.md wording');
   check('the policy says the same about sampling', plain(policy).includes('Sampling happens only while the popup is open'), 'PRIVACY.md retention paragraph');
 }
+
+group('REJECTION-PLAYBOOK.md — it may only claim what the code does');
+
+// An appeal is a statement about the submitted code, and a reply that names a call the code
+// does not make, or a function that does not exist, is worse than no reply at all. These
+// checks tie the playbook's claims to the files it points a reviewer at.
+const playbook = docs['REJECTION-PLAYBOOK.md'];
+check('STORE-LISTING.md points at the playbook', doc.includes('[REJECTION-PLAYBOOK.md](REJECTION-PLAYBOOK.md)'), 'step 7');
+for (const [label, api] of [
+  ['system.cpu', 'chrome.system.cpu.getInfo'],
+  ['storage', 'chrome.storage.local'],
+]) {
+  check(`the ${label} reply names ${api}, which the shipped code calls`, playbook.includes(api) && allSource.includes(api), 'reply and code disagree');
+}
+check(
+  'it says sync storage is never written, and the code never touches it',
+  /chrome\.storage\.sync/.test(playbook) && !allSource.includes('chrome.storage.sync')
+);
+for (const fn of ['queryCpuInfo', 'persistHistory']) {
+  check(`it names ${fn}(), which exists in popup.js`, playbook.includes(`${fn}()`) && new RegExp(`function ${fn}\\(`).test(source['popup.js']));
+}
+check('it names the Appeal route the dashboard offers', /Appeal/.test(playbook), 'the Appeal button on the item detail page');
+
+// The replies quote the files a reviewer can open, so the paths must be the shipped ones.
+for (const file of ['manifest.json', 'popup.js']) {
+  check(`it points at ${file} where the reviewer can open it`, playbook.includes(`/blob/main/${file}`), 'a link to the file on main');
+}
+
 
 group('store/SUBMISSION-COPY.txt matches the listing copy');
 
