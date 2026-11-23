@@ -7,6 +7,7 @@ Prepares the extension for its Chrome Web Store listing; not yet published.
 ### Packaging
 
 - Upload package `xload-retro-system-monitor-1.1.0.zip`: the seven extension files with `manifest.json` at the zip root — no docs, no screenshots, no tooling.
+- `manifest.json` declares `minimum_chrome_version` 88 — Manifest V3's own floor, and older than anything the popup calls — so Chrome and the store show *Not compatible* instead of failing the install on an older browser. The attached zip was rebuilt to include it.
 - Manifest short description rewritten to say what the graph actually plots (a live CPU load percentage, not a load average), and root-level `icons` declared.
 
 ### Store listing
