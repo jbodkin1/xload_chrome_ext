@@ -78,7 +78,7 @@ thirty seconds.
 
 ## Requirements
 
-Any current version of Google Chrome (or another Chromium-based browser that supports Manifest V3 and the `system.cpu` API). Desktop platforms only — mobile Chrome does not support extensions, and the `system.cpu` API needs a real CPU to read.
+Google Chrome 88 or later: Manifest V3 is supported from Chrome 88, and `manifest.json` declares that as its `minimum_chrome_version`, so Chrome and the Web Store show *Not compatible* instead of installing on anything older. Another Chromium-based browser works if it carries Manifest V3 and the `system.cpu` API. Desktop platforms only — mobile Chrome does not support extensions, and the `system.cpu` API needs a real CPU to read.
 
 ## License
 

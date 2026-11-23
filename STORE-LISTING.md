@@ -57,6 +57,9 @@ re-uploading, so confirm these before choosing the file:
 
 - `name`: `xload Retro System Monitor` — 26 of 45 characters.
 - `version`: `1.1.0`.
+- `minimum_chrome_version`: `88` — Manifest V3 is supported from Chrome 88 and nothing in
+  the package is newer, so the floor is the platform's own. Chrome and the store show
+  **Not compatible** rather than installing on anything older.
 - `description`: the summary string in step 3, 116 of 132 characters.
 - `icons`: 16/48/128 at the package root — three sizes, no 32 (Chrome scales from 48).
 
@@ -386,6 +389,9 @@ For a first submission, unchecking it is the lower-risk option: it lets you look
 listing page before it is public. Review duration depends on the item; enable publish/staged
 notifications on the Account page if you want the email rather than checking the dashboard.
 
+If it comes back rejected, the replies, evidence and appeal route for the two likely findings —
+permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAYBOOK.md).
+
 ---
 
 ## Before submitting
@@ -405,7 +411,7 @@ notifications on the Account page if you want the email rather than checking the
 
 **Package tab**
 
-- [ ] Version 1.1.0, exactly two permissions, no host permissions.
+- [ ] Version 1.1.0, exactly two permissions, no host permissions, minimum Chrome 88.
 
 **Store listing**
 
