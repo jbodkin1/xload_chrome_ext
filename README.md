@@ -66,6 +66,7 @@ thirty seconds.
 - After changing the code, press the reload icon on the extension's card at `chrome://extensions`, then close and reopen the popup.
 - To remove it, click **Remove** on the extension's card, or just delete the folder.
 - Because it runs in Chrome's own sandbox, the CPU figures reflect the whole machine, but very short-lived spikes can fall between samples — sample faster (0.1s) if you care about those.
+- The figure is an average across every logical core and counts kernel (system) time as load, so one pinned core on a 12-core machine reads about 8%, not 100%.
 - Cutting a release? The version bump, zip, tag, notes and asset steps are written down in [RELEASING.md](RELEASING.md).
 
 ## How it works
