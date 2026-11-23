@@ -44,17 +44,14 @@ jobs:
         with:
           node-version: 'lts/*'
 
-      # The exact command from RELEASING.md step 2, so CI uploads nothing that a human
-      # build would differ from: seven files, manifest.json at the root, no directories.
+      # The same builder RELEASING.md step 2 tells a human to run, so the release steps and
+      # CI cannot disagree about which files ship: that list is scripts/package-files.mjs.
       - name: Build the store package
         run: |
           set -euo pipefail
-          VERSION=$(node -p "require('./manifest.json').version")
-          ZIP="xload-retro-system-monitor-$VERSION.zip"
-          rm -f ./*.zip
-          zip -X -q "$ZIP" manifest.json popup.html popup.js background.js icon16.png icon48.png icon128.png
+          node scripts/build-package.mjs
+          ZIP=$(ls xload-retro-system-monitor-*.zip)
           unzip -Z1 "$ZIP"
-          test "$(unzip -Z1 "$ZIP" | wc -l)" -eq 7
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
 
       # The runner ships Google Chrome stable. smoke.mjs finds it on PATH, but naming it

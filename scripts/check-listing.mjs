@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import zlib from 'node:zlib';
+import { PACKAGE_FILES, packageFileName } from './package-files.mjs';
 
 const offline = process.argv.includes('--offline');
 const root = process.cwd();
@@ -242,13 +243,13 @@ check(`marquee size stated as ${Math.round(kib(marquee))} KB`, marqueeKb && Numb
 
 group('STORE-LISTING.md — package');
 
-const zipName = `xload-retro-system-monitor-${manifest.version}.zip`;
+const zipName = packageFileName(manifest.version);
 const zipPath = path.join(root, zipName);
 check(`package ${zipName} exists`, exists(zipName), 'run step 2 of RELEASING.md');
 
 if (exists(zipName)) {
   const entries = execFileSync('unzip', ['-Z1', zipName], { cwd: root }).toString().trim().split('\n');
-  const expected = ['manifest.json', 'popup.html', 'popup.js', 'background.js', ...iconSizes.map((s) => manifest.icons[s])];
+  const expected = [...PACKAGE_FILES];
   same('zip holds no directory entries', entries.filter((e) => e.endsWith('/')), []);
   same('zip contents', [...entries].sort(), [...expected].sort());
   same('doc states seven entries', doc.includes('seven entries'), true);
@@ -448,6 +449,14 @@ for (const match of bashBlocks) {
 // Chrome and the built zip, so it stays a local step rather than a CI job.
 check('RELEASING.md runs the smoke test before the tag', releasing.includes('node scripts/smoke.mjs'), 'the release steps never mention it');
 check('the smoke script it names exists', exists('scripts/smoke.mjs'));
+
+// The package is built by one script from one list. A second copy of the file names — in the
+// release steps or in the workflow — is how the build and the docs drift apart.
+check('RELEASING.md builds the package with the script', releasing.includes('node scripts/build-package.mjs'), 'step 2 should call it');
+check('the package builder it names exists', exists('scripts/build-package.mjs'));
+check('the package file list is not repeated in RELEASING.md', !/\bicon128\.png\b/.test(releasing), 'name scripts/package-files.mjs instead');
+const workflow = fs.readFileSync(path.join(root, '.github/workflows/checks.yml'), 'utf8');
+check('the package file list is not repeated in the workflow', !/\bicon128\.png\b/.test(workflow), 'call scripts/build-package.mjs instead');
 
 group('privacy tab answers agree with PRIVACY.md');
 

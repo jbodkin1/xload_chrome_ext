@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
+import { PACKAGE_FILES } from './package-files.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -45,8 +46,9 @@ const only = argValue('only')?.split(',').map(Number) ?? null;
 const today = new Date().toISOString().slice(0, 10);
 const outDir = path.resolve(root, argValue('out') || `store/review-${today}`);
 
-// Shipped files only, so the extension under test is exactly the package.
-const SHIPPED = ['manifest.json', 'popup.html', 'popup.js', 'background.js', 'icon16.png', 'icon48.png', 'icon128.png'];
+// Shipped files only, so the extension under test is exactly the package. The list lives in
+// scripts/package-files.mjs, shared with the build script, CI and the smoke test.
+const SHIPPED = PACKAGE_FILES;
 
 // The backdrops measured from the tracked assets: the light X11 desktop for the pale themes,
 // near-black for the dark ones. Matching them keeps a fresh set visually interchangeable.

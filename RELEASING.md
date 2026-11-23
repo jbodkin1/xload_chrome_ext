@@ -17,17 +17,18 @@ relies on remembering what was done last time.
 ## 2. Rebuild the store zip
 
 Only the seven extension files go in, with `manifest.json` at the zip root — no docs, no
-`store/`, no tooling.
+`store/`, no tooling. That list lives in `scripts/package-files.mjs`, which this script, CI,
+the smoke test and the screenshot capture all read, so it is edited in one place:
 
 ```bash
-VERSION=$(node -p "require('./manifest.json').version")
-ZIP="xload-retro-system-monitor-$VERSION.zip"
-rm -f ./*.zip
-zip -X -q "$ZIP" manifest.json popup.html popup.js background.js icon16.png icon48.png icon128.png
-unzip -Z1 "$ZIP"                                   # exactly 7 entries, no directories
-unzip -p "$ZIP" manifest.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version"
-unzip -t "$ZIP" | tail -1                          # No errors detected
+node scripts/build-package.mjs                     # writes xload-retro-system-monitor-<version>.zip
+unzip -Z1 xload-retro-system-monitor-*.zip         # exactly 7 entries, no directories
+unzip -p xload-retro-system-monitor-*.zip manifest.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version"
+unzip -t xload-retro-system-monitor-*.zip | tail -1   # No errors detected
 ```
+
+The script clears older `*.zip` files from the repo root and fails if the package does not
+hold exactly the files in the list, so a half-built upload cannot reach the dashboard.
 
 ## 3. Check the listing copy against the files
 
