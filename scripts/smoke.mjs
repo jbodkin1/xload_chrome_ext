@@ -23,6 +23,7 @@ import zlib from 'node:zlib';
 import os from 'node:os';
 import { spawn, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { PACKAGE_FILES, packageFileName } from './package-files.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
@@ -74,7 +75,7 @@ function readZip(file) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
-const zipPath = path.resolve(root, argValue('zip') || `xload-retro-system-monitor-${manifest.version}.zip`);
+const zipPath = path.resolve(root, argValue('zip') || packageFileName(manifest.version));
 
 if (!fs.existsSync(zipPath)) {
   console.error(`No package at ${path.relative(root, zipPath)}. Build it first — RELEASING.md step 2.`);
@@ -91,8 +92,8 @@ try {
 
 const names = entries.map((entry) => entry.name).sort();
 check(
-  'package holds the seven shipped files',
-  JSON.stringify(names) === JSON.stringify(['background.js', 'icon128.png', 'icon16.png', 'icon48.png', 'manifest.json', 'popup.html', 'popup.js']),
+  `package holds the ${PACKAGE_FILES.length} shipped files`,
+  JSON.stringify(names) === JSON.stringify([...PACKAGE_FILES].sort()),
   names.join(' ')
 );
 check('manifest.json sits at the package root', names.includes('manifest.json'));
