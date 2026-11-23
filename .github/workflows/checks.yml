@@ -28,3 +28,43 @@ jobs:
       # `node scripts/check-listing.mjs` without the flag before a release (RELEASING.md).
       - name: Check STORE-LISTING.md, README.md, PRIVACY.md and SECURITY.md
         run: node scripts/check-listing.mjs --offline
+
+  # The docs job above proves the prose and the files agree. This job answers the other
+  # question: does the package Chrome would be handed actually run? It builds the zip from
+  # this commit rather than trusting the committed one, then drives the real popup in
+  # headless Chrome through scripts/smoke.mjs.
+  popup:
+    name: popup runs in Chrome
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: 'lts/*'
+
+      # The exact command from RELEASING.md step 2, so CI uploads nothing that a human
+      # build would differ from: seven files, manifest.json at the root, no directories.
+      - name: Build the store package
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./manifest.json').version")
+          ZIP="xload-retro-system-monitor-$VERSION.zip"
+          rm -f ./*.zip
+          zip -X -q "$ZIP" manifest.json popup.html popup.js background.js icon16.png icon48.png icon128.png
+          unzip -Z1 "$ZIP"
+          test "$(unzip -Z1 "$ZIP" | wc -l)" -eq 7
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      # The runner ships Google Chrome stable. smoke.mjs finds it on PATH, but naming it
+      # here puts the browser version in the log next to any failure it causes.
+      - name: Find Chrome
+        run: |
+          set -euo pipefail
+          CHROME=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)
+          "$CHROME" --version
+          echo "CHROME_PATH=$CHROME" >> "$GITHUB_ENV"
+
+      - name: Smoke-test the package
+        run: node scripts/smoke.mjs --zip="$ZIP" --chrome="$CHROME_PATH"
