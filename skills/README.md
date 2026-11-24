@@ -19,8 +19,11 @@ one guide per web platform feature or UI pattern.
 | Release | `v1.0.2` — newest tag, and upstream `HEAD` when this was taken |
 | Commit | `2b4aa13a72dd47cd135b06ce5abfccd92e19b24f` |
 | Vendored | 23 Nov 2026 |
-| Contents | `SKILL.md`, 211 guides in 17 disciplines, upstream `LICENSE` (Apache-2.0) |
-| Size | 213 files, 2.4 MB |
+| Files | 213 |
+| Guides | 211 |
+| Disciplines | 17 |
+| Bytes | 2,074,710 |
+| Contents | `SKILL.md`, `guides/**`, upstream `LICENSE` (Apache-2.0) |
 | Docs | <https://developer.chrome.com/docs/modern-web-guidance> |
 
 Deliberately not vendored: upstream's plugin manifests (`plugin.json`,
@@ -32,6 +35,31 @@ The tree is unmodified. Upstream keeps its `LICENSE` at the repository root, so 
 clone and `diff -r` report exactly one difference — that added `LICENSE` file. That is
 the point of vendoring it unchanged: refreshing is a copy plus a diff, never a merge, and
 any other difference means someone edited the vendored copy and it should be reverted.
+
+`scripts/check-listing.mjs` re-derives `Files`, `Guides`, `Disciplines` and `Bytes` from
+the tree and compares them with the rows above, checks that `Release` and `Commit` are
+recorded and agree with `AGENTS.md`, and checks that `.claude/skills/modern-web-guidance`
+still resolves into `skills/`. CI runs it as *docs match the code*. It cannot reach the
+network, so it cannot tell you a newer release exists — only that this copy is the one the
+documents describe, which is what catches an edit or a half-finished refresh.
+
+### Agent loading
+
+Checked on 24 Nov 2026 on the machine this was set up on:
+
+- **Gemini CLI 0.55.1** — `GEMINI_API_KEY=invalid gemini --debug -p 'hi'` logs
+  `[MemoryDiscovery] ... GEMINI.md` followed by `Successfully read and processed imports`
+  with a 3,361-character payload against `AGENTS.md`'s 3,303 bytes, so the file is found
+  *and* the `@./AGENTS.md` import is expanded. Gemini CLI has no skill directory of its
+  own here; those instructions are how it reaches the guides.
+- **Claude Code 2.1.139** — not logged in on that machine, so discovery was not observed
+  in a session. The layout is the documented one: a `<skill-name>` entry under
+  `.claude/skills/` may be a symlink, and Claude Code reads `SKILL.md` from the target and
+  loads the skill once even when several locations point at it
+  (<https://code.claude.com/docs/en/skills>). 2.1.139 predates native `AGENTS.md` support,
+  which is why `CLAUDE.md` imports it.
+- Frontmatter fits the listing: `name` is 19 characters and `description` 859 of the 1,536
+  characters Claude Code allows before it truncates an entry.
 
 ### Checking for a newer release
 
@@ -71,10 +99,15 @@ explains.
 2. Check the `--skill-version` pin in `SKILL.md` (currently `2026_11_16-268fb9ea`). The
    guide corpus and that CLI pin are versioned separately, so a tag bump can change one
    without the other; leave the line alone only if upstream left it alone.
-3. Confirm the counts the docs quote:
-   `find skills/modern-web-guidance/guides -name '*.md' | wc -l` and
-   `du -sh skills/modern-web-guidance`.
+3. Recompute the numbers the table records, from the repository root:
+
+   ```sh
+   find skills/modern-web-guidance -type f | wc -l                            # Files
+   find skills/modern-web-guidance/guides -name '*.md' | wc -l               # Guides
+   ls skills/modern-web-guidance/guides | wc -l                              # Disciplines
+   find skills/modern-web-guidance -type f -print0 | xargs -0 wc -c | tail -1 # Bytes
+   ```
 4. Commit it on its own, so the review question is only "is this upstream's release?".
    A diff that edits individual guides is a sign the copy was merged instead of ported.
-5. `node scripts/check-listing.mjs --offline` — the vendored copy is out of the package,
-   so this should stay green at whatever count it reports on `main`.
+5. `node scripts/check-listing.mjs --offline` — it re-derives the numbers you just edited,
+   so a table that disagrees with the tree fails here rather than in review.
