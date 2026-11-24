@@ -44,6 +44,13 @@ if (!policyUrl) {
   process.exit(1);
 }
 
+// Set on the Account page, not on the item, so it is read from the doc rather than a field block.
+const publisherName = (doc.match(/set the publisher name to \*\*`([^`]+)`\*\*/) || [])[1];
+if (!publisherName) {
+  console.error('build-submission-copy: no publisher name found in STORE-LISTING.md');
+  process.exit(1);
+}
+
 const n = (value) => value.toLocaleString('en-US');
 const bar = (title) => `=== ${title} ===`;
 
@@ -52,6 +59,9 @@ const out = [
   'Generated from STORE-LISTING.md by scripts/build-submission-copy.mjs. Do not edit by hand:',
   'run that script instead, and scripts/check-listing.mjs will tell you if this file drifts.',
   'Paste only the text under each header. The headers and the blank lines between sections are not part of any field.',
+  '',
+  bar('PUBLISHER NAME - Account page ("Offered by")'),
+  publisherName,
   '',
   bar(`SUMMARY - Store listing (${n(summary.length)} characters, limit 132)`),
   summary,

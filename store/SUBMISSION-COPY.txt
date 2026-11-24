@@ -3,6 +3,9 @@ Generated from STORE-LISTING.md by scripts/build-submission-copy.mjs. Do not edi
 run that script instead, and scripts/check-listing.mjs will tell you if this file drifts.
 Paste only the text under each header. The headers and the blank lines between sections are not part of any field.
 
+=== PUBLISHER NAME - Account page ("Offered by") ===
+Minibiz-Free-Apps
+
 === SUMMARY - Store listing (116 characters, limit 132) ===
 A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.
 

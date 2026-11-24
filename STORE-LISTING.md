@@ -26,8 +26,10 @@ skipped — publishing is blocked until it is done.
 
 - Accept the developer agreement and pay the one-time registration fee.
 - Enable **2-Step Verification** on the Google account. Required before publishing.
-- Verify a contact email and set a publisher name (the "Offered by" line). The account
-  email cannot be changed later, so use an address you will keep.
+- Verify a contact email and set the publisher name to **`Minibiz-Free-Apps`**. That is the
+  **Offered by** line the listing and every review email carries, and it applies to every item
+  the account publishes. The account email cannot be changed later, so use an address you will
+  keep.
 - Declare **Trader** or **Non-Trader** (EU Digital Services Act requirement). A free
   utility published outside a business is most likely a Non-Trader; a trader's legal name
   and contact details are shown publicly on the listing.
@@ -415,7 +417,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Account**
 
 - [ ] Developer account registered: 2-Step Verification on, contact email verified, publisher
-      name set, Trader/Non-Trader declared, account-level privacy policy URL set if offered.
+      name set to `Minibiz-Free-Apps`, Trader/Non-Trader declared, account-level privacy policy
+      URL set if offered.
 
 **Upload**
 
