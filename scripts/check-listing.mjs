@@ -662,9 +662,14 @@ async function resolveLink(url) {
   return { status: page.status, response: null, detail: `the page answered ${page.status}, and its raw copy ${raw ? raw.status : 'was not fetched'}` };
 }
 
-group('PRIVACY.md links point at the current policy');
+group('PRIVACY.md links point at the policy for this version');
 
-const POLICY_URL = 'https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md';
+// The store's policy field must serve what the submitted version shipped with, so the URL names
+// the release tag rather than `main`: a policy edited after review cannot then change what a
+// reviewer read. The tag comes from the manifest, so a version bump fails the check below until
+// STORE-LISTING.md names the new one, which is the reminder to move the dashboard field too.
+const POLICY_TAG = `v${manifest.version}`;
+const POLICY_URL = `https://github.com/jbodkin1/xload_chrome_ext/blob/${POLICY_TAG}/PRIVACY.md`;
 const RAW_POLICY_URL = POLICY_URL.replace('https://github.com/', 'https://raw.githubusercontent.com/').replace('/blob/', '/');
 const policyUrls = [...new Set(DOC_FILES.flatMap((file) => docs[file].match(/https?:\/\/[^\s`)>" ]*PRIVACY\.md[^\s`)>" ]*/gi) || []))];
 
@@ -675,17 +680,28 @@ check('the URL names the file this script validates', POLICY_URL.endsWith('/PRIV
 
 if (!offline) {
   // The links group below already checks that POLICY_URL answers 200; what it cannot tell is
-  // whether the policy being served is the file in this repository.
+  // whether the copy being served is the policy committed at the tag the URL names. The text at
+  // that tag comes from git rather than the working tree, because the two are allowed to differ:
+  // editing PRIVACY.md after a release is exactly what the pinned URL is there to isolate.
+  let committed = null;
+  try {
+    committed = execFileSync('git', ['show', `${POLICY_TAG}:PRIVACY.md`], { cwd: root }).toString();
+  } catch {
+    committed = null;
+  }
   let published = null;
   const raw = await fetchLink(RAW_POLICY_URL);
-  let problem = `raw copy answered ${raw.status}`;
-  if (raw.status === 200 && raw.response) {
+  let problem =
+    committed === null
+      ? `git show ${POLICY_TAG}:PRIVACY.md failed — fetch the tag first (git fetch --tags)`
+      : `raw copy answered ${raw.status}`;
+  if (committed !== null && raw.status === 200 && raw.response) {
     published = await raw.response.text();
-    problem = 'the served policy differs from the file here';
+    problem = 'the served policy differs from the file committed at that tag';
   }
   check(
-    'the published policy is this repository\'s PRIVACY.md',
-    published !== null && published.trimEnd() === docs['PRIVACY.md'].trimEnd(),
+    'the pinned URL serves the policy committed at that tag',
+    published !== null && published.trimEnd() === committed.trimEnd(),
     problem
   );
 }

@@ -152,6 +152,9 @@ rm /tmp/asset.zip
 ## After the release
 
 - The Chrome Web Store upload uses the same zip attached to the release.
+- The store's privacy policy URL is pinned to the release tag, and `scripts/check-listing.mjs`
+  derives it from `manifest.version`: a version bump fails the docs check until `STORE-LISTING.md`
+  names the new tag, so move the field in the dashboard at that point too.
 - Store listing copy, assets and privacy-tab answers live in `STORE-LISTING.md`; the
   screenshots, promo tile and marquee are in `store/`. After editing either, re-run
   `node scripts/check-listing.mjs`.
