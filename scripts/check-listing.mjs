@@ -603,6 +603,38 @@ for (const [label, pattern] of [
 }
 
 
+// GitHub answers Node's own user-agent with 503 on /blob/ pages — the same URL returns 200 once
+// the request identifies itself — so every request below sends one. A link that is really gone
+// answers 404/410, which fails on the first attempt; only answers that can be transient (5xx,
+// 429, a timeout, a dropped connection) are retried, and a link that never stops failing still
+// fails once the attempts run out.
+const LINK_USER_AGENT = 'xload-link-check/1.0 (+https://github.com/jbodkin1/xload_chrome_ext)';
+
+async function fetchLink(url, attempts = 3) {
+  let last = { status: 'no response', response: null };
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    let response = null;
+    try {
+      response = await fetch(url, {
+        headers: { 'user-agent': LINK_USER_AGENT, accept: 'text/html,application/xhtml+xml,*/*;q=0.8' },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(20000),
+      });
+      last = { status: response.status, response };
+      if (response.status !== 429 && response.status < 500) return last;
+    } catch (error) {
+      last = { status: error.name === 'TimeoutError' ? 'timeout' : error.message, response: null };
+    }
+    try {
+      await response?.body?.cancel();
+    } catch {
+      /* the body of a failed attempt is not read */
+    }
+    if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+  }
+  return last;
+}
+
 group('PRIVACY.md links point at the current policy');
 
 const POLICY_URL = 'https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md';
@@ -618,17 +650,11 @@ if (!offline) {
   // The links group below already checks that POLICY_URL answers 200; what it cannot tell is
   // whether the policy being served is the file in this repository.
   let published = null;
-  let problem = 'unreachable';
-  try {
-    const raw = await fetch(RAW_POLICY_URL, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
-    if (raw.ok) {
-      published = await raw.text();
-      problem = 'the served policy differs from the file here';
-    } else {
-      problem = `raw copy answered ${raw.status}`;
-    }
-  } catch (error) {
-    problem = error.name === 'TimeoutError' ? 'timeout fetching the raw copy' : error.message;
+  const { status: rawStatus, response: raw } = await fetchLink(RAW_POLICY_URL);
+  let problem = `raw copy answered ${rawStatus}`;
+  if (rawStatus === 200 && raw) {
+    published = await raw.text();
+    problem = 'the served policy differs from the file here';
   }
   check(
     'the published policy is this repository\'s PRIVACY.md',
@@ -717,13 +743,7 @@ if (offline) {
   check(`link check skipped (--offline): ${urls.length} URLs`, true);
 } else {
   for (const url of urls) {
-    let status = 'no response';
-    try {
-      const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(20000) });
-      status = response.status;
-    } catch (error) {
-      status = error.name === 'TimeoutError' ? 'timeout' : error.message;
-    }
+    const { status } = await fetchLink(url);
     check(`link ${status} ${url}`, status === 200);
   }
 }
