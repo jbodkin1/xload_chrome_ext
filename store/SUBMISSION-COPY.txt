@@ -43,8 +43,8 @@ PERMISSIONS
 
 No dependencies, no build step, no framework. Source code and security policy: github.com/jbodkin1/xload_chrome_ext
 
-=== PRIVACY TAB - SINGLE PURPOSE (71 characters) ===
-Displays live CPU load and memory use in a retro X11-style popup graph.
+=== PRIVACY TAB - SINGLE PURPOSE (70 characters) ===
+Shows live CPU load and memory use in a popup graph, and nothing else.
 
 === PRIVACY TAB - PERMISSION JUSTIFICATION: system.cpu ===
 The extension's only feature is a live CPU load graph. chrome.system.cpu.getInfo() is the sole API that exposes system-wide CPU tick counters; the extension subtracts consecutive user/kernel/idle samples to compute a load percentage for display. No other capability of this permission is used, and it does not expose process names, application data, page content, or any user information. It is the minimum permission consistent with the single purpose.

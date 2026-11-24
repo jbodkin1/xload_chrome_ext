@@ -32,7 +32,7 @@ function pick(description, test) {
 
 const summary = pick('summary block', (b) => b.startsWith('A tiny X11-style'));
 const detailed = pick('detailed description block', (b) => b.startsWith('xload is a small Chrome extension'));
-const singlePurpose = pick('single-purpose answer', (b) => b.startsWith('Displays live CPU load'));
+const singlePurpose = pick('single-purpose answer', (b) => b.startsWith('Shows live CPU load'));
 const cpuAnswer = pick('system.cpu justification', (b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
 const memoryAnswer = pick('system.memory justification', (b) => b.includes('chrome.system.memory.getInfo()'));
 const storageAnswer = pick('storage justification', (b) => b.startsWith('Used only to persist'));
