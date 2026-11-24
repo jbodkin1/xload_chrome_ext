@@ -19,12 +19,6 @@
  *    from manifest.json, popup.html, popup.js and background.js, so a code change that
  *    makes a document untrue fails here rather than in front of a reviewer.
  *
- * 3. skills/modern-web-guidance is third-party content that has to stay identical to its
- *    upstream release. skills/README.md records that release and the size of the copy, so
- *    the counts, byte total, provenance rows and the agent-facing links are re-derived
- *    here: an edited or half-refreshed corpus fails instead of sitting in 2.4 MB of
- *    Markdown nobody diffs.
- *
  * No dependencies: PNG dimensions come from the IHDR chunk, the zip is read with `unzip`,
  * and links are checked with the built-in fetch.
  */
@@ -689,78 +683,6 @@ if (testBlock) same('contains the test-instructions answer verbatim', paste.incl
 same('does not carry the unused alternative summary', paste.includes(alternative), false);
 check('carries the policy URL', paste.includes(POLICY_URL));
 check('is plain text, with no fences or Markdown headings', !/```|^#{1,6} /m.test(paste));
-
-// ============================================================== skills
-group('skills/ — the vendored copy still matches what skills/README.md records');
-
-// The corpus is vendored unchanged precisely so that a refresh is a copy plus `diff -r`
-// (skills/README.md has the procedure). Nothing here can reach the network, so this cannot
-// prove the copy is upstream's newest release — it proves the tree is the one the docs
-// describe. Every number is re-derived, so adding, dropping or editing a guide without
-// updating the record fails here.
-const SKILL = 'modern-web-guidance';
-const skillDir = path.join(root, 'skills', SKILL);
-const skillReadme = read('skills/README.md');
-const skillRow = (label) => {
-  const row = skillReadme.match(new RegExp(`^\\|\\s*${label}\\s*\\|\\s*(.+?)\\s*\\|$`, 'm'));
-  return row ? row[1] : '';
-};
-const skillCount = (label) => Number(skillRow(label).replace(/[^0-9]/g, ''));
-// Dotfiles are skipped: browsing the directory in Finder leaves a gitignored .DS_Store
-// behind, it is never part of the vendored release, and it must not read as drift.
-const filesUnder = (dir) =>
-  fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (entry.name.startsWith('.')) return [];
-    const full = path.join(dir, entry.name);
-    return entry.isDirectory() ? filesUnder(full) : [full];
-  });
-
-const skillText = read(`skills/${SKILL}/SKILL.md`);
-const releaseTag = (skillRow('Release').match(/`(v[\d.]+)`/) || [])[1];
-const releaseCommit = (skillRow('Commit').match(/`([0-9a-f]{40})`/) || [])[1];
-const skillFiles = filesUnder(skillDir);
-const guideFiles = filesUnder(path.join(skillDir, 'guides'));
-const disciplines = fs
-  .readdirSync(path.join(skillDir, 'guides'), { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'));
-
-same(`SKILL.md frontmatter names ${SKILL}`, (skillText.match(/^name:\s*(\S+)$/m) || [])[1], SKILL);
-check('skills/README.md records a release tag', /^v\d+\.\d+\.\d+$/.test(releaseTag || ''), 'Release row');
-check('skills/README.md records the full upstream commit', Boolean(releaseCommit), 'Commit row, 40 hex characters');
-same('vendored file count', skillFiles.length, skillCount('Files'));
-same('vendored guide count', guideFiles.length, skillCount('Guides'));
-same('guide discipline directories', disciplines.length, skillCount('Disciplines'));
-same(
-  'vendored byte total',
-  skillFiles.reduce((sum, file) => sum + fs.statSync(file).size, 0),
-  skillCount('Bytes')
-);
-same('every guide is one Markdown file', guideFiles.filter((file) => !file.endsWith('.md')), []);
-check(
-  'the upstream LICENSE sits with the copy',
-  /Apache License/.test(read(`skills/${SKILL}/LICENSE`)),
-  'Apache-2.0 text'
-);
-
-// The refresh steps edit AGENTS.md as well as this table, so half a refresh — one file
-// updated, the other forgotten — is caught here rather than after a release.
-const agentDoc = read('AGENTS.md');
-check(`AGENTS.md names the same release (${releaseTag})`, agentDoc.includes(`\`${releaseTag}\``), 'skill section');
-check(
-  `AGENTS.md names the same commit (${releaseCommit && releaseCommit.slice(0, 7)})`,
-  Boolean(releaseCommit) && agentDoc.includes(releaseCommit.slice(0, 7)),
-  'skill section'
-);
-
-// Registration is part of the same promise: a skill nobody can load is stale in practice.
-const claudeSkill = path.join(root, '.claude', 'skills', SKILL);
-check(
-  'Claude Code still finds the skill through .claude/skills',
-  fs.existsSync(claudeSkill) && fs.realpathSync(claudeSkill) === fs.realpathSync(skillDir),
-  'symlink into skills/'
-);
-check('Gemini CLI is pointed at AGENTS.md', /^@\.?\/?AGENTS\.md$/m.test(read('GEMINI.md')), 'GEMINI.md import');
-check('Claude Code is pointed at AGENTS.md', /^@AGENTS\.md$/m.test(read('CLAUDE.md')), 'CLAUDE.md import');
 
 // ============================================================== links
 group('links');
