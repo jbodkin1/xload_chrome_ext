@@ -2,11 +2,11 @@
 
 A tiny Chrome extension that plots your live CPU load in a vintage X11 / `xload`-style window, complete with CRT scanlines and chunky pixel graphics.
 
-This is for people who long for the days of fast, simple applications that were not bloated. No accounts, no telemetry, no dashboards full of half-rendered widgets, no 200 MB of JavaScript to draw a line. It is four small files and a handful of kilobytes of plain JavaScript that does exactly one thing: show you what your CPU is doing, the way a 1990s workstation would have.
+This is for people who long for the days of fast, simple applications that were not bloated. No accounts, no telemetry, no dashboards full of half-rendered widgets, no 200 MB of JavaScript to draw a line. It is four small files and a handful of kilobytes of plain JavaScript that does exactly one thing: show you what your CPU is doing — and, in the status bar, how much memory is in use — the way a 1990s workstation would have.
 
 ![The xload popup: an X11-style window with a scrolling CPU load graph in the Hacker Green theme, plus theme and refresh-rate controls](popup.png)
 
-*The screenshot above shows the Hacker Green theme sampling at 1.0s. The default is Classic X11 — a white background with a red trace and black grid — and it is selected out of the box until you pick something else; the other four themes are available from the Theme Accent menu.*
+*The screenshot above shows the Hacker Green theme sampling at 0.1s under load, with `LOAD:`, `MEMORY:` and `SCALE:` along the bottom. The default is Classic X11 — a white background with a red trace and black grid — and it is selected out of the box until you pick something else; the other five themes are available from the Theme Accent menu.*
 
 ## What it does
 
@@ -14,9 +14,12 @@ Click the toolbar icon and a 400×330 window opens, styled like a Motif-era X11 
 
 The load figure is worked out the honest way — by sampling `chrome.system.cpu.getInfo()` and diffing the user, kernel and idle tick counters against the previous sample across all cores, then dividing active ticks by total ticks. That number is plotted as a filled area graph against an auto-scaling Y axis (rounded up to the nearest 10%, capped at 100%), so a mostly idle machine shows a nearly flat line at the bottom instead of a meaningless full-height wiggle.
 
+Below the graph the status bar carries three readouts: `LOAD:` for the newest CPU sample, `MEMORY:` in the middle for the share of installed RAM in use, and `SCALE:` for the graph's current Y-axis maximum. The memory figure comes from `chrome.system.memory.getInfo()` — total capacity against available capacity, sampled on the same timer as the CPU, so the two readouts move together.
+
 ### Features
 
 - **Live CPU load graph** — a rolling 120-point history, so you see the last couple of minutes of behaviour, not just an instantaneous number.
+- **Live memory readout** — `MEMORY:` in the centre of the status bar shows the percentage of installed RAM in use, refreshed on the same timer as the graph.
 - **Six themes** — Classic X11 (white paper/red line), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome. Each one changes the graph colours, background and fill.
 - **Adjustable refresh rate** — from 0.1s (ultrafast) up to 5.0s, so you can trade CPU cost against smoothness. It defaults to 1.0s.
 - **Toggleable grid and scanlines** — grid alignment lines for reading values off the graph, and CRT scanlines if you want the full nostalgic experience (or no scanlines if you don't).
@@ -24,14 +27,15 @@ The load figure is worked out the honest way — by sampling `chrome.system.cpu.
 
 ### What it does not do
 
-- No network requests. The extension holds only the `system.cpu` and `storage` permissions and never talks to a server.
+- No network requests. The extension holds only the `system.cpu`, `system.memory` and `storage` permissions and never talks to a server.
 - No analytics, no accounts, no background sampling while the popup is closed, no build step, no dependencies, no framework.
 
 ## Permissions and privacy
 
-xload asks for two permissions, both of which it actually uses:
+xload asks for three permissions, all of which it actually uses:
 
 - **`system.cpu`** — reads the per-core user/kernel/idle tick counters through `chrome.system.cpu.getInfo()`, and nothing else. That is the only way an extension can see system load; it does not expose which applications are running, what they are doing, or any file, window or network activity.
+- **`system.memory`** — reads total and available RAM through `chrome.system.memory.getInfo()` to compute the `MEMORY:` percentage. Those two numbers are capacities, not contents: the API cannot see which applications are running, what they hold in memory, or anything about your files or windows.
 - **`storage`** — saves your settings and the graph's history with `chrome.storage.local`.
 
 What is stored, and where: a small config object (theme, refresh rate, grid and scanline toggles) and the rolling 120-point load history that lets the graph look continuous when you reopen the popup. Both live in Chrome's extension storage on your own machine. Nothing is uploaded, there is no server to upload to, and the extension has no host permissions, content scripts or remote code. Sampling only runs while the popup is open, so nothing is collected when it is closed.
@@ -67,6 +71,7 @@ thirty seconds.
 - To remove it, click **Remove** on the extension's card, or just delete the folder.
 - Because it runs in Chrome's own sandbox, the CPU figures reflect the whole machine, but very short-lived spikes can fall between samples — sample faster (0.1s) if you care about those.
 - The figure is an average across every logical core and counts kernel (system) time as load, so one pinned core on a 12-core machine reads about 8%, not 100%.
+- `MEMORY:` is `(capacity − availableCapacity) / capacity`, so memory the operating system could reclaim counts as available and the readout does not sit pinned at 100%.
 - Cutting a release? The version bump, zip, tag, notes and asset steps are written down in [RELEASING.md](RELEASING.md).
 
 ## How it works
@@ -74,11 +79,11 @@ thirty seconds.
 - `manifest.json` — Manifest V3 declaration, permissions, popup and service worker wiring.
 - `background.js` — a service worker that seeds default settings and an empty history on install.
 - `popup.html` — the entire UI and its CSS, styled as an X11 window with a CRT bezel.
-- `popup.js` — samples CPU usage, maintains the rolling history, and draws the graph onto a 2D canvas with smoothing disabled so lines stay crisp and pixelated.
+- `popup.js` — samples CPU usage and system memory, maintains the rolling history, and draws the graph onto a 2D canvas with smoothing disabled so lines stay crisp and pixelated.
 
 ## Requirements
 
-Google Chrome 88 or later: Manifest V3 is supported from Chrome 88, and `manifest.json` declares that as its `minimum_chrome_version`, so Chrome and the Web Store show *Not compatible* instead of installing on anything older. Another Chromium-based browser works if it carries Manifest V3 and the `system.cpu` API. Desktop platforms only — mobile Chrome does not support extensions, and the `system.cpu` API needs a real CPU to read.
+Google Chrome 88 or later: Manifest V3 is supported from Chrome 88, and `manifest.json` declares that as its `minimum_chrome_version`, so Chrome and the Web Store show *Not compatible* instead of installing on anything older. Another Chromium-based browser works if it carries Manifest V3 and the `system.cpu` and `system.memory` APIs. Desktop platforms only — mobile Chrome does not support extensions, and the `system.cpu` and `system.memory` APIs need a real machine to read.
 
 ## License
 
