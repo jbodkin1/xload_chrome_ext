@@ -51,9 +51,10 @@ listing is not live yet, or to work on the code — load it unpacked instead; th
 thirty seconds.
 
 The store listing is published under the publisher name **Minibiz-Free-Apps**. That is the
-name on the store account that ships this extension, not a fork or a third-party vendor: this
-repository is the source for the code it distributes, and the privacy policy, support link
-and issue tracker the listing points at are the ones here.
+store account of the person who maintains this repository — the same individual, publishing
+under a name, not a separate vendor or a fork — so the code here is exactly what the listing
+distributes, and the privacy policy, support link and issue tracker it points at are the ones
+in this repository.
 
 ### Unpacked install (developer mode)
 

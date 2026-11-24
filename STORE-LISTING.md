@@ -28,10 +28,11 @@ skipped — publishing is blocked until it is done.
 - Enable **2-Step Verification** on the Google account. Required before publishing.
 - Verify a contact email and set the publisher name to **`Minibiz-Free-Apps`**. That is the
   **Offered by** line the listing and every review email carries, and it applies to every item
-  the account publishes. It is the store account for this repository's code, not a separate
-  vendor, so the Homepage and Support URLs below point here and the policy the item is
-  reviewed against is `PRIVACY.md` in this repository. The account email cannot be changed
-  later, so use an address you will keep.
+  the   account publishes. It is the store account of the person who maintains this repository —
+  the same individual, publishing under a name, not a separate vendor — so the Homepage and
+  Support URLs below point here and the policy the item is reviewed against is `PRIVACY.md`
+  in this repository. The account email cannot be changed later, so use an address you will
+  keep.
 - Declare **Trader** or **Non-Trader** (EU Digital Services Act). This is a legal statement
   about who is publishing, not about how the item looks, and the store can act on a wrong
   one. For this item:
