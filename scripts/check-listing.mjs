@@ -635,6 +635,33 @@ async function fetchLink(url, attempts = 3) {
   return last;
 }
 
+const GITHUB_FILE_URL = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|tree)\/([^/]+)\/(.+)$/;
+
+/**
+ * GitHub's HTML pages intermittently answer 503 to a non-browser client even when the file they
+ * render is plainly there — the same check passes, then fails, then passes again. The blob page is
+ * only a rendering of a file in the repository, so when the page itself refuses to answer the file
+ * is confirmed at its raw URL instead: a link that names a file which does not exist answers 404
+ * there just as it does on the page, while a wobbling edge no longer fails the build.
+ */
+async function fetchRawCopy(url) {
+  const match = url.match(GITHUB_FILE_URL);
+  if (!match) return null;
+  const [, owner, repo, ref, file] = match;
+  return fetchLink(`https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${file}`);
+}
+
+/** Resolve one link, returning the status to report and, when it took one, what the page said. */
+async function resolveLink(url) {
+  const page = await fetchLink(url);
+  const transient = typeof page.status === 'number' && (page.status === 429 || page.status >= 500);
+  if (!transient) return page;
+
+  const raw = await fetchRawCopy(url);
+  if (raw && raw.status === 200) return { status: 200, response: null, viaRaw: page.status };
+  return { status: page.status, response: null, detail: `the page answered ${page.status}, and its raw copy ${raw ? raw.status : 'was not fetched'}` };
+}
+
 group('PRIVACY.md links point at the current policy');
 
 const POLICY_URL = 'https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md';
@@ -650,10 +677,10 @@ if (!offline) {
   // The links group below already checks that POLICY_URL answers 200; what it cannot tell is
   // whether the policy being served is the file in this repository.
   let published = null;
-  const { status: rawStatus, response: raw } = await fetchLink(RAW_POLICY_URL);
-  let problem = `raw copy answered ${rawStatus}`;
-  if (rawStatus === 200 && raw) {
-    published = await raw.text();
+  const raw = await fetchLink(RAW_POLICY_URL);
+  let problem = `raw copy answered ${raw.status}`;
+  if (raw.status === 200 && raw.response) {
+    published = await raw.response.text();
     problem = 'the served policy differs from the file here';
   }
   check(
@@ -743,8 +770,9 @@ if (offline) {
   check(`link check skipped (--offline): ${urls.length} URLs`, true);
 } else {
   for (const url of urls) {
-    const { status } = await fetchLink(url);
-    check(`link ${status} ${url}`, status === 200);
+    const { status, detail, viaRaw } = await resolveLink(url);
+    check(`link ${status} ${url}`, status === 200, detail);
+    if (viaRaw) console.log(`      (the GitHub page answered ${viaRaw}; the raw copy confirmed the file)`);
   }
 }
 
