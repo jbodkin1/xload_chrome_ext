@@ -42,20 +42,19 @@ skipped — publishing is blocked until it is done.
 
 ## 1. Add new item — upload the package
 
-Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.1.0.zip`
+Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.2.0.zip`
 → **Upload**. Nothing is typed here, but the upload is not a bare parse: the manifest is
 validated and the package is installed in a clean profile first, so a broken zip or a
 manifest typo fails at this point rather than during review.
 
-Upload the zip attached to the [v1.1.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0)
-or the copy committed at the repository root; they are the same bytes, and the asset is the
-rebuilt package that carries `minimum_chrome_version`. It is 9,164 bytes with this SHA-256:
-check it before uploading, because the first 1.1.0 asset was 9,148 bytes and had no
-`minimum_chrome_version`, and a download of that one would submit the old manifest.
+Upload the zip attached to the [v1.2.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0)
+or the copy committed at the repository root; they are the same bytes. It is 9,498 bytes with
+this SHA-256: check it before uploading, because an asset built before a manifest change is
+indistinguishable from the right one by name and would submit the older package.
 
 ```bash
-shasum -a 256 xload-retro-system-monitor-1.1.0.zip
-# 86026dd546d72315cbf6a6ac9b928830d4effe3fc9746ed58fd37e3a4392b536
+shasum -a 256 xload-retro-system-monitor-1.2.0.zip
+# 9d676fa86e9acdbdd16257508568f18ea92d98d3c6b461e44caa8d7e337a1a5d
 ```
 
 Upload limit is 2 GB — this package is 9 KB.
@@ -65,7 +64,7 @@ after upload**. A typo there means editing the manifest, bumping the version and
 re-uploading, so confirm these before choosing the file:
 
 - `name`: `xload Retro System Monitor` — 26 of 45 characters.
-- `version`: `1.1.0`.
+- `version`: `1.2.0`.
 - `minimum_chrome_version`: `88` — Manifest V3 is supported from Chrome 88 and nothing in
   the package is newer, so the floor is the platform's own. Chrome and the store show
   **Not compatible** rather than installing on anything older.
@@ -78,8 +77,8 @@ re-uploading, so confirm these before choosing the file:
 
 No fields. Use it as the confirmation checkpoint:
 
-- Version shows **1.1.0**.
-- Permissions show exactly two entries: `system.cpu` and `storage`.
+- Version shows **1.2.0**.
+- Permissions show exactly three entries: `system.cpu`, `system.memory` and `storage`.
 - **No host permissions** row appears. If one does, something got into the manifest and
   the upload must be replaced.
 
@@ -115,7 +114,7 @@ plus a new upload.
 
 Plain text, no Markdown — the store renders line breaks but not formatting, so the `- `
 feature bullets appear as literal dashes, as intended. Keep it under about 3,000
-characters; reviewers and users both stop reading long ones. This one is 2,619.
+characters; reviewers and users both stop reading long ones. This one is 2,988.
 
 ```
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
@@ -129,6 +128,7 @@ Most system monitors are heavyweight: a dashboard, a tray of widgets, a database
 WHAT IT DOES
 
 - Live CPU load graph: a rolling 120-point history, so you see the last couple of minutes of behaviour rather than one instantaneous number.
+- Live memory readout: MEMORY in the middle of the status bar shows the percentage of installed RAM in use, sampled on the same timer as the graph.
 - Six themes: Classic X11 (white paper, red trace), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome.
 - Adjustable refresh rate: from 0.1s to 5.0s, defaulting to 1.0s, so you can trade smoothness against cost.
 - Toggleable grid and CRT scanlines: alignment lines for reading values, and scanlines if you want the full nostalgic experience.
@@ -140,11 +140,12 @@ The load figure is computed honestly, not faked: xload samples chrome.system.cpu
 
 PRIVACY
 
-No network requests, no analytics, no telemetry, no accounts, no ads. The extension holds only two permissions: system.cpu, to read load counters, and storage, to keep your display settings and graph history on your own machine. It cannot read page content, tabs, history, files or clipboard, and nothing is ever uploaded anywhere.
+No network requests, no analytics, no telemetry, no accounts, no ads. The extension holds only three permissions: system.cpu, to read load counters; system.memory, to read total and available memory for the MEMORY percentage; and storage, to keep your display settings and graph history on your own machine. It cannot read page content, tabs, history, files or clipboard, and nothing is ever uploaded anywhere.
 
 PERMISSIONS
 
 - system.cpu: reads per-core CPU tick counters to calculate load. No process or application information is available to it.
+- system.memory: reads total and available memory to show the percentage in use. Capacities only, with no process or application information.
 - storage: saves your theme, refresh rate, toggles, and the rolling graph history locally.
 
 No dependencies, no build step, no framework. Source code and security policy: github.com/jbodkin1/xload_chrome_ext
@@ -186,7 +187,7 @@ largest the popup can be without cropping or distortion. These were captured tha
 unpacked extension at a 2× device pixel ratio inside a 640×400 viewport, with the popup
 scaled by CSS `zoom: 1.1875` so it fills the frame height (text rasterises at that size, so
 it stays sharp; the canvas scales through the existing `image-rendering: pixelated`).
-Filling the frame this way is what keeps `LOAD:` and `SCALE:` legible at thumbnail size —
+Filling the frame this way is what keeps `LOAD:`, `MEMORY:` and `SCALE:` legible at thumbnail size —
 at the earlier 62%-width framing the 9px status line turned to mush when downscaled. Real
 `yes` processes produced the load, and the popup's outer drop shadow is neutralised (its
 inset bevel is untouched), so nothing in frame casts a shadow.
@@ -265,7 +266,7 @@ and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280
 
 #### Marquee (1400×560)
 
-`store/07-marquee-1400x560.png` (1400×560 PNG, 232 KB), the six-theme overview: a 3×2 grid of
+`store/07-marquee-1400x560.png` (1400×560 PNG, 235 KB), the six-theme overview: a 3×2 grid of
 graph crops, each cut inside the CRT screen of a real 1280×800 capture (source rect 190, 100,
 896×388) and scaled to 460×199, labelled under the tile, on `#0d0e12` beneath the line
 `xload · SIX THEMES · REAL SAMPLES`. Tiles are sized to the full 1400 px width, so there are no
@@ -298,15 +299,21 @@ compare it against the submitted code. Each block below is a separate field.
 ### Single purpose description
 
 ```
-Displays the system's live CPU load in a retro X11-style popup graph.
+Displays live CPU load and memory use in a retro X11-style popup graph.
 ```
 
-69 characters.
+71 characters.
 
 ### Permission justification — `system.cpu`
 
 ```
 The extension's only feature is a live CPU load graph. chrome.system.cpu.getInfo() is the sole API that exposes system-wide CPU tick counters; the extension subtracts consecutive user/kernel/idle samples to compute a load percentage for display. No other capability of this permission is used, and it does not expose process names, application data, page content, or any user information. It is the minimum permission consistent with the single purpose.
+```
+
+### Permission justification — `system.memory`
+
+```
+The popup shows system memory in use as a percentage of installed RAM, which requires chrome.system.memory.getInfo(). The extension reads two numbers from it, total capacity and available capacity, and displays their difference as a percentage; no other capability of this permission is used. The API exposes memory capacities only: it does not reveal which applications are running, what they hold in memory, or any user information. It is the minimum permission consistent with the single purpose.
 ```
 
 ### Permission justification — `storage`
@@ -371,7 +378,7 @@ If the Account page also has a policy field, use this same link there.
 ## 6. Test instructions tab
 
 Optional, but not empty for this item. No login, no credentials and no setup beyond
-installing, so the tab would otherwise stay blank — but the Privacy answers justify the two
+installing, so the tab would otherwise stay blank — but the Privacy answers justify the three
 permissions and never mention `background.js`, the one manifest entry a reviewer would have
 to guess about. One line closes that gap; paste this:
 
@@ -412,21 +419,21 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 
 **Upload**
 
-- [x] Manifest `description` matches the summary above, and `version` is 1.1.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.1.0.zip`, 9,164 bytes, sha256
-      `86026dd546d72315cbf6a6ac9b928830d4effe3fc9746ed58fd37e3a4392b536`.
+- [x] Manifest `description` matches the summary above, and `version` is 1.2.0.
+- [x] Upload package built: `xload-retro-system-monitor-1.2.0.zip`, 9,498 bytes, sha256
+      `9d676fa86e9acdbdd16257508568f18ea92d98d3c6b461e44caa8d7e337a1a5d`.
 - [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.
 
 **Package tab**
 
-- [ ] Version 1.1.0, exactly two permissions, no host permissions, minimum Chrome 88.
+- [ ] Version 1.2.0, exactly three permissions, no host permissions, minimum Chrome 88.
 
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
-- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,619 chars).
+- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,988 chars).
 - [ ] Category and language set.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.

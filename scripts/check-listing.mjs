@@ -160,17 +160,17 @@ check(
 );
 same('version in doc matches manifest', doc.includes(`- \`version\`: \`${manifest.version}\``), true);
 check('package tab quotes the same version', doc.includes(`Version shows **${manifest.version}**`), 'Package tab section');
-check('checklist quotes the same version', doc.includes(`Version ${manifest.version}, exactly two permissions`), 'Before submitting checklist');
+check('checklist quotes the same version', doc.includes(`Version ${manifest.version}, exactly three permissions`), 'Before submitting checklist');
 
 const iconSizes = Object.keys(manifest.icons);
 same('icon sizes in doc match manifest', doc.includes(`- \`icons\`: ${iconSizes.join('/')} at the package root`), true);
 same('icon sizes present on disk', iconSizes.every((size) => exists(manifest.icons[size])), true);
 same('no 32px icon file exists', exists('icon32.png'), false);
 
-same('declared permissions match doc', manifest.permissions.join(', '), 'system.cpu, storage');
+same('declared permissions match doc', manifest.permissions.join(', '), 'system.cpu, system.memory, storage');
 check(
-  'doc states exactly two permissions',
-  doc.includes('exactly two entries: `system.cpu` and `storage`'),
+  'doc states exactly three permissions',
+  doc.includes('exactly three entries: `system.cpu`, `system.memory` and `storage`'),
   'Package tab section'
 );
 check('doc promises no host-permissions row', doc.includes('**No host permissions**'), 'Package tab section');
@@ -264,9 +264,17 @@ for (const shot of screenshots) {
 }
 check('doc states five screenshots', doc.includes('five screenshots'), 'Before submitting checklist');
 const tileKb = doc.match(/`store\/06-promo-tile-440x280\.png` \(\d+×\d+ PNG, (\d+) KB\)/);
-check(`promo tile size stated as ${Math.round(kib(tile))} KB`, tileKb && Number(tileKb[1]), `${Math.round(kib(tile))} KB`);
+check(
+  `promo tile size stated as ${Math.round(kib(tile))} KB`,
+  Number(tileKb?.[1]) === Math.round(kib(tile)),
+  `doc says ${tileKb ? tileKb[1] : 'nothing'}`
+);
 const marqueeKb = doc.match(/`store\/07-marquee-1400x560\.png` \(\d+×\d+ PNG, (\d+) KB\)/);
-check(`marquee size stated as ${Math.round(kib(marquee))} KB`, marqueeKb && Number(marqueeKb[1]), `${Math.round(kib(marquee))} KB`);
+check(
+  `marquee size stated as ${Math.round(kib(marquee))} KB`,
+  Number(marqueeKb?.[1]) === Math.round(kib(marquee)),
+  `doc says ${marqueeKb ? marqueeKb[1] : 'nothing'}`
+);
 
 group('STORE-LISTING.md — package');
 
@@ -282,7 +290,11 @@ if (exists(zipName)) {
   same('doc states seven entries', doc.includes('seven entries'), true);
   check('doc names the package', doc.includes(zipName), 'upload step');
   const zipKb = doc.match(/this package is (\d+) KB/);
-  check(`package size stated as ${Math.round(kib(zipName))} KB`, zipKb && Number(zipKb[1]), `${Math.round(kib(zipName))} KB`);
+  check(
+    `package size stated as ${Math.round(kib(zipName))} KB`,
+    Number(zipKb?.[1]) === Math.round(kib(zipName)),
+    `doc says ${zipKb ? `${zipKb[1]} KB` : 'nothing'}`
+  );
 
   // The upload step names the release asset as an alternative source, so the doc has to
   // identify those bytes exactly: the first 1.1.0 asset was 16 bytes lighter because it was
@@ -353,7 +365,7 @@ check('sampling timer lives in the popup', source['popup.js'].includes('setInter
 check('background worker does not sample', !source['background.js'].includes('getInfo'));
 check('background worker only seeds defaults on install', /chrome\.runtime\.onInstalled\.addListener/.test(source['background.js']));
 const systemApis = [...allSource.matchAll(/chrome\.system\.(\w+)/g)].map((m) => m[1]);
-same('chrome.system is only used for cpu', [...new Set(systemApis)], ['cpu']);
+same('chrome.system is only used for cpu and memory', [...new Set(systemApis)], ['cpu', 'memory']);
 
 group('source — load maths, history and graph');
 
@@ -373,6 +385,11 @@ group('popup.html — size, themes and refresh rates');
 const popupCss = source['popup.html'].match(/body\s*\{([\s\S]*?)\}/)[1];
 check('popup width is 400px', /width:\s*400px/.test(popupCss));
 check('popup height is 330px', /height:\s*330px/.test(popupCss));
+check(
+  'the status bar carries LOAD, MEMORY and SCALE in that order',
+  /id="load-value"[\s\S]*id="memory-value"[\s\S]*id="scale-value"/.test(source['popup.html']),
+  'status bar spans'
+);
 
 const themeOptions = [...source['popup.html'].matchAll(/<option value="[^"]+">([^<]+)<\/option>/g)]
   .map((m) => m[1])
@@ -400,6 +417,7 @@ const claims = (file, label, snippet) => {
 
 for (const file of ['README.md', 'PRIVACY.md', 'SECURITY.md']) {
   claims(file, 'names system.cpu', '`system.cpu`');
+  claims(file, 'names system.memory', '`system.memory`');
   claims(file, 'names storage', '`storage`');
   claims(file, 'states the history holds 120 points', '120');
   claims(file, 'mentions the background service worker', 'service worker');
@@ -411,6 +429,7 @@ for (const file of ['README.md', 'PRIVACY.md', 'SECURITY.md']) {
 claims('README.md', 'cites the four small files', 'four small files');
 claims('README.md', 'states the popup size', '400×330');
 claims('README.md', 'states the rolling history', 'rolling 120-point history');
+claims('README.md', 'states the memory readout', 'MEMORY:');
 claims('README.md', 'names the idle tick counters', 'idle tick counters');
 claims('README.md', 'states the active-over-total division', 'dividing active ticks by total ticks');
 claims('README.md', 'states the Y axis rounding', 'nearest 10%');
@@ -511,7 +530,7 @@ const policy = docs['PRIVACY.md'];
 // prose wraps mid-phrase ("no dynamic\nimport"), so comparisons run against text with the
 // markers removed and the whitespace collapsed.
 const plain = (text) => text.replace(/[`*]/g, '').replace(/\s+/g, ' ');
-const singlePurpose = blocks.find((b) => b.startsWith('Displays the system'));
+const singlePurpose = blocks.find((b) => b.startsWith('Displays live CPU load'));
 const cpuAnswer = blocks.find((b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
 const storageAnswer = blocks.find((b) => b.startsWith('Used only to persist'));
 
@@ -522,6 +541,7 @@ check('storage justification found', Boolean(storageAnswer));
 if (singlePurpose) {
   check(`single-purpose length stated as ${singlePurpose.length}`, doc.includes(`${singlePurpose.length} characters.`), 'length sentence');
   check('single purpose names the CPU load graph', /cpu load/i.test(singlePurpose) && /graph/i.test(singlePurpose));
+  check('single purpose names the memory readout', /memory/i.test(singlePurpose), 'memory is half of what the popup shows');
   check(
     'policy states the same single purpose',
     plain(policy).includes('single purpose') && /cpu load graph/i.test(plain(policy)),

@@ -28,8 +28,8 @@ in paste-ready form, the evidence that backs each one, and how to send them.
 ## Permissions: what to send
 
 ```
-The extension has one feature — a CPU load graph — and it declares two permissions, both of
-which that feature uses. It has no host_permissions, no content_scripts, no
+The extension has one screen — a CPU load graph with a memory readout — and it declares three
+permissions, all of which that screen uses. It has no host_permissions, no content_scripts, no
 optional_permissions and no network code.
 
 system.cpu: this is the only API that exposes system-wide CPU tick counters.
@@ -38,24 +38,30 @@ chrome.system.cpu.getInfo() is called once per refresh interval while the popup 
 the displayed percentage. No other member of that API is called, and it exposes no process
 names, application data, page content or user information.
 
+system.memory: the status bar's MEMORY figure is the share of installed RAM in use, which is
+what chrome.system.memory.getInfo() reports. popup.js reads total capacity and available
+capacity in queryMemoryInfo() and shows their difference as a percentage. The call returns
+capacities only — no process names, no per-application usage, no page or user information.
+
 storage: used only to persist the extension's own display preferences (theme, refresh rate,
 grid and scanline toggles) and its rolling 120-sample history in chrome.storage.local, so a
 setting and the graph survive reopening the popup. chrome.storage.sync is never written, and
 nothing stored is transmitted anywhere.
 
-Both are the minimum consistent with the single purpose: no narrower API reports system load,
-and settings and history cannot survive a popup reload without storage. The manifest is at
+Each is the minimum consistent with the single purpose: no narrower API reports system load or
+memory totals, and settings and history cannot survive a popup reload without storage. The manifest is at
 manifest.json; the calls are in popup.js; the rationale is in PRIVACY.md.
 ```
 
 **Evidence to include with it:**
 
-- `manifest.json` — the `permissions` array holds exactly `system.cpu` and `storage`; there is
-  no `host_permissions`, `content_scripts`, `optional_permissions` or `externally_connectable`.
+- `manifest.json` — the `permissions` array holds exactly `system.cpu`, `system.memory` and
+  `storage`; there is no `host_permissions`, `content_scripts`, `optional_permissions` or
+  `externally_connectable`.
   Link: https://github.com/jbodkin1/xload_chrome_ext/blob/main/manifest.json
 - `popup.js` — one `getInfo()` call inside `queryCpuInfo()`, and the history write inside
   `persistHistory()`. Link: https://github.com/jbodkin1/xload_chrome_ext/blob/main/popup.js
-- `chrome://extensions` on the unpacked package: two permission chips, no site access. A
+- `chrome://extensions` on the unpacked package: three permission chips, no site access. A
   screenshot of that card is the fastest way to show a reviewer the grant.
 - https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md — the policy already says
   the same thing, including that `chrome.storage.sync` is unused.
@@ -110,5 +116,6 @@ shasum -a 256 xload-retro-system-monitor-*.zip # quote this if the reviewer asks
 ```
 
 `scripts/smoke.mjs` also reads back Chrome's own permission grant for the installed package and
-fails unless the only API permissions are `storage` and `system.cpu` with no host permissions,
+fails unless the only API permissions are `storage`, `system.cpu` and `system.memory` with no host
+permissions,
 which is the same fact the permissions reply asserts.

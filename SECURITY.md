@@ -1,10 +1,12 @@
 # Security Policy
 
-xload is a small, self-contained Chrome extension. It reads the local CPU load, draws a graph of it, and does nothing else. This document describes exactly what it touches and what it does not.
+xload is a small, self-contained Chrome extension. It reads the local CPU load and memory usage, draws a graph of the load, and does nothing else. This document describes exactly what it touches and what it does not.
 
 ## What it reads
 
 Only the system CPU tick counters, through `chrome.system.cpu.getInfo()`. From each core the extension takes the `user`, `kernel` and `idle` counters, diffs them against the previous sample, divides active ticks (user plus kernel) by total ticks (user plus kernel plus idle), and turns the result into a single load percentage. That number is what the graph and the `LOAD:` readout display.
+
+It also calls `chrome.system.memory.getInfo()` for two numbers — total installed memory and available memory — and shows their difference as a percentage in the status bar's `MEMORY:` readout. That API returns capacities only: no process names, no per-application usage, no contents.
 
 That is the entire data path. The extension does not read page content, DOM, forms, passwords, cookies, tabs, history, bookmarks, downloads, files, clipboard, keystrokes or window titles. It has no `content_scripts`, no `host_permissions`, and no ability to inject anything into a page — it has no page context at all. The only thing it renders is its own popup, and its one background script is a service worker that seeds default settings on install and then stops.
 
@@ -26,13 +28,14 @@ Because sampling runs on a timer that lives inside the popup, nothing is measure
 | Permission | Why |
 | --- | --- |
 | `system.cpu` | the only way an extension can observe system load; returns per-core tick counters and no process or content information |
+| `system.memory` | total and available memory, for the `MEMORY:` percentage; capacities only, with no process or content information |
 | `storage` | persists the settings and the graph history described above |
 
 There are no optional permissions, no `<all_urls>`, no externally connectable messaging, and no `web_accessible_resources`. The extension ships no remote or eval'd code; every line runs as packaged.
 
 ## What a compromise would and would not expose
 
-Because the extension holds no host permissions, the worst case for a hypothetical bug in this codebase is confined to the two things it can legitimately reach: a load percentage and a display config. The extension is not in a position to leak page data, credentials or browsing activity, as it cannot see them in the first place.
+Because the extension holds no host permissions, the worst case for a hypothetical bug in this codebase is confined to the things it can legitimately reach: a load percentage, a memory percentage and a display config. The extension is not in a position to leak page data, credentials or browsing activity, as it cannot see them in the first place.
 
 ## Reporting a vulnerability
 

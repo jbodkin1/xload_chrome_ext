@@ -14,6 +14,7 @@ const maxDataPoints = 120;
 let prevCpuInfo = null;
 let updateIntervalId = null;
 let pendingCpuQuery = false;
+let pendingMemoryQuery = false;
 let historyDirty = false;
 let lastHistoryPersist = 0;
 const historyPersistIntervalMs = 1000;
@@ -27,6 +28,7 @@ const gridToggle = document.getElementById('grid-toggle');
 const scanlinesToggle = document.getElementById('scanlines-toggle');
 const loadValueEl = document.getElementById('load-value');
 const scaleValueEl = document.getElementById('scale-value');
+const memoryValueEl = document.getElementById('memory-value');
 const scanlineOverlayEl = document.querySelector('.scanlines');
 
 const themes = {
@@ -131,7 +133,11 @@ function persistHistory(force = false) {
 function startMonitoringLoop() {
   if (updateIntervalId) clearInterval(updateIntervalId);
   queryCpuInfo();
-  updateIntervalId = setInterval(queryCpuInfo, config.refreshRate);
+  queryMemoryInfo();
+  updateIntervalId = setInterval(() => {
+    queryCpuInfo();
+    queryMemoryInfo();
+  }, config.refreshRate);
 }
 
 function queryCpuInfo() {
@@ -177,6 +183,27 @@ function queryCpuInfo() {
       drawGraph();
     }
     prevCpuInfo = cpuInfo;
+  });
+}
+
+/**
+ * System memory in use, as a percentage of installed RAM. One call, no history: memory moves
+ * slowly enough that a readout is enough, and the graph stays a CPU graph.
+ */
+function queryMemoryInfo() {
+  if (pendingMemoryQuery) return;
+  pendingMemoryQuery = true;
+
+  chrome.system.memory.getInfo((memoryInfo) => {
+    pendingMemoryQuery = false;
+    if (chrome.runtime.lastError) {
+      console.warn('xload: chrome.system.memory.getInfo failed:', chrome.runtime.lastError.message);
+      return;
+    }
+    if (!memoryInfo || !memoryInfo.capacity) return;
+    const usedPercent = ((memoryInfo.capacity - memoryInfo.availableCapacity) / memoryInfo.capacity) * 100;
+    const clamped = Math.max(0, Math.min(100, usedPercent));
+    memoryValueEl.textContent = 'MEMORY: ' + Math.round(clamped) + '%';
   });
 }
 

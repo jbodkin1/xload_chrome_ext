@@ -1,5 +1,25 @@
 # Release notes
 
+## [1.2.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0) — 24 November 2026
+
+Adds system memory to the popup: a `MEMORY:` percentage in the middle of the status bar.
+
+### Popup
+
+- The status bar now carries a third readout — `MEMORY:` between `LOAD:` and `SCALE:` — showing the percentage of installed RAM in use, sampled on the same timer as the CPU.
+- Memory comes from `chrome.system.memory.getInfo()`, as `(capacity - availableCapacity) / capacity`, rounded to a whole percent and clamped to 0–100. The graph itself still plots CPU only.
+- The status bar switched from a flex row to a three-column grid (`1fr auto 1fr`) so the memory figure sits at the true centre regardless of how wide the load and scale readouts get.
+
+### Permissions
+
+- `manifest.json` adds `system.memory` beside `system.cpu` and `storage`. It is the only API that reports installed and available memory; it exposes capacities only, so the privacy claims still hold — nothing is collected, and nothing is transmitted.
+- Chrome asks the user to approve the new permission when an installed copy updates. That prompt is expected for this version.
+
+### Docs and assets
+
+- `README.md`, `PRIVACY.md`, `SECURITY.md` and `STORE-LISTING.md` now describe three permissions, the memory data path and the new readout, including a `system.memory` justification for the privacy tab.
+- `store/`: the five screenshots and the hero image were re-captured with the readout in frame; the promo tile and marquee are graph crops and needed no change.
+
 ## [1.1.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0) — 18 November 2026
 
 Prepares the extension for its Chrome Web Store listing; not yet published.

@@ -344,6 +344,25 @@ try {
       `${JSON.stringify(first.readout)} against newest sample ${first.newest}`
     );
 
+    // The memory readout is checked against the API rather than a fixed number: the percentage
+    // moves with whatever else is running, so the assertion is that it is a sane percentage of
+    // the reported capacity, within a few points of the current value.
+    const memoryState = await cdp.evaluate(`new Promise((resolve) => {
+      chrome.system.memory.getInfo((info) => {
+        resolve({
+          shown: document.getElementById('memory-value').textContent,
+          current: Math.round(((info.capacity - info.availableCapacity) / info.capacity) * 100),
+          capacity: info.capacity
+        });
+      });
+    })`, sessionId);
+    const shownPercent = Number((memoryState.shown.match(/^MEMORY: (\d{1,3})%$/) || [])[1]);
+    check(
+      'the memory readout is a percentage of system RAM',
+      Number.isFinite(shownPercent) && Math.abs(shownPercent - memoryState.current) <= 3,
+      `${JSON.stringify(memoryState.shown)} against ${memoryState.current}% of ${memoryState.capacity} bytes`
+    );
+
     await sleep(3000);
     const grown = await cdp.evaluate(canvasState, sessionId);
     check('samples keep arriving while the popup is open', grown.samples > first.samples, `${first.samples} → ${grown.samples}`);
@@ -401,7 +420,11 @@ try {
     check('no install warnings', (mine.install_warnings || []).length === 0, JSON.stringify(mine.install_warnings));
     check('no runtime errors', (mine.runtime_errors || []).length === 0, JSON.stringify(mine.runtime_errors));
     const apis = [...(mine.permissions?.active?.api || [])].sort();
-    check('the only API permissions are storage and system.cpu', JSON.stringify(apis) === JSON.stringify(['storage', 'system.cpu']), apis.join(', '));
+    check(
+      'the only API permissions are storage, system.cpu and system.memory',
+      JSON.stringify(apis) === JSON.stringify(['storage', 'system.cpu', 'system.memory']),
+      apis.join(', ')
+    );
     const hosts = [
       ...(mine.permissions?.active?.explicit_hosts || []),
       ...(mine.permissions?.active?.scriptable_hosts || []),
