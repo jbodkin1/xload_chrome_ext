@@ -1,6 +1,6 @@
 /**
- * Captures the five Chrome Web Store screenshots (1280x800) and the six-theme marquee
- * (1400x560) from the real popup.
+ * Captures the five Chrome Web Store screenshots (1280x800), the small promo tile (440x280)
+ * and the six-theme marquee (1400x560) from the real popup.
  *
  * The recipe is the one STORE-LISTING.md documents, so a re-capture lines up with the
  * assets already in store/:
@@ -16,6 +16,7 @@
  *
  *   node scripts/capture-screenshots.mjs                     # all five, into store/review-<date>/
  *   node scripts/capture-screenshots.mjs --only=1,3          # just those
+ *   node scripts/capture-screenshots.mjs --only=6            # just the promo tile
  *   node scripts/capture-screenshots.mjs --only=7            # just the marquee
  *   node scripts/capture-screenshots.mjs --out=/tmp/shots    # somewhere else
  *   node scripts/capture-screenshots.mjs --keep              # leave the temp profile behind
@@ -92,6 +93,33 @@ const SHOTS = [
     backdrop: LIGHT,
     config: { theme: 'classic', refreshRate: 1000, showGrid: true, scanlines: false },
     note: 'Classic X11 at 1.0s, scanlines off with the grid still on',
+  },
+  {
+    n: 6,
+    name: '06-promo-tile-440x280',
+    // The tile is the one asset with no popup chrome in it: the store shows it small, in search
+    // and category placements, so it carries the graph and the name and nothing that has to be
+    // read. Composed from a Hacker Green frame the same way the marquee is composed from six.
+    tile: {
+      width: 440,
+      height: 280,
+      stripHeight: 200,
+      // Inside the CRT screen of a 1280x800 capture, 2:1, so 0.5:1 lands it at 440x200 with the
+      // window chrome and the settings panel both out of frame.
+      source: { x: 190, y: 100, width: 880, height: 400 },
+      wordmark: 'xload',
+      wordmarkSize: 43,
+      wordmarkColor: '#ffffff',
+      wordmarkTracking: '0.09em',
+      tagline: 'SYSTEM MONITOR',
+      taglineSize: 11,
+      taglineColor: '#22c522',
+      taglineTracking: '0.385em',
+      taglineGap: 3,
+    },
+    backdrop: GRID_BG,
+    config: { theme: 'matrix-green', refreshRate: 100, showGrid: true, scanlines: true },
+    note: 'small promo tile: the Hacker Green graph over the wordmark bar',
   },
   {
     n: 7,
@@ -365,6 +393,31 @@ function gridHtml(spec, tiles) {
   </body></html>`;
 }
 
+/** The 440x280 tile: a graph strip cut from one capture, over the wordmark bar. */
+function tileHtml(spec, png) {
+  const { width, height, stripHeight, source, wordmark, wordmarkSize, wordmarkColor, wordmarkTracking, tagline, taglineSize, taglineColor, taglineTracking, taglineGap } = spec;
+  const scale = width / source.width;
+  const barHeight = height - stripHeight;
+  // The capture is laid out at its scaled size and offset so the crop is what shows, rather
+  // than a transform on a 1280-wide image, so the downscale is done by the image decoder.
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: ${width}px; height: ${height}px; background: ${GRID_BG}; position: relative; overflow: hidden;
+           font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+    .strip { position: absolute; left: 0; top: 0; width: ${width}px; height: ${stripHeight}px; overflow: hidden; }
+    .strip img { position: absolute; display: block; width: ${Math.round(1280 * scale)}px; height: ${Math.round(800 * scale)}px;
+                 left: ${-source.x * scale}px; top: ${-source.y * scale}px; }
+    .bar { position: absolute; left: 0; top: ${stripHeight}px; width: ${width}px; height: ${barHeight}px;
+           display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .wordmark { font-size: ${wordmarkSize}px; line-height: 1; color: ${wordmarkColor}; letter-spacing: ${wordmarkTracking}; }
+    .tagline { margin-top: ${taglineGap}px; font-size: ${taglineSize}px; line-height: 1; color: ${taglineColor};
+               letter-spacing: ${taglineTracking}; }
+  </style></head><body>
+    <div class="strip"><img src="data:image/png;base64,${png.toString('base64')}"></div>
+    <div class="bar"><div class="wordmark">${wordmark}</div><div class="tagline">${tagline}</div></div>
+  </body></html>`;
+}
+
 try {
   const port = await devToolsPort();
   const version = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();
@@ -421,6 +474,22 @@ try {
       await cdp.send('Target.closeTarget', { targetId });
       result = { png: Buffer.from(data, 'base64'), samples: 120 * GRID_TILES.length, seconds: 0 };
       process.stdout.write('\n  ');
+    } else if (shot.tile) {
+      // Three `yes` processes give the strip a rising, falling trace rather than a flat one.
+      let frame;
+      for (let attempt = 1; ; attempt++) {
+        if (attempt > 1) process.stdout.write(`(attempt ${attempt}) `);
+        frame = await capturePopups(shot.config, GRID_BG, 'promo tile', 3);
+        if (frame.scale < 100 || attempt >= 4) break;
+        process.stdout.write(`SCALE ${frame.scale}% MAX, re-shooting ... `);
+      }
+      const { targetId, sessionId } = await openPopupPage();
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: shot.tile.width, height: shot.tile.height, deviceScaleFactor: 1, mobile: false }, sessionId);
+      await cdp.evaluate(`document.open(); document.write(${JSON.stringify(tileHtml(shot.tile, frame.png))}); document.close(); true`, sessionId);
+      await sleep(600);
+      const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true }, sessionId);
+      await cdp.send('Target.closeTarget', { targetId });
+      result = { png: Buffer.from(data, 'base64'), samples: frame.samples, newest: frame.newest, readout: frame.readout, seconds: frame.seconds };
     } else {
       // A frame whose peak touches 100% rounds its scale up to "100% MAX" and reads as clipped
       // next to the others, so it is shot again rather than kept. Nothing is trimmed.
@@ -435,7 +504,11 @@ try {
     const file = path.join(outDir, `${shot.name}.png`);
     fs.writeFileSync(file, result.png);
     const size = pngSize(file);
-    const expect = shot.grid ? [shot.grid.width, shot.grid.height] : [1280, 800];
+    const expect = shot.grid
+      ? [shot.grid.width, shot.grid.height]
+      : shot.tile
+        ? [shot.tile.width, shot.tile.height]
+        : [1280, 800];
     const ok = size.width === expect[0] && size.height === expect[1];
     written.push({ ...shot, file, size, ok, load: result.newest, readout: result.readout, seconds: result.seconds });
     console.log(`${ok ? 'ok' : 'WRONG SIZE'} ${size.width}x${size.height}  ${(result.png.length / 1024).toFixed(0)} KB  LOAD ${result.readout ?? '-'}`);
@@ -448,7 +521,7 @@ try {
   }
   const bad = written.filter((shot) => !shot.ok);
   if (bad.length) {
-    console.error(`\n${bad.length} shot(s) are not 1280x800`);
+    console.error(`\n${bad.length} shot(s) are not their documented size`);
     process.exitCode = 1;
   }
 } catch (error) {

@@ -226,8 +226,9 @@ To re-capture all five, run `node scripts/capture-screenshots.mjs`. It loads the
 as an unpacked extension in a throwaway Chrome profile, frames the popup exactly as above
 (640×400 at device pixel ratio 2, `zoom: 1.1875`, no drop shadow), feeds it real `yes` load
 until the popup holds 120 samples, and writes five 1280×800 PNGs to `store/review-<date>/`;
-review them there and copy over `store/` when you are happy with them. `--only=7` re-shoots
-just the marquee, and `--tiles=<dir>` caches its six tiles while you tune the grid.
+review them there and copy over `store/` when you are happy with them. `--only=6` re-shoots
+just the promo tile, `--only=7` re-shoots just the marquee, and `--tiles=<dir>` caches its six
+tiles while you tune the grid.
 
 Before uploading each shot, check: no browser chrome or bookmark bar in frame, no clip of
 an unrelated window, no text overlay claiming anything the code does not do, nothing
@@ -257,14 +258,19 @@ if it has to be read, it belongs in the popup's own text, never in a tile or a c
 
 #### Small promo tile (440×280)
 
-`store/06-promo-tile-440x280.png` (440×280 PNG, 44 KB). It is composed from the Hacker
-Green capture — the top 200 px is the CRT screen cropped 880×400 and scaled 0.5:1, so it
-shows the graph only, with no window chrome and no title bar — over a dark `#0d0e12` bar
-carrying the wordmark `xload` and the two-word line `SYSTEM MONITOR`. No other text, since
-promo tiles are not localised and should not depend on a language.
+`store/06-promo-tile-440x280.png` (440×280 PNG, 23 KB). It is composed by the capture script
+from one Hacker Green frame, not cut by hand: the top 200 px is the CRT screen cropped 880×400
+at x 190, y 100 and scaled 0.5:1, so it shows the graph only, with no window chrome and no
+title bar — over a dark `#0d0e12` bar carrying the wordmark `xload` in white Courier and the
+two-word line `SYSTEM MONITOR` in green. No other text, since promo tiles are not localised
+and should not depend on a language.
 
-To re-cut it after a re-capture: keep the 440×200 graph strip and the 440×80 wordmark bar,
-and aim the crop inside the CRT screen (roughly x 200..1080, y 96..496 of a 1280×800 shot).
+To re-cut it: `node scripts/capture-screenshots.mjs --only=6`. It captures one 1280×800 frame
+at 0.1s, composes the 440×200 strip and the 440×80 bar, and writes the tile to
+`store/review-<date>/` like the screenshots, so review both together before copying over
+`store/`. The crop, colours, type sizes and tracking are the `tile` spec on shot 6 in the
+script, which is why a re-cut follows the current capture instead of a remembered crop; there
+is no manual step.
 
 #### Marquee (1400×560)
 
