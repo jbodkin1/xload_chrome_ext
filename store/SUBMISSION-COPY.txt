@@ -59,7 +59,7 @@ Used only to persist the extension's own display preferences (theme, refresh rat
 No, I am not using remote code.
 
 === PRIVACY TAB - PRIVACY POLICY URL ===
-https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
+https://github.com/jbodkin1/xload_chrome_ext/blob/v1.2.0/PRIVACY.md
 
 === PRIVACY TAB - DATA COLLECTION ===
 Leave every category unticked: no personally identifiable information, health, financial,

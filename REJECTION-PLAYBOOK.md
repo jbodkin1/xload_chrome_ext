@@ -63,7 +63,7 @@ manifest.json; the calls are in popup.js; the rationale is in PRIVACY.md.
   `persistHistory()`. Link: https://github.com/jbodkin1/xload_chrome_ext/blob/main/popup.js
 - `chrome://extensions` on the unpacked package: three permission chips, no site access. A
   screenshot of that card is the fastest way to show a reviewer the grant.
-- https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md — the policy already says
+- https://github.com/jbodkin1/xload_chrome_ext/blob/v1.2.0/PRIVACY.md — the policy already says
   the same thing, including that `chrome.storage.sync` is unused.
 
 If the reviewer specifically says the permission is unused, add one sentence: the popup is the

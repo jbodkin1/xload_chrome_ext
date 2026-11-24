@@ -30,8 +30,8 @@ skipped — publishing is blocked until it is done.
   **Offered by** line the listing and every review email carries, and it applies to every item
   the   account publishes. It is the store account of the person who maintains this repository —
   the same individual, publishing under a name, not a separate vendor — so the Homepage and
-  Support URLs below point here and the policy the item is reviewed against is `PRIVACY.md`
-  in this repository. The account email cannot be changed later, so use an address you will
+  Support URLs below point here and the policy the item is reviewed against is the tagged copy
+  of `PRIVACY.md` in this repository. The account email cannot be changed later, so use an address you will
   keep.
 - Declare **Trader** or **Non-Trader** (EU Digital Services Act). This is a legal statement
   about who is publishing, not about how the item looks, and the store can act on a wrong
@@ -374,16 +374,23 @@ answers it in the policy's own terms.
 ### Privacy policy URL
 
 The tab requires a public URL, and the same disclosure must match the code. Use the
-dedicated policy page, `PRIVACY.md`:
+dedicated policy page, `PRIVACY.md`, pinned to this release's tag:
 
 ```
-https://github.com/jbodkin1/xload_chrome_ext/blob/main/PRIVACY.md
+https://github.com/jbodkin1/xload_chrome_ext/blob/v1.2.0/PRIVACY.md
 ```
 
 It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
 a repository note, which is what a reviewer expects behind this field. `SECURITY.md` covers
 the vulnerability-reporting side and is linked from the policy rather than used as the URL.
 If the Account page also has a policy field, use this same link there.
+
+The URL names `v1.2.0` rather than `main` deliberately: the reviewer approves this item
+against the policy that shipped with it, and a later edit to `PRIVACY.md` must not change
+what that field serves. The cost is that a policy change only reaches the store with the
+next release that tags it. `scripts/check-listing.mjs` builds the expected URL from
+`manifest.version`, so bumping the version fails the docs check until this line names the
+new tag — which is the moment to update the field in the dashboard as well.
 
 ---
 
@@ -467,7 +474,7 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 
 - [ ] Single purpose, both permission justifications and "no remote code" entered.
 - [ ] Data collection boxes all unticked; every certification statement ticked.
-- [ ] Privacy policy URL set to the `PRIVACY.md` blob link.
+- [ ] Privacy policy URL set to the `PRIVACY.md` link pinned to this version's tag.
 
 **Distribution**
 
