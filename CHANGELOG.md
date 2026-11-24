@@ -18,7 +18,7 @@ Adds system memory to the popup: a `MEMORY:` percentage in the middle of the sta
 ### Docs and assets
 
 - `README.md`, `PRIVACY.md`, `SECURITY.md` and `STORE-LISTING.md` now describe three permissions, the memory data path and the new readout, including a `system.memory` justification for the privacy tab.
-- `store/`: the five screenshots and the hero image were re-captured with the readout in frame; the promo tile and marquee are graph crops and needed no change.
+- `store/`: the five screenshots and the hero image were re-captured with the readout in frame, and the marquee was re-cut from the new captures; its tiles are graph crops, so they look the same. The promo tile is a graph crop too and is unchanged.
 
 ## [1.1.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.1.0) — 18 November 2026
 
