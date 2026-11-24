@@ -706,8 +706,11 @@ const skillRow = (label) => {
   return row ? row[1] : '';
 };
 const skillCount = (label) => Number(skillRow(label).replace(/[^0-9]/g, ''));
+// Dotfiles are skipped: browsing the directory in Finder leaves a gitignored .DS_Store
+// behind, it is never part of the vendored release, and it must not read as drift.
 const filesUnder = (dir) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.name.startsWith('.')) return [];
     const full = path.join(dir, entry.name);
     return entry.isDirectory() ? filesUnder(full) : [full];
   });
@@ -719,7 +722,7 @@ const skillFiles = filesUnder(skillDir);
 const guideFiles = filesUnder(path.join(skillDir, 'guides'));
 const disciplines = fs
   .readdirSync(path.join(skillDir, 'guides'), { withFileTypes: true })
-  .filter((entry) => entry.isDirectory());
+  .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'));
 
 same(`SKILL.md frontmatter names ${SKILL}`, (skillText.match(/^name:\s*(\S+)$/m) || [])[1], SKILL);
 check('skills/README.md records a release tag', /^v\d+\.\d+\.\d+$/.test(releaseTag || ''), 'Release row');
