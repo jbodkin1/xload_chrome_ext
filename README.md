@@ -67,6 +67,7 @@ thirty seconds.
 ### Notes
 
 - Load is sampled **while the popup is open**. Close the popup and it stops working, which is exactly the point: nothing is running in the background burning the cycles it is supposed to be measuring.
+- **Test instructions:** click the toolbar icon; the first sample appears within about two seconds, there is nothing to sign in to, and sampling happens only while the popup is open — the service worker just writes two default settings on first install and stops.
 - After changing the code, press the reload icon on the extension's card at `chrome://extensions`, then close and reopen the popup.
 - To remove it, click **Remove** on the extension's card, or just delete the folder.
 - Because it runs in Chrome's own sandbox, the CPU figures reflect the whole machine, but very short-lived spikes can fall between samples — sample faster (0.1s) if you care about those.
