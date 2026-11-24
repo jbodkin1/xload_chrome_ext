@@ -21,6 +21,24 @@ no network calls. `README.md` describes it, `RELEASING.md` is the release checkl
 - Change what ships and you also change `scripts/package-files.mjs` and every doc that
   counts or lists files.
 
+## Browser tooling
+
+`.mcp.json` starts Chrome DevTools MCP with two flags this extension needs:
+
+- `--categoryExtensions` adds the extension tools — `install_extension`,
+  `list_extensions`, `reload_extension`, `uninstall_extension`,
+  `trigger_extension_action` — so a build can be loaded, reloaded and triggered in a live
+  browser instead of only through `scripts/smoke.mjs`.
+- `--autoConnect` attaches to Chrome running on your own profile instead of launching a
+  throwaway one. That is what makes profile-bound behaviour testable: Chrome's built-in AI
+  APIs, and any flow that needs a signed-in user.
+
+`--autoConnect` needs Chrome 144+ and the remote debugging server started inside that
+Chrome: open `chrome://inspect/#remote-debugging` and turn it on. Until then the server
+still starts and its other tools work, but the first browser tool fails with
+`Could not find DevToolsActivePort for chrome at …/Google/Chrome/DevToolsActivePort`. It
+connects to that profile, so treat the browser it drives as the user's real browser.
+
 ## Skills
 
 `skills/` holds third-party agent skills vendored at their upstream release. Read the
