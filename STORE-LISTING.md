@@ -28,11 +28,25 @@ skipped — publishing is blocked until it is done.
 - Enable **2-Step Verification** on the Google account. Required before publishing.
 - Verify a contact email and set the publisher name to **`Minibiz-Free-Apps`**. That is the
   **Offered by** line the listing and every review email carries, and it applies to every item
-  the account publishes. The account email cannot be changed later, so use an address you will
-  keep.
-- Declare **Trader** or **Non-Trader** (EU Digital Services Act requirement). A free
-  utility published outside a business is most likely a Non-Trader; a trader's legal name
-  and contact details are shown publicly on the listing.
+  the account publishes. It is the store account for this repository's code, not a separate
+  vendor, so the Homepage and Support URLs below point here and the policy the item is
+  reviewed against is `PRIVACY.md` in this repository. The account email cannot be changed
+  later, so use an address you will keep.
+- Declare **Trader** or **Non-Trader** (EU Digital Services Act). This is a legal statement
+  about who is publishing, not about how the item looks, and the store can act on a wrong
+  one. For this item:
+  - **Non-Trader** — accurate if `Minibiz-Free-Apps` is a name you picked as an individual,
+    xload is free with no revenue of any kind (no ads, no in-app purchases, no paid tier, no
+    donations link, no paid support), and you are not publishing it as part of a registered
+    business. The listing then shows the publisher name and a contact route, nothing else.
+  - **Trader** — required if the name belongs to a registered business, or you take money for
+    the extension or for support around it. Your legal name, postal address and contact
+    details are shown publicly on the listing, and the store may ask you to verify them before
+    the item can publish.
+
+  Decide on that basis rather than on the name: a name that sounds like a brand does not make
+  you a trader, and a personal-sounding one does not make a trader declaration correct. If you
+  add a donations link, ads or a paid tier later, revisit the declaration at the same time.
 - If the Account page offers a privacy policy URL, set it to the same `PRIVACY.md` link
   used on the Privacy tab in step 4. Chrome's docs describe the tab's disclosures as
   needing to be "consistent with" the account-level policy.
@@ -423,8 +437,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Account**
 
 - [ ] Developer account registered: 2-Step Verification on, contact email verified, publisher
-      name set to `Minibiz-Free-Apps`, Trader/Non-Trader declared, account-level privacy policy
-      URL set if offered.
+      name set to `Minibiz-Free-Apps`, Trader/Non-Trader declared per the guidance above on
+      revenue and business status, account-level privacy policy URL set if offered.
 
 **Upload**
 

@@ -50,6 +50,11 @@ If it is listed in the Chrome Web Store, install it there. To run your own copy 
 listing is not live yet, or to work on the code — load it unpacked instead; that takes about
 thirty seconds.
 
+The store listing is published under the publisher name **Minibiz-Free-Apps**. That is the
+name on the store account that ships this extension, not a fork or a third-party vendor: this
+repository is the source for the code it distributes, and the privacy policy, support link
+and issue tracker the listing points at are the ones here.
+
 ### Unpacked install (developer mode)
 
 1. **Get the files.** Clone or download this repository, then unzip it if needed, so the folder containing `manifest.json`, `popup.html`, `popup.js`, `background.js` and the icon files is somewhere permanent. Do not delete or move that folder afterwards — Chrome reads the files from that location every time it starts.
