@@ -530,7 +530,7 @@ const policy = docs['PRIVACY.md'];
 // prose wraps mid-phrase ("no dynamic\nimport"), so comparisons run against text with the
 // markers removed and the whitespace collapsed.
 const plain = (text) => text.replace(/[`*]/g, '').replace(/\s+/g, ' ');
-const singlePurpose = blocks.find((b) => b.startsWith('Displays live CPU load'));
+const singlePurpose = blocks.find((b) => b.startsWith('Shows live CPU load'));
 const cpuAnswer = blocks.find((b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
 const storageAnswer = blocks.find((b) => b.startsWith('Used only to persist'));
 

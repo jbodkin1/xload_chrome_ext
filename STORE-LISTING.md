@@ -322,10 +322,12 @@ compare it against the submitted code. Each block below is a separate field.
 ### Single purpose description
 
 ```
-Displays live CPU load and memory use in a retro X11-style popup graph.
+Shows live CPU load and memory use in a popup graph, and nothing else.
 ```
 
-71 characters.
+70 characters. One sentence, one job: the popup draws those two readings and has no other
+function. Themes, refresh rate and the grid/scanline toggles only change how that same graph
+looks, so they are part of it rather than a second purpose.
 
 ### Permission justification — `system.cpu`
 
