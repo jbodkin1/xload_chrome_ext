@@ -754,7 +754,17 @@ for (const match of bashBlocks) {
 // The package smoke test only helps if the release steps tell someone to run it. It needs
 // Chrome and the built zip, so it stays a local step rather than a CI job.
 check('RELEASING.md runs the smoke test before the tag', releasing.includes('node scripts/smoke.mjs'), 'the release steps never mention it');
-check('RELEASING.md compares the downloaded asset with the local zip', /shasum -a 256 "\$ZIP" \/tmp\/asset\.zip/.test(releasing), 'step 8 should verify the asset');
+// Step 8 used to paste a shasum into the doc. It now runs the release verifier, which downloads the
+// asset and compares its hash with the package committed at the tag, so the guarantee moved into
+// the script rather than going away — and these checks follow it there.
+check('RELEASING.md verifies the release with the script', releasing.includes('node scripts/verify-release.mjs'), 'step 8 should run it');
+check('the release verifier it names exists', exists('scripts/verify-release.mjs'));
+const verifier = exists('scripts/verify-release.mjs') ? read('scripts/verify-release.mjs') : '';
+check(
+  'the release verifier hashes the downloaded asset',
+  verifier.includes('browser_download_url') && /sha256\(downloaded\)/.test(verifier),
+  'it must compare the bytes GitHub serves with the committed package'
+);
 check('the smoke script it names exists', exists('scripts/smoke.mjs'));
 
 // The package is built by one script from one list. A second copy of the file names — in the
