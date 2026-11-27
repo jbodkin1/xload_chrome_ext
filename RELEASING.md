@@ -16,13 +16,13 @@ relies on remembering what was done last time.
 
 ## 2. Rebuild the store zip
 
-Only the eight extension files go in, with `manifest.json` at the zip root — no docs, no
+Only the nine extension files go in, with `manifest.json` at the zip root — no docs, no
 `store/`, no tooling. That list lives in `scripts/package-files.mjs`, which this script, CI,
 the smoke test and the screenshot capture all read, so it is edited in one place:
 
 ```bash
 node scripts/build-package.mjs                     # writes xload-retro-system-monitor-<version>.zip
-unzip -Z1 xload-retro-system-monitor-*.zip         # exactly 8 entries, no directories
+unzip -Z1 xload-retro-system-monitor-*.zip         # exactly 9 entries, no directories
 unzip -p xload-retro-system-monitor-*.zip manifest.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version"
 unzip -t xload-retro-system-monitor-*.zip | tail -1   # No errors detected
 ```

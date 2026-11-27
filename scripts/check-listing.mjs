@@ -310,7 +310,23 @@ if (exists(zipName)) {
   const expected = [...PACKAGE_FILES];
   same('zip holds no directory entries', entries.filter((e) => e.endsWith('/')), []);
   same('zip contents', [...entries].sort(), [...expected].sort());
-  same('doc states eight entries', doc.includes('eight entries'), true);
+
+  // The count in the docs is derived from the package, never compared with a literal: the old
+  // `doc.includes('eight entries')` asserted the doc against itself, so it stayed green while
+  // the second catalog made the zip hold nine files.
+  const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+  const entriesWord = words[entries.length] ?? String(entries.length);
+  check(`doc states ${entriesWord} entries`, doc.includes(`${entriesWord} entries`), 'zip inventory in the checklist');
+  check(
+    `RELEASING.md states ${entriesWord} extension files`,
+    docs['RELEASING.md'].includes(`${entriesWord} extension files`),
+    'step 2 inventory sentence'
+  );
+  check(
+    `RELEASING.md counts ${entries.length} entries in its unzip step`,
+    docs['RELEASING.md'].includes(`# exactly ${entries.length} entries, no directories`),
+    'the unzip command comment'
+  );
   check('doc names the package', doc.includes(zipName), 'upload step');
   const zipKb = doc.match(/this package is (\d+) KB/);
   check(
