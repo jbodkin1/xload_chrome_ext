@@ -368,6 +368,15 @@ const zipName = packageFileName(manifest.version);
 const zipPath = path.join(root, zipName);
 check(`package ${zipName} exists`, exists(zipName), 'run step 2 of RELEASING.md');
 
+// build-package.mjs clears older packages when it runs, but nothing stops one being committed: a
+// zip named for an earlier version is what gets dragged into the dashboard by mistake, and the
+// per-entry comparison below would never look at it, because it only reads the zip for this
+// version. One package in the tree, named for the manifest.
+const strayZips = fs
+  .readdirSync(root)
+  .filter((file) => /^xload-retro-system-monitor-.*\.zip$/.test(file) && file !== zipName);
+same('the repo root holds no package from another version', strayZips, []);
+
 if (exists(zipName)) {
   const entries = execFileSync('unzip', ['-Z1', zipName], { cwd: root }).toString().trim().split('\n');
   const expected = [...PACKAGE_FILES];
