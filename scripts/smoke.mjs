@@ -8,6 +8,7 @@
  *   node scripts/smoke.mjs --headed         # watch it happen
  *   node scripts/smoke.mjs --keep           # leave the profile behind for poking at
  *   node scripts/smoke.mjs --lang=fr        # ask for a browser UI language (Linux, Windows)
+ *                                           # macOS ignores it: see "Checking the French UI" in AGENTS.md
  *   node scripts/smoke.mjs --catalog=fr     # render the French catalog on any platform
  *   node scripts/smoke.mjs --zip=... --chrome=...
  *
@@ -371,7 +372,7 @@ try {
 
     const browserLang = await cdp.evaluate('document.documentElement.lang', sessionId);
     if (lang && !browserLang.toLowerCase().startsWith(lang.toLowerCase())) {
-      console.log(`skip  the browser runs in ${browserLang}; --lang only changes that on Linux and Windows — use --catalog=${lang} to render a catalog here`);
+      console.log(`skip  the browser runs in ${browserLang}; --lang changes that on Linux and Windows only (macOS needs Chrome's app language — see AGENTS.md) — use --catalog=${lang} to render a catalog here`);
     }
     const rendered = catalogOverride || (lang && browserLang.toLowerCase().startsWith(lang.toLowerCase()) ? lang : null);
 
