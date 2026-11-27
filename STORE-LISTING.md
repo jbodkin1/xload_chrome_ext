@@ -65,13 +65,13 @@ validated and the package is installed in a clean profile first, so a broken zip
 manifest typo fails at this point rather than during review.
 
 Upload the zip attached to the [v1.3.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0)
-or the copy committed at the repository root; they are the same bytes. It is 12,308 bytes with
+or the copy committed at the repository root; they are the same bytes. It is 12,233 bytes with
 this SHA-256: check it before uploading, because an asset built before a manifest change is
 indistinguishable from the right one by name and would submit the older package.
 
 ```bash
 shasum -a 256 xload-retro-system-monitor-1.3.0.zip
-# 1fb6bfdafab0583a6a80df821c1f5a2d36d926f404bd5d767b5e7960f7190f2d
+# 9c712914e93fc5174d4ea6e6ef8c13c7692c9bb493e7c965e601afc04fc734b6
 ```
 
 Upload limit is 2 GB — this package is 12 KB.
@@ -178,7 +178,37 @@ across both.
 
 ### Language
 
-English (United States).
+The listing's base language is **English (United States)**. The package ships `_locales/en` and
+`_locales/fr`, so the dashboard also offers **Français** in the language dropdown at the top of
+the Store listing tab, and that locale has its own detailed description and screenshot set.
+
+- **Name and summary are not typed here.** Both come from the manifest through
+  `__MSG_extName__` and `__MSG_extDescription__`, so each locale already has its own text — the
+  French summary is the `extDescription` line in `_locales/fr/messages.json`. Editing either
+  means a new package and a new upload.
+- **Detailed description, screenshots and the promotional video are per language**, filled in
+  after choosing a language. A locale with no entries falls back to the default set, so French
+  is not required for submission — but a French user then reads English copy under a French
+  title and summary.
+- **The small promo tile and the marquee cannot be localized.** They are one set for every
+  language, so they stay as captured.
+
+#### French listing — what to fill in
+
+1. Store listing tab → language dropdown → **Français**. The item name and summary already show
+   the French catalog strings; there is nothing to paste for them.
+2. **Detailed description** — paste a French translation of the English block above, feature for
+   feature and in the same order (16,384-character limit; keep it near the English length). Keep
+   the two languages saying the same things: Google flags "mismatching metadata" when a locale
+   promises different features, and that warning can hold up review.
+3. **Screenshots** — optional. With none uploaded, French users see the default English set.
+   Because the popup follows the browser language, a French screenshot set is the only way the
+   store shows `CHARGE :` / `MÉMOIRE :` / `ÉCHELLE :`, so it is worth adding once the text is
+   in place. `scripts/capture-screenshots.mjs` loads the shipped files in a throwaway Chrome;
+   capturing French means making it render the French catalog first (the smoke test's
+   `--catalog=fr` shows the technique), then uploading the five shots under **Français**.
+4. Everything else — category, privacy answers, distribution, test instructions — is
+   item-wide: it is entered once and applies to every language.
 
 ### Graphic assets
 
@@ -455,8 +485,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Upload**
 
 - [x] Manifest `description` matches the summary above, and `version` is 1.3.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,308 bytes, sha256
-      `1fb6bfdafab0583a6a80df821c1f5a2d36d926f404bd5d767b5e7960f7190f2d`.
+- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,233 bytes, sha256
+      `9c712914e93fc5174d4ea6e6ef8c13c7692c9bb493e7c965e601afc04fc734b6`.
 - [x] Zip holds only the extension files — eight entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.
@@ -469,7 +499,9 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
 - [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
-- [ ] Category and language set.
+- [ ] Category set; language set to English (United States) as the base.
+- [ ] French listing completed: detailed description translated, screenshots added under
+      **Français** or the default English set left in place deliberately.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.
 - [ ] Homepage and Support URLs set.

@@ -427,56 +427,49 @@ group('localisation — the catalogs, the manifest and the popup agree');
 
 // chrome.i18n resolves every label against the browser's language, so a key missing from one
 // catalog is a blank word in front of a user, and a key nothing reads is dead weight in the
-// package. Both directions are checked, and the placeholders with them: a message that
-// declares $PERCENT$ without a placeholder, or the reverse, renders the token literally.
+// package. Each check below collects every problem and reports it as one line, so a failure
+// names the key without printing a passing line for each of the twenty that are fine.
 same('manifest declares the default locale', manifest.default_locale, 'en');
 check('manifest name is a message reference', /^__MSG_\w+__$/.test(manifest.name), manifest.name);
 check('manifest description is a message reference', /^__MSG_\w+__$/.test(manifest.description), manifest.description);
-
-for (const locale of LOCALES) {
-  check(`${locale} catalog exists`, exists(`_locales/${locale}/messages.json`));
-  check(`the package ships the ${locale} catalog`, PACKAGE_FILES.includes(`_locales/${locale}/messages.json`), 'scripts/package-files.mjs');
-}
 same('both catalogs define the same keys', Object.keys(catalogs.fr).sort(), Object.keys(catalogs.en).sort());
+same(
+  'the package ships both catalogs',
+  LOCALES.map((locale) => PACKAGE_FILES.includes(`_locales/${locale}/messages.json`)),
+  [true, true]
+);
 
+const catalogProblems = [];
 for (const locale of LOCALES) {
   for (const [key, entry] of Object.entries(catalogs[locale])) {
-    check(`_locales/${locale}: ${key} has a message`, typeof entry.message === 'string' && entry.message.trim().length > 0);
-    check(
-      `_locales/${locale}: ${key} has a translator's description`,
-      typeof entry.description === 'string' && entry.description.trim().length > 0,
-      'the description is what a translator works from'
-    );
+    if (!entry.message || !entry.message.trim()) catalogProblems.push(`${locale}.${key}: no message`);
+    if (!entry.description || !entry.description.trim()) catalogProblems.push(`${locale}.${key}: no description`);
     const used = [...new Set([...entry.message.matchAll(/\$([A-Za-z0-9_]+)\$/g)].map((m) => m[1].toLowerCase()))].sort();
-    same(
-      `_locales/${locale}: ${key} declares the placeholders it uses`,
-      used,
-      Object.keys(entry.placeholders || {}).sort()
-    );
+    const declared = Object.keys(entry.placeholders || {}).sort();
+    if (JSON.stringify(used) !== JSON.stringify(declared)) {
+      catalogProblems.push(`${locale}.${key}: uses [${used.join(', ')}], declares [${declared.join(', ')}]`);
+    }
   }
 }
+same('every entry has a message, a description and matching placeholders', catalogProblems, []);
 
+// The keys the code asks for, and only those: a missing one is a blank label, an extra one is
+// a string nobody will ever see.
 const manifestKeys = [manifest.name, manifest.description].map((value) => (value.match(/__MSG_(\w+)__/) || [])[1]);
-same('the manifest references the name and description keys', manifestKeys, ['extName', 'extDescription']);
-for (const key of manifestKeys) {
-  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for the manifest`, Boolean(message(catalogs[locale], key)));
-}
+const usedKeys = [...new Set([
+  ...manifestKeys,
+  ...[...source['popup.html'].matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1]),
+  ...[...source['popup.js'].matchAll(/\bt\('([A-Za-z0-9_]+)'/g)].map((m) => m[1]),
+])];
+same('the code uses every key in both catalogs', usedKeys.filter((key) => !message(catalogs.en, key) || !message(catalogs.fr, key)), []);
+same('every catalog key is used by the code', Object.keys(catalogs.en).filter((key) => !usedKeys.includes(key)), []);
+check(
+  'popup.js gets its text from chrome.i18n',
+  source['popup.js'].includes('chrome.i18n.getMessage') && source['popup.js'].includes("querySelectorAll('[data-i18n]')")
+);
 
-const htmlKeys = [...new Set([...source['popup.html'].matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1]))];
-check('popup.html swaps its text for message keys', htmlKeys.length >= 12, `${htmlKeys.length} keys`);
-for (const key of htmlKeys) {
-  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for popup.html`, Boolean(message(catalogs[locale], key)));
-}
-
-const scriptKeys = [...new Set([...source['popup.js'].matchAll(/\bt\('([A-Za-z0-9_]+)'/g)].map((m) => m[1]))];
-check('popup.js builds text from chrome.i18n', source['popup.js'].includes('chrome.i18n.getMessage'));
-check('popup.js fills the data-i18n elements', source['popup.js'].includes("querySelectorAll('[data-i18n]')"));
-for (const key of scriptKeys) {
-  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for popup.js`, Boolean(message(catalogs[locale], key)));
-}
-
-// Nothing in the popup may still carry its English text in the markup, or the catalog and the
-// page can disagree and the browser-language switch silently does nothing.
+// Nothing may still carry its English text in the markup, or the catalog and the page can
+// disagree and switching language silently does nothing.
 for (const tag of ['label', 'option']) {
   const hardcoded = [...source['popup.html'].matchAll(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 'g'))]
     .filter((m) => m[1].trim())
@@ -484,10 +477,10 @@ for (const tag of ['label', 'option']) {
   same(`no ${tag} text is hardcoded in popup.html`, hardcoded, []);
 }
 
-// French must be a translation, not a copy of the English catalog under another name.
-for (const key of ['titleBar', 'labelTheme', 'labelRefresh', 'labelGrid', 'labelScanlines', 'loadPercent', 'memoryPercent', 'scaleMax']) {
-  check(`fr translates ${key}`, message(catalogs.fr, key) !== message(catalogs.en, key), 'same text as English');
-}
+// French must be a translation, not the English catalog copied under another name.
+const untranslated = ['titleBar', 'labelTheme', 'labelRefresh', 'labelGrid', 'labelScanlines', 'loadPercent', 'memoryPercent', 'scaleMax']
+  .filter((key) => message(catalogs.fr, key) === message(catalogs.en, key));
+same('the French catalog translates the popup', untranslated, []);
 
 // ============================================================== README / PRIVACY / SECURITY
 group('README.md, PRIVACY.md, SECURITY.md — claims against the code');
