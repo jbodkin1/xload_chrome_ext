@@ -494,6 +494,16 @@ for (const locale of LOCALES) {
 }
 same('every entry has a message, a description and matching placeholders', catalogProblems, []);
 
+// The store's summary limit is 132 characters, and the summary is not typed in the dashboard: it
+// is extDescription from the catalog for that language. An over-long line is a listing the store
+// can refuse, and it cannot be corrected in the form, only with a new package — so each catalog
+// is held to the limit here. Counted in code points, which is what the store measures.
+const overlongSummaries = LOCALES
+  .map((locale) => [locale, message(catalogs[locale], 'extDescription')])
+  .filter(([, text]) => !text || [...text].length > 132)
+  .map(([locale, text]) => `${locale}: ${text ? [...text].length : 0}`);
+same('every catalog summary fits the store limit of 132 characters', overlongSummaries, []);
+
 // The keys the code asks for, and only those: a missing one is a blank label, an extra one is
 // a string nobody will ever see.
 const manifestKeys = [manifest.name, manifest.description].map((value) => (value.match(/__MSG_(\w+)__/) || [])[1]);
