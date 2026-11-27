@@ -22,6 +22,28 @@ no network calls. `README.md` describes it, `RELEASING.md` is the release checkl
 - Change what ships and you also change `scripts/package-files.mjs` and every doc that
   counts or lists files.
 
+## Checking the French UI
+
+Chrome resolves the message catalog from its **application** language, and that single value is
+what `chrome.i18n.getUILanguage()` and `getMessage()` return in the popup and in the service
+worker. Nothing in the page can change it, so there are two ways to see the French strings:
+
+- `node scripts/smoke.mjs --catalog=fr` renders the French catalog through Chrome's normal
+  lookup on any platform, without touching the browser's own language. `--lang=fr` switches the
+  application language on Linux and Windows.
+- **macOS ignores `--lang`.** Chrome 158 started with `--lang=fr` still reports `en-US` and
+  serves the English catalog; that is Chrome, not the extension. Give the app a French language
+  and start it again, then reload the extension:
+
+  ```bash
+  defaults write com.google.Chrome AppleLanguages -array fr
+  open -na "Google Chrome" --args --user-data-dir=/tmp/chrome-fr
+  defaults delete com.google.Chrome AppleLanguages   # afterwards
+  ```
+
+  The same setting lives in System Settings → General → Language & Region → Applications →
+  Google Chrome → Français, without editing a preference file.
+
 ## Browser tooling
 
 `.mcp.json` starts Chrome DevTools MCP with two flags this extension needs:
