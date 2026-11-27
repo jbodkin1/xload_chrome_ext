@@ -639,6 +639,8 @@ const rateEnds = [Math.min(...rateValues), 1000, Math.max(...rateValues)];
 const expectedWindows = rateEnds.map((ms) => [ms / 1000, (historyPoints * ms) / 1000]);
 if (detailed) same('the English description states the window the code implies', windowOf(detailed), expectedWindows);
 if (detailedFr) same('the French description states the window the code implies', windowOf(detailedFr), expectedWindows);
+// README makes the same promise in its own feature list, so it is held to the same arithmetic.
+same('README.md states the window the code implies', windowOf(docs['README.md']), expectedWindows);
 
 // ============================================================== README / PRIVACY / SECURITY
 group('README.md, PRIVACY.md, SECURITY.md — claims against the code');
