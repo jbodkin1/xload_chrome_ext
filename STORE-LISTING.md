@@ -223,7 +223,7 @@ the Store listing tab, and that locale has its own detailed description and scre
 2. **Detailed description** — paste the block below. It is the English description feature for
    feature and in the same order, so the two locales promise the same things: Google flags
    "mismatching metadata" when a locale promises features the other does not, and that warning
-   can hold up review. The text is 3,861 characters — French runs about a fifth longer than
+   can hold up review. The text is 3,860 characters — French runs about a fifth longer than
    English — against the 16,384 limit.
 
 ```
@@ -233,7 +233,7 @@ Cliquez sur l'icône de la barre d'outils : une fenêtre de 400x330 s'ouvre, ave
 
 POURQUOI ELLE EXISTE
 
-La plupart des moniteurs système sont lourds : un tableau de bord, une rangée de widgets, une base de données, un compte. Parfois, on veut simplement savoir si le processeur est occupé. Cette extension est pour ceux qui regrettent l'époque des applications rapides et simples, sans surcharge : quatre petits fichiers et quelques kilo-octets de JavaScript simple qui font exactement une chose.
+La plupart des moniteurs système sont lourds : un tableau de bord, une barre de widgets, une base de données, un compte. Parfois, on veut simplement savoir si le processeur est occupé. Cette extension est pour ceux qui regrettent l'époque des applications rapides et simples, sans surcharge : quatre petits fichiers et quelques kilo-octets de JavaScript simple qui font exactement une chose.
 
 CE QU'ELLE FAIT
 
@@ -571,7 +571,7 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
 - [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
 - [ ] Category set; language set to English (United States) as the base.
-- [ ] French description pasted (3,861 chars) and screenshots uploaded under **Français**,
+- [ ] French description pasted (3,860 chars) and screenshots uploaded under **Français**,
       which the language dropdown only offers once 1.3.1 is uploaded.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.

@@ -44,14 +44,14 @@ PERMISSIONS
 
 No dependencies, no build step, no framework. Source code and security policy: github.com/jbodkin1/xload_chrome_ext
 
-=== DETAILED DESCRIPTION (FRANÇAIS) - Store listing, language: Français (3,861 characters, limit 16,384) ===
+=== DETAILED DESCRIPTION (FRANÇAIS) - Store listing, language: Français (3,860 characters, limit 16,384) ===
 xload est une petite extension Chrome qui trace la charge CPU en direct dans une fenêtre qui ressemble à une station de travail X11 des années 1990.
 
 Cliquez sur l'icône de la barre d'outils : une fenêtre de 400x330 s'ouvre, avec une barre de titre bleu nuit, « xload - Charge système moyenne » en Courier, et un écran cathodique qui affiche un graphique défilant en continu de la charge totale du système. C'est toute l'extension. Pas de panneau latéral, pas de parcours d'accueil, pas de compte, et aucune page de réglages cachée à trois clics.
 
 POURQUOI ELLE EXISTE
 
-La plupart des moniteurs système sont lourds : un tableau de bord, une rangée de widgets, une base de données, un compte. Parfois, on veut simplement savoir si le processeur est occupé. Cette extension est pour ceux qui regrettent l'époque des applications rapides et simples, sans surcharge : quatre petits fichiers et quelques kilo-octets de JavaScript simple qui font exactement une chose.
+La plupart des moniteurs système sont lourds : un tableau de bord, une barre de widgets, une base de données, un compte. Parfois, on veut simplement savoir si le processeur est occupé. Cette extension est pour ceux qui regrettent l'époque des applications rapides et simples, sans surcharge : quatre petits fichiers et quelques kilo-octets de JavaScript simple qui font exactement une chose.
 
 CE QU'ELLE FAIT
 
