@@ -552,6 +552,32 @@ const overlongSummaries = LOCALES
   .map(([locale, text]) => `${locale}: ${text ? [...text].length : 0}`);
 same('every catalog summary fits the store limit of 132 characters', overlongSummaries, []);
 
+// The summary is a catalog value too, and the French one is a translation of the English: a claim
+// named in one line and missing from the other is a listing promising different things in different
+// languages. Each row is one claim; both lines must carry every one.
+const SUMMARY_CLAIMS = [
+  ['X11 styling', /X11/, /X11/],
+  ['a CPU load graph', /CPU load graph/, /graphique de charge CPU/],
+  ['toolbar placement', /toolbar/, /barre d'outils/],
+  ['no account', /no accounts/i, /sans compte/i],
+  ['no telemetry', /no telemetry/i, /sans télémétrie/i],
+  ['six CRT themes', /six CRT themes/i, /six thèmes CRT/i],
+  ['nothing in the way', /nothing in the way/, /rien qui gêne/],
+];
+const summaryEn = message(catalogs.en, 'extDescription') || '';
+const summaryFr = message(catalogs.fr, 'extDescription') || '';
+same(
+  'the French summary carries every claim the English summary makes',
+  SUMMARY_CLAIMS.filter(([, en, fr]) => en.test(summaryEn) && !fr.test(summaryFr)).map(([claim]) => claim),
+  []
+);
+same(
+  'the English summary carries every claim the French summary makes',
+  SUMMARY_CLAIMS.filter(([, en, fr]) => fr.test(summaryFr) && !en.test(summaryEn)).map(([claim]) => claim),
+  []
+);
+same('both summaries name the same figures', figuresOf(summaryEn), figuresOf(summaryFr));
+
 // The keys the code asks for, and only those: a missing one is a blank label, an extra one is
 // a string nobody will ever see.
 const manifestKeys = [manifest.name, manifest.description].map((value) => (value.match(/__MSG_(\w+)__/) || [])[1]);

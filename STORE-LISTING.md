@@ -151,7 +151,7 @@ plus a new upload.
 
 Plain text, no Markdown — the store renders line breaks but not formatting, so the `- `
 feature bullets appear as literal dashes, as intended. Keep it under about 3,500
-characters; reviewers and users both stop reading long ones. This one is 3,153.
+characters; reviewers and users both stop reading long ones. This one is 3,193.
 
 ```
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
@@ -164,7 +164,7 @@ Most system monitors are heavyweight: a dashboard, a tray of widgets, a database
 
 WHAT IT DOES
 
-- Live CPU load graph: a rolling 120-point history, so you see the last couple of minutes of behaviour rather than one instantaneous number.
+- Live CPU load graph: a rolling 120-point history, so you see a trend rather than one instantaneous number — 2 minutes at the default 1.0s, 12 seconds at 0.1s, 10 minutes at 5.0s.
 - Live memory readout: MEMORY in the middle of the status bar shows the percentage of installed RAM in use, sampled on the same timer as the graph.
 - Six themes: Classic X11 (white paper, red trace), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome.
 - Adjustable refresh rate: from 0.1s to 5.0s, defaulting to 1.0s, so you can trade smoothness against cost.
@@ -223,7 +223,7 @@ the Store listing tab, and that locale has its own detailed description and scre
 2. **Detailed description** — paste the block below. It is the English description feature for
    feature and in the same order, so the two locales promise the same things: Google flags
    "mismatching metadata" when a locale promises features the other does not, and that warning
-   can hold up review. The text is 3,860 characters — French runs about a fifth longer than
+   can hold up review. The text is 3,918 characters — French runs about a fifth longer than
    English — against the 16,384 limit.
 
 ```
@@ -237,7 +237,7 @@ La plupart des moniteurs système sont lourds : un tableau de bord, une barre de
 
 CE QU'ELLE FAIT
 
-- Graphique de charge CPU en direct : un historique glissant de 120 points, pour voir le comportement des deux dernières minutes plutôt qu'un chiffre instantané.
+- Graphique de charge CPU en direct : un historique glissant de 120 points, pour voir une tendance plutôt qu'un chiffre instantané — 2 minutes à la fréquence par défaut de 1,0 s, 12 secondes à 0,1 s, 10 minutes à 5,0 s.
 - Lecture de la mémoire en direct : MÉMOIRE, au centre de la barre d'état, donne le pourcentage de RAM installée utilisée, échantillonné sur le même minuteur que le graphique.
 - Six thèmes : Classique X11 (fond blanc, tracé rouge), Ardoise phosphore (sombre), Moniteur ambre, Vert hacker, Cyberpunk néon et Monochrome.
 - Fréquence d'actualisation réglable : de 0,1 s à 5,0 s, 1,0 s par défaut, afin d'arbitrer entre fluidité et coût.
@@ -569,9 +569,9 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
-- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
+- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,193 chars).
 - [ ] Category set; language set to English (United States) as the base.
-- [ ] French description pasted (3,860 chars) and screenshots uploaded under **Français**,
+- [ ] French description pasted (3,918 chars) and screenshots uploaded under **Français**,
       which the language dropdown only offers once 1.3.1 is uploaded.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.

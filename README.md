@@ -18,7 +18,7 @@ Below the graph the status bar carries three readouts: `LOAD:` for the newest CP
 
 ### Features
 
-- **Live CPU load graph** — a rolling 120-point history, so you see the last couple of minutes of behaviour, not just an instantaneous number.
+- **Live CPU load graph** — a rolling 120-point history, so you see a trend, not just an instantaneous number: 2 minutes at the default 1.0s, 12 seconds at 0.1s, 10 minutes at 5.0s.
 - **Live memory readout** — `MEMORY:` in the centre of the status bar shows the percentage of installed RAM in use, refreshed on the same timer as the graph.
 - **Six themes** — Classic X11 (white paper/red line), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome. Each one changes the graph colours, background and fill.
 - **Adjustable refresh rate** — from 0.1s (ultrafast) up to 5.0s, so you can trade CPU cost against smoothness. It defaults to 1.0s.
