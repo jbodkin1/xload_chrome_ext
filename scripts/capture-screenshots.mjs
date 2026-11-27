@@ -19,6 +19,7 @@
  *   node scripts/capture-screenshots.mjs --only=6            # just the promo tile
  *   node scripts/capture-screenshots.mjs --only=7            # just the marquee
  *   node scripts/capture-screenshots.mjs --out=/tmp/shots    # somewhere else
+ *   node scripts/capture-screenshots.mjs --catalog=fr        # the French popup, into store/review-fr-<date>/
  *   node scripts/capture-screenshots.mjs --keep              # leave the temp profile behind
  *
  * Real `yes` processes supply the load, killed part-way through each shot so the trace has
@@ -43,9 +44,10 @@ const argValue = (name) => {
 };
 const keep = args.includes('--keep');
 const only = argValue('only')?.split(',').map(Number) ?? null;
+const catalog = argValue('catalog');
 
 const today = new Date().toISOString().slice(0, 10);
-const outDir = path.resolve(root, argValue('out') || `store/review-${today}`);
+const outDir = path.resolve(root, argValue('out') || `store/review${catalog ? `-${catalog}` : ''}-${today}`);
 
 // Shipped files only, so the extension under test is exactly the package. The list lives in
 // scripts/package-files.mjs, shared with the build script, CI and the smoke test.
@@ -231,7 +233,26 @@ console.log(`using ${chromePath}`);
 
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-shots-'));
 const unpacked = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-shots-ext-'));
-for (const name of SHIPPED) fs.copyFileSync(path.join(root, name), path.join(unpacked, name));
+for (const name of SHIPPED) {
+  const target = path.join(unpacked, name);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(path.join(root, name), target);
+}
+
+// --catalog renders another catalog by putting it where Chrome's own language looks for
+// messages: the popup asks chrome.i18n, so no page script can switch the strings. The title
+// bar of that catalog is read here and every frame is checked against it, so a French run
+// cannot quietly write English screenshots.
+let catalogMessages = null;
+if (catalog) {
+  const source = path.join(root, '_locales', catalog, 'messages.json');
+  if (!fs.existsSync(source)) {
+    console.error(`capture: no _locales/${catalog}/messages.json to render`);
+    process.exit(1);
+  }
+  catalogMessages = JSON.parse(fs.readFileSync(source, 'utf8'));
+  fs.copyFileSync(source, path.join(unpacked, '_locales', 'en', 'messages.json'));
+}
 fs.mkdirSync(outDir, { recursive: true });
 
 const chrome = spawn(chromePath, [
@@ -353,10 +374,15 @@ async function capturePopups(config, backdrop, label, loadCount = 4) {
       newest: history[history.length - 1],
       samples: history.length,
       readout: document.getElementById('load-value').textContent,
+      title: document.querySelector('.x11-title-bar div').textContent,
+      lang: document.documentElement.lang,
       scale: Math.min(100, Math.ceil(peak / 10) * 10)
     };
   })()`, sessionId);
   await cdp.send('Target.closeTarget', { targetId });
+  if (catalogMessages && reported.title !== catalogMessages.titleBar.message) {
+    throw new Error(`${label}: the popup rendered ${JSON.stringify(reported.title)} in ${reported.lang}, not the ${catalog} catalog`);
+  }
   return { png, ...reported, seconds: Math.round((Date.now() - started) / 1000) };
 }
 
@@ -430,7 +456,9 @@ try {
   if (!extensionId) throw new Error('Extensions.loadUnpacked returned no id');
   console.log(`extension ${extensionId}\n`);
 
-  const wanted = SHOTS.filter((shot) => !only || only.includes(shot.n));
+  // The promo tile and the marquee carry graph crops and fixed labels rather than popup text,
+  // so a catalog run shoots the five screenshots unless those two are named with --only.
+  const wanted = SHOTS.filter((shot) => (only ? only.includes(shot.n) : !(catalog && (shot.tile || shot.grid))));
   const written = [];
 
   for (const shot of wanted) {
@@ -515,6 +543,7 @@ try {
   }
 
   console.log(`\nwrote ${written.length} shot(s) to ${outDir}`);
+  if (catalog) console.log(`      catalog ${catalog}: every frame shows "${catalogMessages.titleBar.message}"`);
   for (const shot of written) {
     console.log(`  ${path.basename(shot.file)}  ${shot.size.width}x${shot.size.height}  ${shot.note}`);
     if (shot.config) console.log(`      theme ${shot.config.theme}, refresh ${shot.config.refreshRate}ms, grid ${shot.config.showGrid}, scanlines ${shot.config.scanlines}, backdrop ${shot.backdrop}`);

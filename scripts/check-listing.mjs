@@ -286,6 +286,21 @@ for (const shot of screenshots) {
   check(`${shot} is named in the doc`, doc.includes(`\`${shot}\``), 'screenshot table');
 }
 check('doc states five screenshots', doc.includes('five screenshots'), 'Before submitting checklist');
+
+// The French set is the same five frames with the translated popup. The promo tile and the
+// marquee carry no translatable text, so they deliberately have no French counterparts — a
+// sixth file in here would mean someone re-shot the wrong thing.
+const frDir = 'store/fr';
+same(
+  'store/fr holds the five French screenshots',
+  exists(frDir) ? fs.readdirSync(path.join(root, frDir)).filter((f) => f.endsWith('.png')).sort() : [],
+  [...screenshots].sort()
+);
+for (const shot of screenshots) {
+  const file = `${frDir}/${shot}`;
+  const size = exists(file) ? pngSize(file) : null;
+  same(`French screenshot ${shot} is 1280x800`, size && `${size.width}x${size.height}`, '1280x800');
+}
 const tileKb = doc.match(/`store\/06-promo-tile-440x280\.png` \(\d+×\d+ PNG, (\d+) KB\)/);
 check(
   `promo tile size stated as ${Math.round(kib(tile))} KB`,
