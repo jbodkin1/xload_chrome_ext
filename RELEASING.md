@@ -144,19 +144,21 @@ gh release edit "v$VERSION" --latest
 gh api repos/jbodkin1/xload_chrome_ext/releases/latest -q .tag_name
 ```
 
-## 8. Verify what a user would download
+## 8. Verify the release end to end
 
-Re-derived here so this step works in a fresh shell:
+Steps 6 and 7 do the attaching and the Latest flag; this step proves the result. One command checks
+the tag and that it is on `main`, the package committed at that tag, the asset GitHub serves — name,
+byte count and the sha256 of the download — the Latest flag, the release body against the changelog
+section it came from, and the pinned privacy URL:
 
 ```bash
-VERSION=$(node -p "require('./manifest.json').version")
-ZIP="xload-retro-system-monitor-$VERSION.zip"
-
-curl -sL -o /tmp/asset.zip \
-  "https://github.com/jbodkin1/xload_chrome_ext/releases/download/v$VERSION/$ZIP"
-shasum -a 256 "$ZIP" /tmp/asset.zip     # must match
-rm /tmp/asset.zip
+node scripts/verify-release.mjs
 ```
+
+It reads the version from `manifest.json` and the repository from `origin`, needs network access to
+`api.github.com`, and exits non-zero with each failing line named. `--version=1.3.0` checks an older
+release: its tag, its asset and its notes, without the Latest flag or the listing URL, which only
+belong to the version being released.
 
 ## After the release
 
