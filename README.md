@@ -24,7 +24,7 @@ Below the graph the status bar carries three readouts: `LOAD:` for the newest CP
 - **Adjustable refresh rate** — from 0.1s (ultrafast) up to 5.0s, so you can trade CPU cost against smoothness. It defaults to 1.0s.
 - **Toggleable grid and scanlines** — grid alignment lines for reading values off the graph, and CRT scanlines if you want the full nostalgic experience (or no scanlines if you don't).
 - **Remembers your settings** — theme, refresh rate, and toggles persist via `chrome.storage.local`, along with the graph history, so it picks up where it left off.
-- **English and French interface** — every label and readout is a message from `_locales/` resolved through `chrome.i18n`, so the popup follows Chrome's own language setting. English is the fallback for any other language.
+- **English and French interface** — every label and readout is a message from `_locales/` resolved through `chrome.i18n`, so the popup follows Chrome's own language setting. Numbers follow the catalog too: `LOAD: 21.46%` in English, `CHARGE : 21,46 %` in French. English is the fallback for any other language.
 
 ### What it does not do
 

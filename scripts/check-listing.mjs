@@ -523,6 +523,20 @@ const untranslated = ['titleBar', 'labelTheme', 'labelRefresh', 'labelGrid', 'la
   .filter((key) => message(catalogs.fr, key) === message(catalogs.en, key));
 same('the French catalog translates the popup', untranslated, []);
 
+// Numbers are formatted for the catalog the popup is rendering, not for JavaScript: the
+// separator is a message, and the French readouts also put a space before the percent sign.
+same(
+  'each catalog declares its decimal separator',
+  [message(catalogs.en, 'decimalSeparator'), message(catalogs.fr, 'decimalSeparator')],
+  ['.', ',']
+);
+check('popup.js formats readouts with the catalog separator', source['popup.js'].includes("t('decimalSeparator')"), 'number formatting');
+check(
+  'the French readouts put a space before the percent sign',
+  ['loadPercent', 'memoryPercent', 'scaleMax'].every((key) => /\$[A-Z]+\$ %/.test(message(catalogs.fr, key))),
+  'French typography'
+);
+
 // ============================================================== README / PRIVACY / SECURITY
 group('README.md, PRIVACY.md, SECURITY.md — claims against the code');
 

@@ -361,7 +361,9 @@ try {
     const expectedLoad = first.newest === null
       ? null
       : await cdp.evaluate(
-        `chrome.i18n.getMessage('loadPercent', [${JSON.stringify(first.newest.toFixed(2))}])`,
+        // formatNumber is the popup's own formatter, so the expected string follows the same
+        // catalog separator the readout used instead of assuming a dot.
+        `chrome.i18n.getMessage('loadPercent', [formatNumber(${JSON.stringify(first.newest)}, 2)])`,
         sessionId
       );
     check(
@@ -379,7 +381,7 @@ try {
     if (rendered) {
       const catalog = JSON.parse(fs.readFileSync(path.join(root, '_locales', rendered, 'messages.json'), 'utf8'));
       const ui = await cdp.evaluate(`(() => {
-        const strip = (s) => [...s].filter((c) => !'0123456789.%'.includes(c)).join('').trim();
+        const strip = (s) => [...s].filter((c) => !'0123456789.,%'.includes(c)).join('').trim();
         return {
           lang: document.documentElement.lang,
           title: document.querySelector('.x11-title-bar div').textContent,
@@ -411,7 +413,7 @@ try {
     })`, sessionId);
     // The label is localized; the number is not. The percentage can move between the popup's
     // sample and this one, so the label is matched exactly and the number only approximately.
-    const shownPercent = Number((memoryState.shown.match(/(\d{1,3})%/) || [])[1]);
+    const shownPercent = Number((memoryState.shown.match(/(\d{1,3})\s*%/) || [])[1]);
     const memoryLabel = await cdp.evaluate(`(() => {
       const strip = (s) => [...s].filter((c) => !'0123456789.%'.includes(c)).join('').trim();
       return strip(chrome.i18n.getMessage('memoryPercent', ['0']));

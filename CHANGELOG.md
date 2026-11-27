@@ -9,6 +9,7 @@ The popup now speaks English or French, following Chrome's own language setting.
 - New `_locales/en/messages.json` and `_locales/fr/messages.json`: every label, theme name, refresh-rate option and status-bar readout is a message, each with the description a translator works from.
 - `manifest.json` declares `default_locale: "en"` and carries `__MSG_extName__` and `__MSG_extDescription__` instead of text, so the extension name and the store summary localize with the rest of the UI.
 - `popup.js` resolves every string through `chrome.i18n.getMessage()`, sets `<html lang>` from `chrome.i18n.getUILanguage()`, and fills each `data-i18n` element from the catalog. English stays the fallback for any browser language that is neither English nor French.
+- The status readouts format their numbers with the catalog's own decimal separator, so French reads `CHARGE : 21,46 %` with a comma and a space before the percent sign while English keeps `LOAD: 21.46%`.
 - No new permissions and no network code: the catalogs ship with the extension and are read from disk by Chrome.
 
 ### Packaging and checks
@@ -16,7 +17,7 @@ The popup now speaks English or French, following Chrome's own language setting.
 - Upload package is now `xload-retro-system-monitor-1.3.0.zip`: nine entries, the two catalogs included.
 - `README.md`, `STORE-LISTING.md`, `RELEASING.md` and `AGENTS.md` describe the bilingual popup and count nine entries; the store-listing regions note no longer calls the UI English-only.
 - `scripts/smoke.mjs` derives its expected readouts from the same messages, and `--catalog=fr` renders the French catalog on any platform (`--lang=fr` covers Linux and Windows), so a run exercises the translation instead of assuming English.
-- `scripts/capture-screenshots.mjs` unpacks the package with its `_locales/` subdirectories, which the flat copy could not do, and takes `--catalog=fr` to capture the French screenshot set without changing the browser's language.
+- `scripts/capture-screenshots.mjs` unpacks the package with its `_locales/` subdirectories, which the flat copy could not do, and takes `--catalog=fr` to capture the French screenshot set without changing the browser's language; `store/fr/` holds that set and `store/gallery.html` shows both.
 - `scripts/check-listing.mjs` resolves the manifest's message references and checks that both catalogs define the same keys, that every placeholder is declared, and that no label or option text is still hardcoded in `popup.html`.
 
 ## [1.2.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0) — 24 November 2026

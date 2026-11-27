@@ -38,6 +38,17 @@ const scanlineOverlayEl = document.querySelector('.scanlines');
  */
 const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
 
+/**
+ * Numbers follow the catalog, not JavaScript: a French readout is written 21,46 % where the
+ * English one is 21.46%. The separator is itself a message, so a --catalog capture and a real
+ * French Chrome format a value the same way instead of trusting the page's language.
+ */
+const decimalSeparator = t('decimalSeparator');
+const formatNumber = (value, decimals) => {
+  const [whole, fraction] = Number(value).toFixed(decimals).split('.');
+  return fraction ? `${whole}${decimalSeparator}${fraction}` : whole;
+};
+
 function localizeUi() {
   document.documentElement.lang = chrome.i18n.getUILanguage();
 
@@ -76,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scanlinesToggle.checked = config.scanlines;
 
     if (history.length > 0) {
-      loadValueEl.textContent = t('loadPercent', [history[history.length - 1].toFixed(2)]);
+      loadValueEl.textContent = t('loadPercent', [formatNumber(history[history.length - 1], 2)]);
     }
 
     updateScanlineOverlay();
@@ -194,7 +205,7 @@ function queryCpuInfo() {
       if (history.length > maxDataPoints) history.shift();
       historyDirty = true;
 
-      loadValueEl.textContent = t('loadPercent', [loadPercent.toFixed(2)]);
+      loadValueEl.textContent = t('loadPercent', [formatNumber(loadPercent, 2)]);
       persistHistory();
       drawGraph();
     }
@@ -219,7 +230,7 @@ function queryMemoryInfo() {
     if (!memoryInfo || !memoryInfo.capacity) return;
     const usedPercent = ((memoryInfo.capacity - memoryInfo.availableCapacity) / memoryInfo.capacity) * 100;
     const clamped = Math.max(0, Math.min(100, usedPercent));
-    memoryValueEl.textContent = t('memoryPercent', [String(Math.round(clamped))]);
+    memoryValueEl.textContent = t('memoryPercent', [formatNumber(Math.round(clamped), 0)]);
   });
 }
 
