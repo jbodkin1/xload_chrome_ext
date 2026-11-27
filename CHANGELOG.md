@@ -1,5 +1,18 @@
 # Release notes
 
+## [1.3.1](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.1) — 27 November 2026
+
+The French store summary now fits the store's 132-character limit, and the limit is checked.
+
+### Localisation
+
+- `_locales/fr/messages.json`: the `extDescription` summary is 130 characters, down from 137, keeping every claim of the English line — a small X11-style CPU graph in the toolbar, no accounts, no telemetry, six CRT themes, nothing in the way.
+- `scripts/check-listing.mjs` fails when any catalog's `extDescription` exceeds 132 characters, the store's summary limit. The summary is a manifest value, so an over-long line can only be fixed with a new package, which is what this release is.
+
+### Packaging
+
+- Upload package is now `xload-retro-system-monitor-1.3.1.zip`: nine entries, 12,708 bytes.
+
 ## [1.3.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0) — 27 November 2026
 
 The popup now speaks English or French, following Chrome's own language setting.
@@ -14,7 +27,7 @@ The popup now speaks English or French, following Chrome's own language setting.
 
 ### Packaging and checks
 
-- Upload package is now `xload-retro-system-monitor-1.3.0.zip`: nine entries, the two catalogs included.
+- Upload package was `xload-retro-system-monitor-1.3.0.zip`: nine entries, the two catalogs included.
 - `README.md`, `STORE-LISTING.md`, `RELEASING.md` and `AGENTS.md` describe the bilingual popup and count nine entries; the store-listing regions note no longer calls the UI English-only.
 - `scripts/smoke.mjs` derives its expected readouts from the same messages, and `--catalog=fr` renders the French catalog on any platform (`--lang=fr` covers Linux and Windows), so a run exercises the translation instead of assuming English.
 - `scripts/capture-screenshots.mjs` unpacks the package with its `_locales/` subdirectories, which the flat copy could not do, and takes `--catalog=fr` to capture the French screenshot set without changing the browser's language; `store/fr/` holds that set and `store/gallery.html` shows both.

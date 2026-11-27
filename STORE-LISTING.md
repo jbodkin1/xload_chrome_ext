@@ -7,7 +7,7 @@ Store limits: item title 45 in `manifest.json` (75 maximum displayed), summary 1
 detailed description 16,384.
 
 - [Before you start: the developer account](#before-you-start-the-developer-account)
-- [1. Add new item — upload the package](#1-add-new-item--upload-the-package)
+- [1. Upload the update — the item is already published](#1-upload-the-update--the-item-is-already-published)
 - [2. Package tab (read-only)](#2-package-tab-read-only)
 - [3. Store listing tab](#3-store-listing-tab)
 - [4. Privacy practices tab](#4-privacy-practices-tab)
@@ -23,6 +23,9 @@ detailed description 16,384.
 Everything here lives on the **Account page** of
 `https://chrome.google.com/webstore/devconsole`, not on the item, and none of it can be
 skipped — publishing is blocked until it is done.
+
+xload is already published, so everything below is in place. Revisit it only when the revenue
+or business situation changes, which is the trigger for the Trader declaration.
 
 - Accept the developer agreement and pay the one-time registration fee.
 - Enable **2-Step Verification** on the Google account. Required before publishing.
@@ -57,21 +60,30 @@ skipped — publishing is blocked until it is done.
 
 ---
 
-## 1. Add new item — upload the package
+## 1. Upload the update — the item is already published
 
-Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.3.0.zip`
-→ **Upload**. Nothing is typed here, but the upload is not a bare parse: the manifest is
-validated and the package is installed in a clean profile first, so a broken zip or a
-manifest typo fails at this point rather than during review.
+xload is in the store, so this is an update rather than a new item: dashboard → click
+**xload Retro System Monitor** → **Package** tab → **Upload new package** → choose the zip →
+**Upload**. The upload is not a bare parse: the manifest is validated and the package is
+installed in a clean profile before it is accepted, so a broken zip or a manifest typo fails
+here rather than during review.
 
-Upload the zip attached to the [v1.3.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0)
-or the copy committed at the repository root; they are the same bytes. It is 12,713 bytes with
+An update replaces the code and the manifest, and with them the item name, summary and icon,
+which are manifest values. Everything typed in the listing — detailed descriptions,
+screenshots, category, privacy answers, distribution — stays as it is except where this page
+says otherwise. The version already published keeps serving while the update is in review, and
+a rejection leaves it in place.
+
+Upload the zip attached to the [v1.3.1 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.1)
+or the copy committed at the repository root; they are the same bytes. It is 12,708 bytes with
 this SHA-256: check it before uploading, because an asset built before a manifest change is
-indistinguishable from the right one by name and would submit the older package.
+indistinguishable from the right one by name and would submit the older package. This is the
+package that adds French: the 1.3.0 zip carries one catalog, so uploading it leaves the item
+with no **Français** entry in the language dropdown.
 
 ```bash
-shasum -a 256 xload-retro-system-monitor-1.3.0.zip
-# 167afd3bfde2b160a055bb884a897bc835f88a23ec5f271f6747d5ee4c96ab55
+shasum -a 256 xload-retro-system-monitor-1.3.1.zip
+# 54d69f2488b92c15a11b0d0e3a6377fba9335eb10f28a61bb9c628bbe4f23681
 ```
 
 Upload limit is 2 GB — this package is 12 KB.
@@ -81,11 +93,13 @@ after upload**. A typo there means editing the manifest, bumping the version and
 re-uploading, so confirm these before choosing the file:
 
 - `name`: `xload Retro System Monitor` — 26 of 45 characters.
-- `version`: `1.3.0`.
+- `version`: `1.3.1`.
 - `minimum_chrome_version`: `88` — Manifest V3 is supported from Chrome 88 and nothing in
   the package is newer, so the floor is the platform's own. Chrome and the store show
   **Not compatible** rather than installing on anything older.
-- `description`: the summary string in step 3, 116 of 132 characters.
+- `description`: the summary string in step 3 — 116 of the 132 characters in English, 130 in
+  French. Each catalog carries its own summary, so the two languages have separate lines under
+  the same limit.
 - `icons`: 16/48/128 at the package root — three sizes, no 32 (Chrome scales from 48).
 
 ---
@@ -94,7 +108,7 @@ re-uploading, so confirm these before choosing the file:
 
 No fields. Use it as the confirmation checkpoint:
 
-- Version shows **1.3.0**.
+- Version shows **1.3.1**.
 - Permissions show exactly three entries: `system.cpu`, `system.memory` and `storage`.
 - **No host permissions** row appears. If one does, something got into the manifest and
   the upload must be replaced.
@@ -113,6 +127,12 @@ A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six
 ```
 
 116 characters. It is the line that shows in search results and category pages.
+
+The French catalog carries its own summary — 130 characters, `extDescription` in
+`_locales/fr/messages.json` — which the dashboard shows once a package containing the French
+catalog is uploaded. Both lines are held to the 132-character limit by
+`scripts/check-listing.mjs`: a summary is a manifest value, so an over-long line cannot be
+corrected in the form, only with a new package.
 
 Unused alternative, plainer (110 characters), kept for reference only:
 
@@ -185,7 +205,9 @@ the Store listing tab, and that locale has its own detailed description and scre
 - **Name and summary are not typed here.** Both come from the manifest through
   `__MSG_extName__` and `__MSG_extDescription__`, so each locale already has its own text — the
   French summary is the `extDescription` line in `_locales/fr/messages.json`. Editing either
-  means a new package and a new upload.
+  means a new package and a new upload. The **Français** entry appears in the dropdown only
+  once a package carrying `_locales/fr` is uploaded — on the update, that is 1.3.1; before the
+  upload the dropdown lists the base language alone.
 - **Detailed description, screenshots and the promotional video are per language**, filled in
   after choosing a language. A locale with no entries falls back to the default set, so French
   is not required for submission — but a French user then reads English copy under a French
@@ -196,7 +218,8 @@ the Store listing tab, and that locale has its own detailed description and scre
 #### French listing — what to fill in
 
 1. Store listing tab → language dropdown → **Français**. The item name and summary already show
-   the French catalog strings; there is nothing to paste for them.
+   the French catalog strings, because they come from the uploaded manifest; there is nothing to
+   paste for them. The entry exists only after the 1.3.1 package is uploaded.
 2. **Detailed description** — paste the block below. It is the English description feature for
    feature and in the same order, so the two locales promise the same things: Google flags
    "mismatching metadata" when a locale promises features the other does not, and that warning
@@ -243,7 +266,8 @@ Aucune dépendance, aucune étape de compilation, aucun framework. Code source e
    store shows `CHARGE :` / `MÉMOIRE :` / `ÉCHELLE :`, so it is worth adding once the text is
    in place. `node scripts/capture-screenshots.mjs --catalog=fr` renders the French catalog in
    the same runaway Chrome and writes the same five frames to `store/review-fr-<date>/`; the
-   set committed here is `store/fr/`. Upload those under **Français**.
+   set committed here is `store/fr/`. Upload those under **Français**; until they are there,
+   French users keep seeing the English set already attached to the published item.
 4. Everything else — category, privacy answers, distribution, test instructions — is
    item-wide: it is entered once and applies to every language.
 
@@ -454,7 +478,7 @@ The tab requires a public URL, and the same disclosure must match the code. Use 
 dedicated policy page, `PRIVACY.md`, pinned to this release's tag:
 
 ```
-https://github.com/jbodkin1/xload_chrome_ext/blob/v1.3.0/PRIVACY.md
+https://github.com/jbodkin1/xload_chrome_ext/blob/v1.3.1/PRIVACY.md
 ```
 
 It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
@@ -462,10 +486,12 @@ a repository note, which is what a reviewer expects behind this field. `SECURITY
 the vulnerability-reporting side and is linked from the policy rather than used as the URL.
 If the Account page also has a policy field, use this same link there.
 
-The URL names `v1.3.0` rather than `main` deliberately: the reviewer approves this item
+The URL names `v1.3.1` rather than `main` deliberately: the reviewer approves this item
 against the policy that shipped with it, and a later edit to `PRIVACY.md` must not change
 what that field serves. The cost is that a policy change only reaches the store with the
-next release that tags it. `scripts/check-listing.mjs` builds the expected URL from
+next release that tags it. On an update, move this field from the previous tag to the new one
+in the same pass as the upload: the policy did not change between 1.3.0 and 1.3.1, but the
+reviewer approves this version against the file at this version's tag. `scripts/check-listing.mjs` builds the expected URL from
 `manifest.version`, so bumping the version fails the docs check until this line names the
 new tag — which is the moment to update the field in the dashboard as well.
 
@@ -509,8 +535,8 @@ the two finds no contradiction.
   expires after **30 days**, then reverts to a draft that has to be reviewed again. You can
   also choose **Defer publish** from the item's menu after submitting.
 
-For a first submission, unchecking it is the lower-risk option: it lets you look at the live
-listing page before it is public. Review duration depends on the item; enable publish/staged
+For an update, leaving it unchecked is the lower-risk option: the version already published
+keeps serving until you publish the new one, and you get to look at the staged listing first. Review duration depends on the item; enable publish/staged
 notifications on the Account page if you want the email rather than checking the dashboard.
 
 If it comes back rejected, the replies, evidence and appeal route for the two likely findings —
@@ -528,24 +554,25 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 
 **Upload**
 
-- [x] Manifest `description` matches the summary above, and `version` is 1.3.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,713 bytes, sha256
-      `167afd3bfde2b160a055bb884a897bc835f88a23ec5f271f6747d5ee4c96ab55`.
+- [x] Manifest `description` matches the summary above, and `version` is 1.3.1.
+- [x] Upload package built: `xload-retro-system-monitor-1.3.1.zip`, 12,708 bytes, sha256
+      `54d69f2488b92c15a11b0d0e3a6377fba9335eb10f28a61bb9c628bbe4f23681`.
 - [x] Zip holds only the extension files — nine entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
-- [ ] Package uploaded via **Add new item**.
+- [ ] Update uploaded as a new version of the published item (**Upload new package**), not as
+      a new item.
 
 **Package tab**
 
-- [ ] Version 1.3.0, exactly three permissions, no host permissions, minimum Chrome 88.
+- [ ] Version 1.3.1, exactly three permissions, no host permissions, minimum Chrome 88.
 
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
 - [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
 - [ ] Category set; language set to English (United States) as the base.
-- [ ] French listing completed: French description pasted (3,861 chars), screenshots
-      added under **Français** or the default English set left in place deliberately.
+- [ ] French description pasted (3,861 chars) and screenshots uploaded under **Français**,
+      which the language dropdown only offers once 1.3.1 is uploaded.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.
 - [ ] Homepage and Support URLs set.

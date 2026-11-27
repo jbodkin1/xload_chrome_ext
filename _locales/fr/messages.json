@@ -4,7 +4,7 @@
     "description": "Nom de l'extension, repris dans la barre d'outils, la page des extensions et le titre de la boutique. Identique dans toutes les langues."
   },
   "extDescription": {
-    "message": "Un minuscule graphique de charge CPU façon X11 pour votre barre d'outils. Sans compte, sans télémétrie, six thèmes CRT, et rien qui gêne.",
+    "message": "Un petit graphique de charge CPU façon X11 dans votre barre d'outils. Sans compte, sans télémétrie, six thèmes CRT, rien qui gêne.",
     "description": "Résumé d'une ligne de la boutique, prérempli depuis le manifeste. La version anglaise doit rester identique au bloc de STORE-LISTING.md."
   },
   "titleBar": {
