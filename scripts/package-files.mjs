@@ -7,6 +7,8 @@
  */
 export const PACKAGE_FILES = [
   'manifest.json',
+  '_locales/en/messages.json',
+  '_locales/fr/messages.json',
   'popup.html',
   'popup.js',
   'background.js',

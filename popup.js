@@ -31,6 +31,26 @@ const scaleValueEl = document.getElementById('scale-value');
 const memoryValueEl = document.getElementById('memory-value');
 const scanlineOverlayEl = document.querySelector('.scanlines');
 
+/**
+ * All visible text comes from _locales/<language>/messages.json through chrome.i18n, which
+ * resolves it against Chrome's own language setting: English or French, with the English
+ * catalog as the fallback for every other browser language.
+ */
+const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
+
+function localizeUi() {
+  document.documentElement.lang = chrome.i18n.getUILanguage();
+
+  for (const element of document.querySelectorAll('[data-i18n]')) {
+    element.textContent = t(element.dataset.i18n);
+  }
+
+  // The readouts carry numbers, so they are filled here rather than by a plain data-i18n swap.
+  loadValueEl.textContent = t('loadPercent', ['0.00']);
+  memoryValueEl.textContent = t('memoryPercent', ['--']);
+  scaleValueEl.textContent = t('scaleMax', ['10']);
+}
+
 const themes = {
   'classic': { bg: '#ffffff', grid: '#dfdfdf', line: '#ff0000', fill: 'rgba(255, 0, 0, 0.15)', border: '#000000', text: '#000000' },
   'retro-dark': { bg: '#121214', grid: '#1a243a', line: '#00e1d9', fill: 'rgba(0, 225, 217, 0.12)', border: '#00e1d9', text: '#00e1d9' },
@@ -42,6 +62,7 @@ const themes = {
 
 document.addEventListener('DOMContentLoaded', () => {
   ctx.imageSmoothingEnabled = false;
+  localizeUi();
 
   chrome.storage.local.get(['config', 'history'], (result) => {
     if (result.config) config = { ...config, ...result.config };
@@ -60,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scanlinesToggle.checked = config.scanlines;
 
     if (history.length > 0) {
-      loadValueEl.textContent = "LOAD: " + history[history.length - 1].toFixed(2) + "%";
+      loadValueEl.textContent = t('loadPercent', [history[history.length - 1].toFixed(2)]);
     }
 
     updateScanlineOverlay();
@@ -178,7 +199,7 @@ function queryCpuInfo() {
       if (history.length > maxDataPoints) history.shift();
       historyDirty = true;
 
-      loadValueEl.textContent = "LOAD: " + loadPercent.toFixed(2) + "%";
+      loadValueEl.textContent = t('loadPercent', [loadPercent.toFixed(2)]);
       persistHistory();
       drawGraph();
     }
@@ -203,7 +224,7 @@ function queryMemoryInfo() {
     if (!memoryInfo || !memoryInfo.capacity) return;
     const usedPercent = ((memoryInfo.capacity - memoryInfo.availableCapacity) / memoryInfo.capacity) * 100;
     const clamped = Math.max(0, Math.min(100, usedPercent));
-    memoryValueEl.textContent = 'MEMORY: ' + Math.round(clamped) + '%';
+    memoryValueEl.textContent = t('memoryPercent', [String(Math.round(clamped))]);
   });
 }
 
@@ -225,7 +246,7 @@ function drawGraph() {
   maxLoadVal = Math.ceil(maxLoadVal / 10) * 10;
   if (maxLoadVal > 100) maxLoadVal = 100;
 
-  scaleValueEl.textContent = "SCALE: " + maxLoadVal + "% MAX";
+  scaleValueEl.textContent = t('scaleMax', [String(maxLoadVal)]);
 
   if (config.showGrid) {
     ctx.strokeStyle = currentTheme.grid;

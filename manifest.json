@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "xload Retro System Monitor",
-  "version": "1.2.0",
+  "name": "__MSG_extName__",
+  "version": "1.3.0",
   "minimum_chrome_version": "88",
-  "description": "A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

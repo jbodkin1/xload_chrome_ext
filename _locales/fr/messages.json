@@ -1,0 +1,104 @@
+{
+  "extName": {
+    "message": "xload Retro System Monitor",
+    "description": "Nom de l'extension, repris dans la barre d'outils, la page des extensions et le titre de la boutique. Identique dans toutes les langues."
+  },
+  "extDescription": {
+    "message": "Un minuscule graphique de charge CPU façon X11 pour votre barre d'outils. Sans compte, sans télémétrie, six thèmes CRT, et rien qui gêne.",
+    "description": "Résumé d'une ligne de la boutique, prérempli depuis le manifeste. La version anglaise doit rester identique au bloc de STORE-LISTING.md."
+  },
+  "titleBar": {
+    "message": "xload - Charge système moyenne",
+    "description": "Texte de la barre de titre bleu nuit du popup, écrit comme le titre de la fenêtre xload de X11."
+  },
+  "labelTheme": {
+    "message": "Accent du thème",
+    "description": "Libellé au-dessus de la liste qui choisit l'un des six thèmes de couleurs."
+  },
+  "labelRefresh": {
+    "message": "Fréquence d'actualisation",
+    "description": "Libellé au-dessus de la liste qui choisit l'intervalle d'échantillonnage."
+  },
+  "labelGrid": {
+    "message": "Afficher la grille",
+    "description": "Libellé à côté de la case qui affiche ou masque la grille d'alignement du graphique."
+  },
+  "labelScanlines": {
+    "message": "Lignes de balayage CRT",
+    "description": "Libellé à côté de la case qui affiche ou masque les lignes de balayage de l'écran cathodique."
+  },
+  "themeClassic": {
+    "message": "Classique X11 (blanc)",
+    "description": "Thème : fond blanc, tracé rouge, celui par défaut."
+  },
+  "themePhosphor": {
+    "message": "Ardoise phosphore (sombre)",
+    "description": "Thème : fond ardoise sombre, tracé cyan."
+  },
+  "themeAmber": {
+    "message": "Moniteur ambre",
+    "description": "Thème : fond brun presque noir, tracé ambre."
+  },
+  "themeMatrix": {
+    "message": "Vert hacker",
+    "description": "Thème : fond noir, tracé vert vif."
+  },
+  "themeVapor": {
+    "message": "Cyberpunk néon",
+    "description": "Thème : fond violet, tracé rose vif."
+  },
+  "themeMono": {
+    "message": "Monochrome",
+    "description": "Thème : fond noir, tracé blanc."
+  },
+  "rateUltrafast": {
+    "message": "0,1 s (ultrarapide)",
+    "description": "Option de fréquence : un échantillon toutes les 0,1 seconde."
+  },
+  "rateFast": {
+    "message": "0,5 s (rapide)",
+    "description": "Option de fréquence : un échantillon toutes les 0,5 seconde."
+  },
+  "rateNormal": {
+    "message": "1,0 s (normal)",
+    "description": "Option de fréquence : un échantillon par seconde, la valeur par défaut."
+  },
+  "rateRelaxed": {
+    "message": "2,0 s (relâché)",
+    "description": "Option de fréquence : un échantillon toutes les 2 secondes."
+  },
+  "rateSlow": {
+    "message": "5,0 s (lent)",
+    "description": "Option de fréquence : un échantillon toutes les 5 secondes."
+  },
+  "loadPercent": {
+    "message": "CHARGE : $PERCENT$%",
+    "description": "Lecture de gauche dans la barre d'état : le dernier échantillon de charge CPU, en pourcentage avec deux décimales.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12.34"
+      }
+    }
+  },
+  "memoryPercent": {
+    "message": "MÉMOIRE : $PERCENT$%",
+    "description": "Lecture centrale de la barre d'état : la part de mémoire vive utilisée, en pourcentage entier.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "47"
+      }
+    }
+  },
+  "scaleMax": {
+    "message": "ÉCHELLE : $MAX$% MAX",
+    "description": "Lecture de droite dans la barre d'état : le maximum actuel de l'axe Y, arrondi au multiple de dix supérieur.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  }
+}
