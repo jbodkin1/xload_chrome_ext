@@ -65,3 +65,10 @@ jobs:
 
       - name: Smoke-test the package
         run: node scripts/smoke.mjs --zip="$ZIP" --chrome="$CHROME_PATH"
+
+      # French is a shipped feature, and Chrome resolves the catalog from its own application
+      # language, so the run above never touches a French string. --catalog renders the French
+      # messages in its place and smoke.mjs checks every readout against the catalog the popup
+      # claims to be showing, so a translation regression fails the build rather than the listing.
+      - name: Smoke-test the French catalog
+        run: node scripts/smoke.mjs --catalog=fr --zip="$ZIP" --chrome="$CHROME_PATH"

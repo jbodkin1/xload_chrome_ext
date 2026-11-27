@@ -62,6 +62,15 @@ does not survive a reload, or Chrome records a manifest, install or runtime erro
 Chrome installed and the zip on disk, and it refuses to run against a package whose files
 have drifted from this repository.
 
+Run it twice — once in the browser's default language and once with `--catalog=fr`, which is what
+CI does. The French run renders the French messages in place of the browser's and checks every
+readout against that catalog, so a translation regression fails before it reaches the listing:
+
+```bash
+node scripts/smoke.mjs
+node scripts/smoke.mjs --catalog=fr
+```
+
 ## 4. Land the release commit through a pull request, then tag
 
 `main` is protected: a direct `git push origin main` is rejected with `GH006` until the
