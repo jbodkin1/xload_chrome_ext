@@ -222,10 +222,12 @@ group('STORE-LISTING.md — character counts');
 const summary = blocks.find((b) => b.startsWith('A tiny X11-style'));
 const alternative = blocks.find((b) => b.startsWith('Watch your CPU load'));
 const detailed = blocks.find((b) => b.startsWith('xload is a small Chrome extension'));
+const detailedFr = blocks.find((b) => b.startsWith('xload est une petite extension Chrome'));
 
 check('summary block found', Boolean(summary));
 check('alternative block found', Boolean(alternative));
 check('detailed description block found', Boolean(detailed));
+check('French detailed description block found', Boolean(detailedFr));
 
 if (summary) {
   same('summary is byte-identical to the description the manifest resolves to', summary, appDescription);
@@ -243,6 +245,14 @@ if (detailed) {
   same('detailed length in checklist', checklist && Number(checklist[1].replace(/,/g, '')), detailed.length);
   check('detailed description under the 16,384 limit', detailed.length <= 16384, `${detailed.length} chars`);
   check('detailed description repeats the four-files claim', detailed.includes('four small files'), 'detailed description');
+}
+if (detailedFr) {
+  const stated = doc.match(/The text is ([\d,]+) characters/);
+  const checklist = doc.match(/French description pasted \(([\d,]+) chars\)/);
+  same('French detailed length in doc', stated && Number(stated[1].replace(/,/g, '')), detailedFr.length);
+  same('French detailed length in checklist', checklist && Number(checklist[1].replace(/,/g, '')), detailedFr.length);
+  check('French detailed description under the 16,384 limit', detailedFr.length <= 16384, `${detailedFr.length} chars`);
+  check('French detailed description repeats the four-files claim', detailedFr.includes('quatre petits fichiers'), 'French detailed description');
 }
 
 group('STORE-LISTING.md — assets');
@@ -840,6 +850,7 @@ group('store/SUBMISSION-COPY.txt matches the listing copy');
 const paste = read('store/SUBMISSION-COPY.txt');
 same('contains the summary verbatim', paste.includes(summary), true);
 same('contains the detailed description verbatim', paste.includes(detailed), true);
+if (detailedFr) same('contains the French detailed description verbatim', paste.includes(detailedFr), true);
 same('contains the single-purpose answer verbatim', paste.includes(singlePurpose), true);
 same('contains the system.cpu justification verbatim', paste.includes(cpuAnswer), true);
 same('contains the storage justification verbatim', paste.includes(storageAnswer), true);
