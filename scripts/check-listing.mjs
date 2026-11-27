@@ -19,6 +19,11 @@
  *    from manifest.json, popup.html, popup.js and background.js, so a code change that
  *    makes a document untrue fails here rather than in front of a reviewer.
  *
+ * 3. The English and French descriptions are one listing in two languages, read side by
+ *    side in review. A figure, theme, permission or section present in one and missing
+ *    from the other is a factual error at best and mismatching metadata at worst, so the
+ *    two are compared against each other and against the code.
+ *
  * No dependencies: PNG dimensions come from the IHDR chunk, the zip is read with `unzip`,
  * and links are checked with the built-in fetch.
  */
@@ -253,6 +258,49 @@ if (detailedFr) {
   same('French detailed length in checklist', checklist && Number(checklist[1].replace(/,/g, '')), detailedFr.length);
   check('French detailed description under the 16,384 limit', detailedFr.length <= 16384, `${detailedFr.length} chars`);
   check('French detailed description repeats the four-files claim', detailedFr.includes('quatre petits fichiers'), 'French detailed description');
+}
+
+// The English and French descriptions are one listing in two languages, read side by side in
+// review. A figure, theme, permission or section that appears in one and not the other is a
+// factual error at best and mismatching metadata at worst, so parity is checked here rather than
+// left to an audit. Everything is derived — the figures from the text, the theme names from the
+// catalogs popup.html reads, the permissions from manifest.json — so a renamed theme or a changed
+// rate fails here instead of in front of a reviewer.
+const paragraphsOf = (text) => text.split(/\n\s*\n/).filter((para) => para.trim());
+const bulletsOf = (text) => text.split('\n').filter((line) => line.trimStart().startsWith('- '));
+// Section headings are the short all-caps lines; a line with a lowercase letter is prose.
+const headingsOf = (text) =>
+  text.split('\n').filter((line) => line.trim() && !line.trimStart().startsWith('- ') && !/\p{Ll}/u.test(line));
+const figuresOf = (text) =>
+  [...new Set((text.match(/\d+(?:[.,]\d+)?/g) || []).map((n) => n.replace(',', '.')))].sort();
+const permissionsIn = (text) => [...new Set(text.match(/system\.[a-z]+|storage\b/g) || [])];
+const themeMenuKeys = [...source['popup.html'].matchAll(/<option value="([^"]+)" data-i18n="([^"]+)"><\/option>/g)]
+  .filter(([, value]) => !/^\d+$/.test(value))
+  .map(([, , key]) => key);
+const themeLabel = (catalog, key) => (message(catalog, key) || '').replace(/\s*\([^)]*\)$/, '');
+const themePairs = themeMenuKeys.map((key) => ({
+  en: themeLabel(catalogs.en, key),
+  fr: themeLabel(catalogs.fr, key),
+}));
+const namedInOrder = (text, side) => {
+  const positions = themePairs.map((pair) => text.indexOf(pair[side]));
+  return positions.every((position, i) => position >= 0 && (i === 0 || position > positions[i - 1]));
+};
+
+if (detailed && detailedFr) {
+  same('both descriptions have the same sections', headingsOf(detailed).length, headingsOf(detailedFr).length);
+  same('both descriptions have the same paragraphs', paragraphsOf(detailed).length, paragraphsOf(detailedFr).length);
+  same('both descriptions have the same bullets', bulletsOf(detailed).length, bulletsOf(detailedFr).length);
+  same('both descriptions name the same figures', figuresOf(detailed), figuresOf(detailedFr));
+  same('both descriptions name the same permissions', permissionsIn(detailed), permissionsIn(detailedFr));
+  same('both descriptions name exactly the manifest permissions', permissionsIn(detailed), manifest.permissions);
+  same(
+    'both descriptions name every one of the six themes',
+    themePairs.filter((pair) => !detailed.includes(pair.en) || !detailedFr.includes(pair.fr)).map((pair) => pair.en),
+    []
+  );
+  check('the English description lists the themes in menu order', namedInOrder(detailed, 'en'));
+  check('the French description lists the themes in menu order', namedInOrder(detailedFr, 'fr'));
 }
 
 group('STORE-LISTING.md — assets');
