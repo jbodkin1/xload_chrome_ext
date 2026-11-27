@@ -621,6 +621,25 @@ check(
   'French typography'
 );
 
+group('STORE-LISTING.md — the history window matches the refresh rates');
+
+// The descriptions promise a window per rate — "2 minutes at the default 1.0s" — which is
+// historyPoints samples of that interval, so the two numbers in the copy are only true together.
+// Both are read back out of the prose and multiplied here: changing the rate options, the history
+// length or the copy breaks the arithmetic instead of passing unnoticed.
+const windowOf = (text) =>
+  [
+    ...text.matchAll(
+      /(\d+)\s+(seconds?|secondes?|minutes?)\s+(?:at|à)\s+(?:the default\s+|la fréquence par défaut de\s+)?(\d+(?:[.,]\d+)?)\s*s/gi
+    ),
+  ]
+    .map(([, n, unit, rate]) => [Number(rate.replace(',', '.')), Number(n) * (/^min/i.test(unit) ? 60 : 1)])
+    .sort((a, b) => a[0] - b[0]);
+const rateEnds = [Math.min(...rateValues), 1000, Math.max(...rateValues)];
+const expectedWindows = rateEnds.map((ms) => [ms / 1000, (historyPoints * ms) / 1000]);
+if (detailed) same('the English description states the window the code implies', windowOf(detailed), expectedWindows);
+if (detailedFr) same('the French description states the window the code implies', windowOf(detailedFr), expectedWindows);
+
 // ============================================================== README / PRIVACY / SECURITY
 group('README.md, PRIVACY.md, SECURITY.md — claims against the code');
 
