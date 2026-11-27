@@ -197,10 +197,47 @@ the Store listing tab, and that locale has its own detailed description and scre
 
 1. Store listing tab → language dropdown → **Français**. The item name and summary already show
    the French catalog strings; there is nothing to paste for them.
-2. **Detailed description** — paste a French translation of the English block above, feature for
-   feature and in the same order (16,384-character limit; keep it near the English length). Keep
-   the two languages saying the same things: Google flags "mismatching metadata" when a locale
-   promises different features, and that warning can hold up review.
+2. **Detailed description** — paste the block below. It is the English description feature for
+   feature and in the same order, so the two locales promise the same things: Google flags
+   "mismatching metadata" when a locale promises features the other does not, and that warning
+   can hold up review. The text is 3,861 characters — French runs about a fifth longer than
+   English — against the 16,384 limit.
+
+```
+xload est une petite extension Chrome qui trace la charge CPU en direct dans une fenêtre qui ressemble à une station de travail X11 des années 1990.
+
+Cliquez sur l'icône de la barre d'outils : une fenêtre de 400x330 s'ouvre, avec une barre de titre bleu nuit, « xload - Charge système moyenne » en Courier, et un écran cathodique qui affiche un graphique défilant en continu de la charge totale du système. C'est toute l'extension. Pas de panneau latéral, pas de parcours d'accueil, pas de compte, et aucune page de réglages cachée à trois clics.
+
+POURQUOI ELLE EXISTE
+
+La plupart des moniteurs système sont lourds : un tableau de bord, une rangée de widgets, une base de données, un compte. Parfois, on veut simplement savoir si le processeur est occupé. Cette extension est pour ceux qui regrettent l'époque des applications rapides et simples, sans surcharge : quatre petits fichiers et quelques kilo-octets de JavaScript simple qui font exactement une chose.
+
+CE QU'ELLE FAIT
+
+- Graphique de charge CPU en direct : un historique glissant de 120 points, pour voir le comportement des deux dernières minutes plutôt qu'un chiffre instantané.
+- Lecture de la mémoire en direct : MÉMOIRE, au centre de la barre d'état, donne le pourcentage de RAM installée utilisée, échantillonné sur le même minuteur que le graphique.
+- Six thèmes : Classique X11 (fond blanc, tracé rouge), Ardoise phosphore (sombre), Moniteur ambre, Vert hacker, Cyberpunk néon et Monochrome.
+- Fréquence d'actualisation réglable : de 0,1 s à 5,0 s, 1,0 s par défaut, afin d'arbitrer entre fluidité et coût.
+- Grille et lignes de balayage CRT activables : des lignes d'alignement pour lire les valeurs, et des lignes de balayage pour l'expérience nostalgique complète.
+- Interface en anglais et en français : chaque libellé et chaque lecture provient des fichiers de langue de l'extension et suit le réglage de langue de Chrome, avec l'anglais en secours.
+- Réglages mémorisés : le thème, la fréquence d'actualisation et les cases à cocher persistent, ainsi que l'historique du graphique, de sorte que le tracé reprend là où il s'était arrêté quand vous rouvrez le popup.
+
+COMMENT ELLE MESURE
+
+La charge est calculée honnêtement, sans simulation : xload interroge chrome.system.cpu.getInfo() et compare les compteurs de ticks user, kernel et idle au relevé précédent, additionnés sur tous les cœurs, puis divise les ticks actifs par le total. Le résultat est tracé sur un axe Y à échelle automatique, arrondi au multiple de 10 % supérieur et plafonné à 100 %, si bien qu'une machine au repos montre une ligne presque plate en bas plutôt qu'un zigzag inutile sur toute la hauteur.
+
+VIE PRIVÉE
+
+Aucune requête réseau, aucune analyse d'audience, aucune télémétrie, aucun compte, aucune publicité. L'extension ne détient que trois autorisations : system.cpu, pour lire les compteurs de charge ; system.memory, pour lire la mémoire totale et la mémoire disponible afin d'afficher le pourcentage MÉMOIRE ; et storage, pour conserver vos réglages d'affichage et l'historique du graphique sur votre propre machine. Elle ne peut pas lire le contenu des pages, les onglets, l'historique, les fichiers ni le presse-papiers, et rien n'est jamais envoyé nulle part.
+
+AUTORISATIONS
+
+- system.cpu : lit les compteurs de ticks CPU par cœur pour calculer la charge. Aucune information sur les processus ou les applications ne lui est accessible.
+- system.memory : lit la mémoire totale et la mémoire disponible pour afficher le pourcentage utilisé. Des capacités seulement, sans information sur les processus ou les applications.
+- storage : enregistre localement votre thème, votre fréquence d'actualisation, vos cases à cocher et l'historique glissant du graphique.
+
+Aucune dépendance, aucune étape de compilation, aucun framework. Code source et politique de sécurité : github.com/jbodkin1/xload_chrome_ext
+```
 3. **Screenshots** — optional. With none uploaded, French users see the default English set.
    Because the popup follows the browser language, a French screenshot set is the only way the
    store shows `CHARGE :` / `MÉMOIRE :` / `ÉCHELLE :`, so it is worth adding once the text is
@@ -500,8 +537,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
 - [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
 - [ ] Category set; language set to English (United States) as the base.
-- [ ] French listing completed: detailed description translated, screenshots added under
-      **Français** or the default English set left in place deliberately.
+- [ ] French listing completed: French description pasted (3,861 chars), screenshots
+      added under **Français** or the default English set left in place deliberately.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.
 - [ ] Homepage and Support URLs set.

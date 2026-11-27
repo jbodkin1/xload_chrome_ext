@@ -32,6 +32,7 @@ function pick(description, test) {
 
 const summary = pick('summary block', (b) => b.startsWith('A tiny X11-style'));
 const detailed = pick('detailed description block', (b) => b.startsWith('xload is a small Chrome extension'));
+const detailedFr = pick('French detailed description block', (b) => b.startsWith('xload est une petite extension Chrome'));
 const singlePurpose = pick('single-purpose answer', (b) => b.startsWith('Shows live CPU load'));
 const cpuAnswer = pick('system.cpu justification', (b) => b.includes('chrome.system.cpu.getInfo() is the sole API'));
 const memoryAnswer = pick('system.memory justification', (b) => b.includes('chrome.system.memory.getInfo()'));
@@ -69,6 +70,9 @@ const out = [
   bar(`DETAILED DESCRIPTION - Store listing (${n(detailed.length)} characters, limit 16,384)`),
   detailed,
   '',
+  bar(`DETAILED DESCRIPTION (FRANÇAIS) - Store listing, language: Français (${n(detailedFr.length)} characters, limit 16,384)`),
+  detailedFr,
+  '',
   bar(`PRIVACY TAB - SINGLE PURPOSE (${n(singlePurpose.length)} characters)`),
   singlePurpose,
   '',
@@ -104,4 +108,4 @@ const out = [
 
 fs.writeFileSync(outPath, out);
 console.log(`wrote ${path.relative(root, outPath)} (${Buffer.byteLength(out)} bytes)`);
-console.log(`summary ${summary.length}, detailed ${detailed.length}, single purpose ${singlePurpose.length}`);
+console.log(`summary ${summary.length}, detailed ${detailed.length} (French ${detailedFr.length}), single purpose ${singlePurpose.length}`);
