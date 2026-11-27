@@ -59,29 +59,29 @@ skipped — publishing is blocked until it is done.
 
 ## 1. Add new item — upload the package
 
-Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.2.0.zip`
+Dashboard → **Add new item** → **Choose file** → `xload-retro-system-monitor-1.3.0.zip`
 → **Upload**. Nothing is typed here, but the upload is not a bare parse: the manifest is
 validated and the package is installed in a clean profile first, so a broken zip or a
 manifest typo fails at this point rather than during review.
 
-Upload the zip attached to the [v1.2.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0)
-or the copy committed at the repository root; they are the same bytes. It is 9,498 bytes with
+Upload the zip attached to the [v1.3.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0)
+or the copy committed at the repository root; they are the same bytes. It is 12,308 bytes with
 this SHA-256: check it before uploading, because an asset built before a manifest change is
 indistinguishable from the right one by name and would submit the older package.
 
 ```bash
-shasum -a 256 xload-retro-system-monitor-1.2.0.zip
-# 9d676fa86e9acdbdd16257508568f18ea92d98d3c6b461e44caa8d7e337a1a5d
+shasum -a 256 xload-retro-system-monitor-1.3.0.zip
+# 1fb6bfdafab0583a6a80df821c1f5a2d36d926f404bd5d767b5e7960f7190f2d
 ```
 
-Upload limit is 2 GB — this package is 9 KB.
+Upload limit is 2 GB — this package is 12 KB.
 
 Manifest metadata (name, version, icons, description) is **not editable in the dashboard
 after upload**. A typo there means editing the manifest, bumping the version and
 re-uploading, so confirm these before choosing the file:
 
 - `name`: `xload Retro System Monitor` — 26 of 45 characters.
-- `version`: `1.2.0`.
+- `version`: `1.3.0`.
 - `minimum_chrome_version`: `88` — Manifest V3 is supported from Chrome 88 and nothing in
   the package is newer, so the floor is the platform's own. Chrome and the store show
   **Not compatible** rather than installing on anything older.
@@ -94,7 +94,7 @@ re-uploading, so confirm these before choosing the file:
 
 No fields. Use it as the confirmation checkpoint:
 
-- Version shows **1.2.0**.
+- Version shows **1.3.0**.
 - Permissions show exactly three entries: `system.cpu`, `system.memory` and `storage`.
 - **No host permissions** row appears. If one does, something got into the manifest and
   the upload must be replaced.
@@ -130,8 +130,8 @@ plus a new upload.
 ### Detailed description (16,384 max)
 
 Plain text, no Markdown — the store renders line breaks but not formatting, so the `- `
-feature bullets appear as literal dashes, as intended. Keep it under about 3,000
-characters; reviewers and users both stop reading long ones. This one is 2,988.
+feature bullets appear as literal dashes, as intended. Keep it under about 3,500
+characters; reviewers and users both stop reading long ones. This one is 3,153.
 
 ```
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
@@ -149,6 +149,7 @@ WHAT IT DOES
 - Six themes: Classic X11 (white paper, red trace), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome.
 - Adjustable refresh rate: from 0.1s to 5.0s, defaulting to 1.0s, so you can trade smoothness against cost.
 - Toggleable grid and CRT scanlines: alignment lines for reading values, and scanlines if you want the full nostalgic experience.
+- English and French interface: every label and readout comes from the extension's locale files and follows Chrome's language setting, with English as the fallback.
 - Remembers your settings: theme, refresh rate and toggles persist, along with the graph history, so the graph picks up where it left off when you reopen the popup.
 
 HOW IT MEASURES
@@ -379,7 +380,7 @@ The tab requires a public URL, and the same disclosure must match the code. Use 
 dedicated policy page, `PRIVACY.md`, pinned to this release's tag:
 
 ```
-https://github.com/jbodkin1/xload_chrome_ext/blob/v1.2.0/PRIVACY.md
+https://github.com/jbodkin1/xload_chrome_ext/blob/v1.3.0/PRIVACY.md
 ```
 
 It is written as a standalone policy (scope, retention, Limited Use, contact) rather than
@@ -387,7 +388,7 @@ a repository note, which is what a reviewer expects behind this field. `SECURITY
 the vulnerability-reporting side and is linked from the policy rather than used as the URL.
 If the Account page also has a policy field, use this same link there.
 
-The URL names `v1.2.0` rather than `main` deliberately: the reviewer approves this item
+The URL names `v1.3.0` rather than `main` deliberately: the reviewer approves this item
 against the policy that shipped with it, and a later edit to `PRIVACY.md` must not change
 what that field serves. The cost is that a policy change only reaches the store with the
 next release that tags it. `scripts/check-listing.mjs` builds the expected URL from
@@ -401,8 +402,9 @@ new tag — which is the moment to update the field in the dashboard as well.
 - **Visibility:** Public — the extension is meant to be found. Unlisted keeps it out of search
   and categories but still installable by URL, which is the better choice if you want to test
   the live listing first; all visibility settings go through the same review either way.
-- **Regions:** All regions — nothing in the extension is locale or region dependent, and the
-  popup is English-only regardless.
+- **Regions:** All regions — the popup follows Chrome's language setting, in English or
+  French, with English as the fallback for every other language. The store regions setting
+  does not change which language the popup uses.
 - **Paid item / in-app purchases:** none. The extension is free and has nothing to declare.
 
 ---
@@ -452,21 +454,21 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 
 **Upload**
 
-- [x] Manifest `description` matches the summary above, and `version` is 1.2.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.2.0.zip`, 9,498 bytes, sha256
-      `9d676fa86e9acdbdd16257508568f18ea92d98d3c6b461e44caa8d7e337a1a5d`.
-- [x] Zip holds only the extension files — seven entries, `manifest.json` at the root, no
+- [x] Manifest `description` matches the summary above, and `version` is 1.3.0.
+- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,308 bytes, sha256
+      `1fb6bfdafab0583a6a80df821c1f5a2d36d926f404bd5d767b5e7960f7190f2d`.
+- [x] Zip holds only the extension files — eight entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.
 
 **Package tab**
 
-- [ ] Version 1.2.0, exactly three permissions, no host permissions, minimum Chrome 88.
+- [ ] Version 1.3.0, exactly three permissions, no host permissions, minimum Chrome 88.
 
 **Store listing**
 
 - [x] Assets captured: five screenshots, the 440×280 tile and the 1400×560 marquee, in `store/`.
-- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (2,988 chars).
+- [ ] Summary confirmed as prefilled (116 chars); detailed description pasted (3,153 chars).
 - [ ] Category and language set.
 - [ ] Store icon present — upload `icon128.png` if the field is empty.
 - [ ] Five screenshots, the promo tile and the marquee uploaded, in the order above.

@@ -9,7 +9,7 @@ Minibiz-Free-Apps
 === SUMMARY - Store listing (116 characters, limit 132) ===
 A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.
 
-=== DETAILED DESCRIPTION - Store listing (2,988 characters, limit 16,384) ===
+=== DETAILED DESCRIPTION - Store listing (3,153 characters, limit 16,384) ===
 xload is a small Chrome extension that plots your live CPU load in a window that looks like a 1990s X11 workstation.
 
 Click the toolbar icon and a 400x330 window opens: a navy title bar, "xload - System Load Average" in Courier, and a CRT screen carrying a continuously scrolling graph of total system load. That is the whole extension. There is no sidebar, no onboarding flow, no account, and no settings page hidden three clicks away.
@@ -25,6 +25,7 @@ WHAT IT DOES
 - Six themes: Classic X11 (white paper, red trace), Phosphor Slate, Amber Monitor, Hacker Green, Neon Cyberpunk, and Monochrome.
 - Adjustable refresh rate: from 0.1s to 5.0s, defaulting to 1.0s, so you can trade smoothness against cost.
 - Toggleable grid and CRT scanlines: alignment lines for reading values, and scanlines if you want the full nostalgic experience.
+- English and French interface: every label and readout comes from the extension's locale files and follows Chrome's language setting, with English as the fallback.
 - Remembers your settings: theme, refresh rate and toggles persist, along with the graph history, so the graph picks up where it left off when you reopen the popup.
 
 HOW IT MEASURES
@@ -59,7 +60,7 @@ Used only to persist the extension's own display preferences (theme, refresh rat
 No, I am not using remote code.
 
 === PRIVACY TAB - PRIVACY POLICY URL ===
-https://github.com/jbodkin1/xload_chrome_ext/blob/v1.2.0/PRIVACY.md
+https://github.com/jbodkin1/xload_chrome_ext/blob/v1.3.0/PRIVACY.md
 
 === PRIVACY TAB - DATA COLLECTION ===
 Leave every category unticked: no personally identifiable information, health, financial,

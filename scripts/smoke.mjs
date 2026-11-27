@@ -4,9 +4,11 @@
  * would: open the popup from the toolbar action, watch it draw, change a setting, reload,
  * then read Chrome's own error record for the extension.
  *
- *   node scripts/smoke.mjs              # headless, the default
- *   node scripts/smoke.mjs --headed     # watch it happen
- *   node scripts/smoke.mjs --keep       # leave the profile behind for poking at
+ *   node scripts/smoke.mjs                  # headless, the default
+ *   node scripts/smoke.mjs --headed         # watch it happen
+ *   node scripts/smoke.mjs --keep           # leave the profile behind for poking at
+ *   node scripts/smoke.mjs --lang=fr        # ask for a browser UI language (Linux, Windows)
+ *   node scripts/smoke.mjs --catalog=fr     # render the French catalog on any platform
  *   node scripts/smoke.mjs --zip=... --chrome=...
  *
  * It answers the question the docs cannot: does the thing in the zip actually run? The
@@ -33,6 +35,10 @@ const argValue = (name) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : null;
 };
+// Pin the browser language, so the same run can be repeated against another catalog.
+const lang = argValue('lang');
+// Render another catalog without changing the browser's own language.
+const catalogOverride = argValue('catalog');
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const failures = [];
@@ -142,11 +148,27 @@ if (!check('Chrome is installed', Boolean(chromePath), 'nothing found; pass --ch
 console.log(`      using ${chromePath}`);
 
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-smoke-'));
+// chrome.i18n resolves extension messages against Chrome's application locale, which on macOS
+// comes from the profile rather than --lang: writing it before launch is what makes a French
+// run French instead of English with a French flag.
+if (lang) {
+  fs.mkdirSync(path.join(profile, 'Default'), { recursive: true });
+  fs.writeFileSync(path.join(profile, 'Default', 'Preferences'), JSON.stringify({ intl: { app_locale: lang } }));
+}
 const unpacked = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-smoke-ext-'));
 for (const entry of entries) {
   const target = path.join(unpacked, entry.name);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, entry.data);
+}
+// --catalog puts another catalog where Chrome's own language looks for messages, so the
+// translation is exercised through the same lookup the popup uses on any platform. It is a
+// harness for the strings, not a substitute for --lang where the OS honours it.
+if (catalogOverride) {
+  fs.copyFileSync(
+    path.join(unpacked, '_locales', catalogOverride, 'messages.json'),
+    path.join(unpacked, '_locales', 'en', 'messages.json')
+  );
 }
 
 const chromeArgs = [
@@ -157,6 +179,9 @@ const chromeArgs = [
   '--no-default-browser-check',
   '--no-service-autorun',
   '--window-size=900,700',
+  // --lang sets the UI language on Linux and Windows; on macOS the app takes it from the
+  // bundle's NSLocale, which a directly-launched binary reads from -AppleLanguages.
+  ...(lang ? ['--lang=' + lang, ...(process.platform === 'darwin' ? [`-AppleLanguages=(${lang})`] : [])] : []),
   ...(headed ? [] : ['--headless=new']),
   'about:blank',
 ];
@@ -338,11 +363,47 @@ try {
     const first = await cdp.evaluate(canvasState, sessionId);
     check('the graph is drawn', first.inkRatio > 0.01, `${(first.inkRatio * 100).toFixed(1)}% of the canvas has ink`);
     check('the trace is drawn in the theme colour', first.trace > 0, `${first.trace} pixels near ${first.line}`);
+
+    // The readout is localized, so the expected string comes from the message the popup
+    // itself used: chrome.i18n in the page, with the sample formatted the same way.
+    const expectedLoad = first.newest === null
+      ? null
+      : await cdp.evaluate(
+        `chrome.i18n.getMessage('loadPercent', [${JSON.stringify(first.newest.toFixed(2))}])`,
+        sessionId
+      );
     check(
       'the load readout quotes the newest sample',
-      first.newest !== null && first.readout === `LOAD: ${first.newest.toFixed(2)}%`,
-      `${JSON.stringify(first.readout)} against newest sample ${first.newest}`
+      expectedLoad !== null && first.readout === expectedLoad,
+      `${JSON.stringify(first.readout)} against ${JSON.stringify(expectedLoad)} for sample ${first.newest}`
     );
+
+    const browserLang = await cdp.evaluate('document.documentElement.lang', sessionId);
+    if (lang && !browserLang.toLowerCase().startsWith(lang.toLowerCase())) {
+      console.log(`skip  the browser runs in ${browserLang}; --lang only changes that on Linux and Windows — use --catalog=${lang} to render a catalog here`);
+    }
+    const rendered = catalogOverride || (lang && browserLang.toLowerCase().startsWith(lang.toLowerCase()) ? lang : null);
+
+    if (rendered) {
+      const catalog = JSON.parse(fs.readFileSync(path.join(root, '_locales', rendered, 'messages.json'), 'utf8'));
+      const ui = await cdp.evaluate(`(() => {
+        const strip = (s) => [...s].filter((c) => !'0123456789.%'.includes(c)).join('').trim();
+        return {
+          lang: document.documentElement.lang,
+          title: document.querySelector('.x11-title-bar div').textContent,
+          firstTheme: document.querySelector('#theme-select option').textContent,
+          loadLabel: strip(document.getElementById('load-value').textContent),
+          empty: [...document.querySelectorAll('[data-i18n]')].filter((el) => !el.textContent.trim()).length
+        };
+      })()`, sessionId);
+      if (lang && !catalogOverride) {
+        check(`the popup follows the browser language (${lang})`, ui.lang.toLowerCase().startsWith(lang.toLowerCase()), `html lang is ${JSON.stringify(ui.lang)}`);
+      }
+      check(`the title bar is in ${rendered}`, ui.title === catalog.titleBar.message, `${JSON.stringify(ui.title)} against the ${rendered} catalog`);
+      check(`the theme menu is in ${rendered}`, ui.firstTheme === catalog.themeClassic.message, `${JSON.stringify(ui.firstTheme)} against the ${rendered} catalog`);
+      check(`the status bar is in ${rendered}`, ui.loadLabel === catalog.loadPercent.message.split('$')[0].trim(), `${JSON.stringify(ui.loadLabel)} against the ${rendered} catalog`);
+      check('every message key in the popup resolved', ui.empty === 0, `${ui.empty} element(s) left empty`);
+    }
 
     // The memory readout is checked against the API rather than a fixed number: the percentage
     // moves with whatever else is running, so the assertion is that it is a sane percentage of
@@ -356,7 +417,19 @@ try {
         });
       });
     })`, sessionId);
-    const shownPercent = Number((memoryState.shown.match(/^MEMORY: (\d{1,3})%$/) || [])[1]);
+    // The label is localized; the number is not. The percentage can move between the popup's
+    // sample and this one, so the label is matched exactly and the number only approximately.
+    const shownPercent = Number((memoryState.shown.match(/(\d{1,3})%/) || [])[1]);
+    const memoryLabel = await cdp.evaluate(`(() => {
+      const strip = (s) => [...s].filter((c) => !'0123456789.%'.includes(c)).join('').trim();
+      return strip(chrome.i18n.getMessage('memoryPercent', ['0']));
+    })()`, sessionId);
+    const shownLabel = [...memoryState.shown].filter((c) => !'0123456789.%'.includes(c)).join('').trim();
+    check(
+      'the memory readout uses the localized label',
+      shownLabel === memoryLabel,
+      `${JSON.stringify(memoryState.shown)} against ${JSON.stringify(memoryLabel)}`
+    );
     check(
       'the memory readout is a percentage of system RAM',
       Number.isFinite(shownPercent) && Math.abs(shownPercent - memoryState.current) <= 3,

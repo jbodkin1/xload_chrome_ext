@@ -4,8 +4,9 @@ Project instructions for coding agents working in this repository.
 
 ## What this is
 
-`xload` is a Chrome extension (Manifest V3): four shipped files — `manifest.json`,
-`popup.html`, `popup.js`, `background.js` — plus icons. No build step, no dependencies,
+`xload` is a Chrome extension (Manifest V3): four shipped code files — `manifest.json`,
+`popup.html`, `popup.js`, `background.js` — plus the English and French catalogs in
+`_locales/` and the icons. No build step, no dependencies,
 no network calls. `README.md` describes it, `RELEASING.md` is the release checklist and
 `STORE-LISTING.md` holds the Chrome Web Store copy.
 

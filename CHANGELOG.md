@@ -1,5 +1,23 @@
 # Release notes
 
+## [1.3.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0) — 27 November 2026
+
+The popup now speaks English or French, following Chrome's own language setting.
+
+### Localisation
+
+- New `_locales/en/messages.json` and `_locales/fr/messages.json`: every label, theme name, refresh-rate option and status-bar readout is a message, each with the description a translator works from.
+- `manifest.json` declares `default_locale: "en"` and carries `__MSG_extName__` and `__MSG_extDescription__` instead of text, so the extension name and the store summary localize with the rest of the UI.
+- `popup.js` resolves every string through `chrome.i18n.getMessage()`, sets `<html lang>` from `chrome.i18n.getUILanguage()`, and fills each `data-i18n` element from the catalog. English stays the fallback for any browser language that is neither English nor French.
+- No new permissions and no network code: the catalogs ship with the extension and are read from disk by Chrome.
+
+### Packaging and checks
+
+- Upload package is now `xload-retro-system-monitor-1.3.0.zip`: eight entries, the two catalogs included.
+- `README.md`, `STORE-LISTING.md`, `RELEASING.md` and `AGENTS.md` describe the bilingual popup and count eight entries; the store-listing regions note no longer calls the UI English-only.
+- `scripts/smoke.mjs` derives its expected readouts from the same messages and accepts `--lang=fr`, so a run exercises the French catalog instead of assuming English.
+- `scripts/check-listing.mjs` resolves the manifest's message references and checks that both catalogs define the same keys, that every placeholder is declared, and that no label or option text is still hardcoded in `popup.html`.
+
 ## [1.2.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0) — 24 November 2026
 
 Adds system memory to the popup: a `MEMORY:` percentage in the middle of the status bar.

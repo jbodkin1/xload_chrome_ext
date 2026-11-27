@@ -138,6 +138,19 @@ function pngOpaque(file) {
 }
 
 const manifest = JSON.parse(read('manifest.json'));
+
+// The manifest holds message references (`__MSG_extName__`) rather than text, so every claim
+// about the name or description is checked against the English catalog those references
+// resolve to — the text Chrome shows on any browser whose language is neither en nor fr.
+const LOCALES = ['en', 'fr'];
+const catalogs = Object.fromEntries(
+  LOCALES.map((locale) => [locale, JSON.parse(read(`_locales/${locale}/messages.json`))])
+);
+const message = (catalog, key) => catalog[key]?.message;
+const localize = (value, catalog = catalogs.en) =>
+  value.replace(/__MSG_(\w+)__/g, (reference, key) => message(catalog, key) ?? reference);
+const appName = localize(manifest.name);
+const appDescription = localize(manifest.description);
 const DOC_FILES = ['README.md', 'PRIVACY.md', 'SECURITY.md', 'STORE-LISTING.md', 'RELEASING.md', 'REJECTION-PLAYBOOK.md'];
 const docs = Object.fromEntries(DOC_FILES.map((file) => [file, read(file)]));
 const doc = docs['STORE-LISTING.md'];
@@ -152,11 +165,11 @@ const allSource = Object.values(source).join('\n');
 // ============================================================== STORE-LISTING.md
 group('STORE-LISTING.md — manifest fields');
 
-same('name in doc matches manifest', doc.includes(`- \`name\`: \`${manifest.name}\``), true);
+same('name in doc matches manifest', doc.includes(`- \`name\`: \`${appName}\``), true);
 check(
-  `name length stated as ${manifest.name.length} of 45`,
-  doc.includes(`${manifest.name.length} of 45 characters`),
-  'doc disagrees with manifest.name length'
+  `name length stated as ${appName.length} of 45`,
+  doc.includes(`${appName.length} of 45 characters`),
+  'doc disagrees with the name the manifest resolves to'
 );
 same('version in doc matches manifest', doc.includes(`- \`version\`: \`${manifest.version}\``), true);
 check('package tab quotes the same version', doc.includes(`Version shows **${manifest.version}**`), 'Package tab section');
@@ -215,7 +228,7 @@ check('alternative block found', Boolean(alternative));
 check('detailed description block found', Boolean(detailed));
 
 if (summary) {
-  same('summary is byte-identical to manifest.description', summary, manifest.description);
+  same('summary is byte-identical to the description the manifest resolves to', summary, appDescription);
   check(`summary length stated as ${summary.length}`, doc.includes(`${summary.length} characters.`), 'summary section');
   check('summary length under the 132 limit', summary.length <= 132, `${summary.length} chars`);
 }
@@ -287,7 +300,7 @@ if (exists(zipName)) {
   const expected = [...PACKAGE_FILES];
   same('zip holds no directory entries', entries.filter((e) => e.endsWith('/')), []);
   same('zip contents', [...entries].sort(), [...expected].sort());
-  same('doc states seven entries', doc.includes('seven entries'), true);
+  same('doc states eight entries', doc.includes('eight entries'), true);
   check('doc names the package', doc.includes(zipName), 'upload step');
   const zipKb = doc.match(/this package is (\d+) KB/);
   check(
@@ -391,9 +404,12 @@ check(
   'status bar spans'
 );
 
-const themeOptions = [...source['popup.html'].matchAll(/<option value="[^"]+">([^<]+)<\/option>/g)]
-  .map((m) => m[1])
-  .filter((label) => !/s \(/.test(label));
+// The option labels are message keys, not text, so the names are read from the English
+// catalog the keys resolve to — the same strings Chrome puts in the menu.
+const optionTags = [...source['popup.html'].matchAll(/<option value="([^"]+)" data-i18n="([^"]+)"><\/option>/g)];
+const themeOptions = optionTags
+  .filter(([, value]) => !/^\d+$/.test(value))
+  .map(([, , key]) => message(catalogs.en, key) || '');
 const themeKeys = [...source['popup.js'].matchAll(/^\s*'([a-z-]+)':\s*\{ bg:/gm)].map((m) => m[1]);
 same('theme menu holds six themes', themeOptions.length, 6);
 same('theme table holds six themes', themeKeys.length, 6);
@@ -401,11 +417,77 @@ const themeNames = themeOptions.map((label) => label.replace(/\s*\([^)]*\)$/, ''
 for (const name of themeNames) {
   check(`README names the ${name} theme`, docs['README.md'].includes(name), 'theme list');
 }
-const intervals = [...source['popup.html'].matchAll(/<option value="(\d+)">/g)].map((m) => Number(m[1])).filter((v) => v >= 100);
+const intervals = [...source['popup.html'].matchAll(/<option value="(\d+)"/g)].map((m) => Number(m[1])).filter((v) => v >= 100);
 const rateValues = intervals.filter((v) => [100, 500, 1000, 2000, 5000].includes(v));
 same('refresh options span 0.1s to 5.0s', [Math.min(...rateValues), Math.max(...rateValues)], [100, 5000]);
 check('default refresh rate is 1.0s', /refreshRate: 1000/.test(source['popup.js']) && /refreshRate: 1000/.test(source['background.js']));
 check('default theme is Classic X11', /theme: 'classic'/.test(source['popup.js']));
+
+group('localisation — the catalogs, the manifest and the popup agree');
+
+// chrome.i18n resolves every label against the browser's language, so a key missing from one
+// catalog is a blank word in front of a user, and a key nothing reads is dead weight in the
+// package. Both directions are checked, and the placeholders with them: a message that
+// declares $PERCENT$ without a placeholder, or the reverse, renders the token literally.
+same('manifest declares the default locale', manifest.default_locale, 'en');
+check('manifest name is a message reference', /^__MSG_\w+__$/.test(manifest.name), manifest.name);
+check('manifest description is a message reference', /^__MSG_\w+__$/.test(manifest.description), manifest.description);
+
+for (const locale of LOCALES) {
+  check(`${locale} catalog exists`, exists(`_locales/${locale}/messages.json`));
+  check(`the package ships the ${locale} catalog`, PACKAGE_FILES.includes(`_locales/${locale}/messages.json`), 'scripts/package-files.mjs');
+}
+same('both catalogs define the same keys', Object.keys(catalogs.fr).sort(), Object.keys(catalogs.en).sort());
+
+for (const locale of LOCALES) {
+  for (const [key, entry] of Object.entries(catalogs[locale])) {
+    check(`_locales/${locale}: ${key} has a message`, typeof entry.message === 'string' && entry.message.trim().length > 0);
+    check(
+      `_locales/${locale}: ${key} has a translator's description`,
+      typeof entry.description === 'string' && entry.description.trim().length > 0,
+      'the description is what a translator works from'
+    );
+    const used = [...new Set([...entry.message.matchAll(/\$([A-Za-z0-9_]+)\$/g)].map((m) => m[1].toLowerCase()))].sort();
+    same(
+      `_locales/${locale}: ${key} declares the placeholders it uses`,
+      used,
+      Object.keys(entry.placeholders || {}).sort()
+    );
+  }
+}
+
+const manifestKeys = [manifest.name, manifest.description].map((value) => (value.match(/__MSG_(\w+)__/) || [])[1]);
+same('the manifest references the name and description keys', manifestKeys, ['extName', 'extDescription']);
+for (const key of manifestKeys) {
+  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for the manifest`, Boolean(message(catalogs[locale], key)));
+}
+
+const htmlKeys = [...new Set([...source['popup.html'].matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1]))];
+check('popup.html swaps its text for message keys', htmlKeys.length >= 12, `${htmlKeys.length} keys`);
+for (const key of htmlKeys) {
+  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for popup.html`, Boolean(message(catalogs[locale], key)));
+}
+
+const scriptKeys = [...new Set([...source['popup.js'].matchAll(/\bt\('([A-Za-z0-9_]+)'/g)].map((m) => m[1]))];
+check('popup.js builds text from chrome.i18n', source['popup.js'].includes('chrome.i18n.getMessage'));
+check('popup.js fills the data-i18n elements', source['popup.js'].includes("querySelectorAll('[data-i18n]')"));
+for (const key of scriptKeys) {
+  for (const locale of LOCALES) check(`_locales/${locale} defines ${key} for popup.js`, Boolean(message(catalogs[locale], key)));
+}
+
+// Nothing in the popup may still carry its English text in the markup, or the catalog and the
+// page can disagree and the browser-language switch silently does nothing.
+for (const tag of ['label', 'option']) {
+  const hardcoded = [...source['popup.html'].matchAll(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 'g'))]
+    .filter((m) => m[1].trim())
+    .map((m) => m[0]);
+  same(`no ${tag} text is hardcoded in popup.html`, hardcoded, []);
+}
+
+// French must be a translation, not a copy of the English catalog under another name.
+for (const key of ['titleBar', 'labelTheme', 'labelRefresh', 'labelGrid', 'labelScanlines', 'loadPercent', 'memoryPercent', 'scaleMax']) {
+  check(`fr translates ${key}`, message(catalogs.fr, key) !== message(catalogs.en, key), 'same text as English');
+}
 
 // ============================================================== README / PRIVACY / SECURITY
 group('README.md, PRIVACY.md, SECURITY.md — claims against the code');

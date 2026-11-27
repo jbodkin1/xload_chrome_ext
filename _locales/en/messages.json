@@ -1,0 +1,104 @@
+{
+  "extName": {
+    "message": "xload Retro System Monitor",
+    "description": "Extension name, used by the toolbar, the Extensions page and the store title. Kept as the product name in every locale."
+  },
+  "extDescription": {
+    "message": "A tiny X11-style CPU load graph for your toolbar. No accounts, no telemetry, six CRT themes, and nothing in the way.",
+    "description": "One-line store summary, prefilled from the manifest. Must stay identical to the summary block in STORE-LISTING.md, which scripts/check-listing.mjs compares against this file."
+  },
+  "titleBar": {
+    "message": "xload - System Load Average",
+    "description": "Text in the popup's navy title bar, written the way the X11 xload window title is."
+  },
+  "labelTheme": {
+    "message": "Theme Accent",
+    "description": "Label above the dropdown that picks one of the six colour themes."
+  },
+  "labelRefresh": {
+    "message": "Refresh Rate",
+    "description": "Label above the dropdown that picks the sampling interval."
+  },
+  "labelGrid": {
+    "message": "Draw Grid Alignments",
+    "description": "Label beside the checkbox that shows or hides the graph's alignment grid."
+  },
+  "labelScanlines": {
+    "message": "CRT Scanlines",
+    "description": "Label beside the checkbox that shows or hides the CRT scanline overlay."
+  },
+  "themeClassic": {
+    "message": "Classic X11 (White)",
+    "description": "Theme option: white paper background with a red trace, the default."
+  },
+  "themePhosphor": {
+    "message": "Phosphor Slate (Dark)",
+    "description": "Theme option: dark slate background with a cyan trace."
+  },
+  "themeAmber": {
+    "message": "Amber Monitor",
+    "description": "Theme option: near-black brown background with an amber trace."
+  },
+  "themeMatrix": {
+    "message": "Hacker Green",
+    "description": "Theme option: black background with a bright green trace."
+  },
+  "themeVapor": {
+    "message": "Neon Cyberpunk",
+    "description": "Theme option: purple background with a hot pink trace."
+  },
+  "themeMono": {
+    "message": "Monochrome",
+    "description": "Theme option: black background with a white trace."
+  },
+  "rateUltrafast": {
+    "message": "0.1s (Ultrafast)",
+    "description": "Refresh-rate option: one sample every 0.1 seconds."
+  },
+  "rateFast": {
+    "message": "0.5s (Fast)",
+    "description": "Refresh-rate option: one sample every 0.5 seconds."
+  },
+  "rateNormal": {
+    "message": "1.0s (Normal)",
+    "description": "Refresh-rate option: one sample every second, the default."
+  },
+  "rateRelaxed": {
+    "message": "2.0s (Relaxed)",
+    "description": "Refresh-rate option: one sample every 2 seconds."
+  },
+  "rateSlow": {
+    "message": "5.0s (Slow)",
+    "description": "Refresh-rate option: one sample every 5 seconds."
+  },
+  "loadPercent": {
+    "message": "LOAD: $PERCENT$%",
+    "description": "Left status-bar readout: the newest CPU load sample as a percentage with two decimals.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12.34"
+      }
+    }
+  },
+  "memoryPercent": {
+    "message": "MEMORY: $PERCENT$%",
+    "description": "Centre status-bar readout: the share of installed RAM in use, as a whole percentage.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "47"
+      }
+    }
+  },
+  "scaleMax": {
+    "message": "SCALE: $MAX$% MAX",
+    "description": "Right status-bar readout: the graph's current Y-axis maximum, which is rounded up to a multiple of ten.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  }
+}

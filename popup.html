@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>xload@localhost</title>
@@ -120,7 +120,7 @@
 </head>
 <body>
   <div class="x11-title-bar">
-    <div>xload - System Load Average</div>
+    <div data-i18n="titleBar"></div>
   </div>
   <div class="crt-screen">
     <div class="scanlines"></div>
@@ -129,37 +129,37 @@
   </div>
   <div class="panel-settings">
     <div class="form-group">
-      <label>Theme Accent</label>
+      <label data-i18n="labelTheme"></label>
       <select id="theme-select">
-        <option value="classic">Classic X11 (White)</option>
-        <option value="retro-dark">Phosphor Slate (Dark)</option>
-        <option value="amber-crt">Amber Monitor</option>
-        <option value="matrix-green">Hacker Green</option>
-        <option value="vapor-cyber">Neon Cyberpunk</option>
-        <option value="mono-high">Monochrome</option>
+        <option value="classic" data-i18n="themeClassic"></option>
+        <option value="retro-dark" data-i18n="themePhosphor"></option>
+        <option value="amber-crt" data-i18n="themeAmber"></option>
+        <option value="matrix-green" data-i18n="themeMatrix"></option>
+        <option value="vapor-cyber" data-i18n="themeVapor"></option>
+        <option value="mono-high" data-i18n="themeMono"></option>
       </select>
     </div>
     <div class="form-group">
-      <label>Refresh Rate</label>
+      <label data-i18n="labelRefresh"></label>
       <select id="interval-select">
-        <option value="100">0.1s (Ultrafast)</option>
-        <option value="500">0.5s (Fast)</option>
-        <option value="1000">1.0s (Normal)</option>
-        <option value="2000">2.0s (Relaxed)</option>
-        <option value="5000">5.0s (Slow)</option>
+        <option value="100" data-i18n="rateUltrafast"></option>
+        <option value="500" data-i18n="rateFast"></option>
+        <option value="1000" data-i18n="rateNormal"></option>
+        <option value="2000" data-i18n="rateRelaxed"></option>
+        <option value="5000" data-i18n="rateSlow"></option>
       </select>
     </div>
     <div class="checkbox-row">
       <input type="checkbox" id="grid-toggle" checked>
-      <label for="grid-toggle">Draw Grid Alignments</label>
+      <label for="grid-toggle" data-i18n="labelGrid"></label>
       <input type="checkbox" id="scanlines-toggle" checked style="margin-left: 10px;">
-      <label for="scanlines-toggle">CRT Scanlines</label>
+      <label for="scanlines-toggle" data-i18n="labelScanlines"></label>
     </div>
   </div>
   <div class="status-bar">
-    <span id="load-value">LOAD: 0.00%</span>
-    <span id="memory-value">MEMORY: --%</span>
-    <span id="scale-value">SCALE: 10% max</span>
+    <span id="load-value"></span>
+    <span id="memory-value"></span>
+    <span id="scale-value"></span>
   </div>
   <script src="popup.js"></script>
 </body>

@@ -24,6 +24,7 @@ Below the graph the status bar carries three readouts: `LOAD:` for the newest CP
 - **Adjustable refresh rate** — from 0.1s (ultrafast) up to 5.0s, so you can trade CPU cost against smoothness. It defaults to 1.0s.
 - **Toggleable grid and scanlines** — grid alignment lines for reading values off the graph, and CRT scanlines if you want the full nostalgic experience (or no scanlines if you don't).
 - **Remembers your settings** — theme, refresh rate, and toggles persist via `chrome.storage.local`, along with the graph history, so it picks up where it left off.
+- **English and French interface** — every label and readout is a message from `_locales/` resolved through `chrome.i18n`, so the popup follows Chrome's own language setting. English is the fallback for any other language.
 
 ### What it does not do
 
@@ -58,7 +59,7 @@ in this repository.
 
 ### Unpacked install (developer mode)
 
-1. **Get the files.** Clone or download this repository, then unzip it if needed, so the folder containing `manifest.json`, `popup.html`, `popup.js`, `background.js` and the icon files is somewhere permanent. Do not delete or move that folder afterwards — Chrome reads the files from that location every time it starts.
+1. **Get the files.** Clone or download this repository, then unzip it if needed, so the folder containing `manifest.json`, `popup.html`, `popup.js`, `background.js`, the `_locales` folder and the icon files is somewhere permanent. Do not delete or move that folder afterwards — Chrome reads the files from that location every time it starts.
 
 2. **Open the extensions page.** In Chrome, go to `chrome://extensions` in the address bar.
 
@@ -86,7 +87,8 @@ in this repository.
 - `manifest.json` — Manifest V3 declaration, permissions, popup and service worker wiring.
 - `background.js` — a service worker that seeds default settings and an empty history on install.
 - `popup.html` — the entire UI and its CSS, styled as an X11 window with a CRT bezel.
-- `popup.js` — samples CPU usage and system memory, maintains the rolling history, and draws the graph onto a 2D canvas with smoothing disabled so lines stay crisp and pixelated.
+- `popup.js` — samples CPU usage and system memory, maintains the rolling history, draws the graph onto a 2D canvas with smoothing disabled so lines stay crisp and pixelated, and fills every label from the message catalogs.
+- `_locales/en/messages.json`, `_locales/fr/messages.json` — the interface strings, each with the description a translator works from. `manifest.json` declares `default_locale: "en"` and holds message references instead of text, so the name and description localize with the rest of the UI.
 
 ## Requirements
 
