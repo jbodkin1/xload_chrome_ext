@@ -759,6 +759,11 @@ check('RELEASING.md runs the smoke test before the tag', releasing.includes('nod
 // the script rather than going away — and these checks follow it there.
 check('RELEASING.md verifies the release with the script', releasing.includes('node scripts/verify-release.mjs'), 'step 8 should run it');
 check('the release verifier it names exists', exists('scripts/verify-release.mjs'));
+// The store listing is checked last, after approval, so the step has to say so somewhere a release
+// follows. The script itself is not run by CI: until the store accepts a version it reports that
+// version's absence, which is correct and would fail every pull request.
+check('RELEASING.md names the published-page check', releasing.includes('node scripts/check-published.mjs'), 'step 9 should run it');
+check('the published-page check it names exists', exists('scripts/check-published.mjs'));
 const verifier = exists('scripts/verify-release.mjs') ? read('scripts/verify-release.mjs') : '';
 check(
   'the release verifier hashes the downloaded asset',

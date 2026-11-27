@@ -160,6 +160,20 @@ It reads the version from `manifest.json` and the repository from `origin`, need
 release: its tag, its asset and its notes, without the Latest flag or the listing URL, which only
 belong to the version being released.
 
+## 9. Check what the store serves, once the update is live
+
+The store is the one place nothing else looks at. Everything above checks the repository; this
+reads the public listing in both languages and compares it with the repository — version, name,
+summary, the first line of each detailed description and the number of screenshots:
+
+```bash
+node scripts/check-published.mjs
+```
+
+Run it after the store has approved the update, not before: the public listing lags the dashboard,
+so until then it fails on the version, the English description and both French fields. It is a
+release step rather than a pull-request check for exactly that reason.
+
 ## After the release
 
 - The Chrome Web Store upload uses the same zip attached to the release.
