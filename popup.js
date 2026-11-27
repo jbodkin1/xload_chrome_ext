@@ -44,11 +44,6 @@ function localizeUi() {
   for (const element of document.querySelectorAll('[data-i18n]')) {
     element.textContent = t(element.dataset.i18n);
   }
-
-  // The readouts carry numbers, so they are filled here rather than by a plain data-i18n swap.
-  loadValueEl.textContent = t('loadPercent', ['0.00']);
-  memoryValueEl.textContent = t('memoryPercent', ['--']);
-  scaleValueEl.textContent = t('scaleMax', ['10']);
 }
 
 const themes = {

@@ -148,13 +148,6 @@ if (!check('Chrome is installed', Boolean(chromePath), 'nothing found; pass --ch
 console.log(`      using ${chromePath}`);
 
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-smoke-'));
-// chrome.i18n resolves extension messages against Chrome's application locale, which on macOS
-// comes from the profile rather than --lang: writing it before launch is what makes a French
-// run French instead of English with a French flag.
-if (lang) {
-  fs.mkdirSync(path.join(profile, 'Default'), { recursive: true });
-  fs.writeFileSync(path.join(profile, 'Default', 'Preferences'), JSON.stringify({ intl: { app_locale: lang } }));
-}
 const unpacked = fs.mkdtempSync(path.join(os.tmpdir(), 'xload-smoke-ext-'));
 for (const entry of entries) {
   const target = path.join(unpacked, entry.name);
@@ -179,9 +172,7 @@ const chromeArgs = [
   '--no-default-browser-check',
   '--no-service-autorun',
   '--window-size=900,700',
-  // --lang sets the UI language on Linux and Windows; on macOS the app takes it from the
-  // bundle's NSLocale, which a directly-launched binary reads from -AppleLanguages.
-  ...(lang ? ['--lang=' + lang, ...(process.platform === 'darwin' ? [`-AppleLanguages=(${lang})`] : [])] : []),
+  ...(lang ? [`--lang=${lang}`] : []),
   ...(headed ? [] : ['--headless=new']),
   'about:blank',
 ];
