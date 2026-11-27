@@ -16,6 +16,7 @@ The popup now speaks English or French, following Chrome's own language setting.
 - Upload package is now `xload-retro-system-monitor-1.3.0.zip`: nine entries, the two catalogs included.
 - `README.md`, `STORE-LISTING.md`, `RELEASING.md` and `AGENTS.md` describe the bilingual popup and count nine entries; the store-listing regions note no longer calls the UI English-only.
 - `scripts/smoke.mjs` derives its expected readouts from the same messages, and `--catalog=fr` renders the French catalog on any platform (`--lang=fr` covers Linux and Windows), so a run exercises the translation instead of assuming English.
+- `scripts/capture-screenshots.mjs` unpacks the package with its `_locales/` subdirectories, which the flat copy could not do, and takes `--catalog=fr` to capture the French screenshot set without changing the browser's language.
 - `scripts/check-listing.mjs` resolves the manifest's message references and checks that both catalogs define the same keys, that every placeholder is declared, and that no label or option text is still hardcoded in `popup.html`.
 
 ## [1.2.0](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.2.0) — 24 November 2026

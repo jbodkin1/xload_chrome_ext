@@ -241,9 +241,9 @@ Aucune dépendance, aucune étape de compilation, aucun framework. Code source e
 3. **Screenshots** — optional. With none uploaded, French users see the default English set.
    Because the popup follows the browser language, a French screenshot set is the only way the
    store shows `CHARGE :` / `MÉMOIRE :` / `ÉCHELLE :`, so it is worth adding once the text is
-   in place. `scripts/capture-screenshots.mjs` loads the shipped files in a throwaway Chrome;
-   capturing French means making it render the French catalog first (the smoke test's
-   `--catalog=fr` shows the technique), then uploading the five shots under **Français**.
+   in place. `node scripts/capture-screenshots.mjs --catalog=fr` renders the French catalog in
+   the same runaway Chrome and writes the same five frames to `store/review-fr-<date>/`; the
+   set committed here is `store/fr/`. Upload those under **Français**.
 4. Everything else — category, privacy answers, distribution, test instructions — is
    item-wide: it is entered once and applies to every language.
 
@@ -312,6 +312,12 @@ until the popup holds 120 samples, and writes five 1280×800 PNGs to `store/revi
 review them there and copy over `store/` when you are happy with them. `--only=6` re-shoots
 just the promo tile, `--only=7` re-shoots just the marquee, and `--tiles=<dir>` caches its six
 tiles while you tune the grid.
+
+The French set is the same five frames with the French catalog swapped in where Chrome looks
+for messages. `--catalog=fr` reads that catalog's `titleBar`, refuses to write a frame whose
+popup does not show it, and lands the PNGs in `store/review-fr-<date>/`; the reviewed set lives
+in `store/fr/` with the same five file names. The promo tile and the marquee are not localized,
+so they have no French version.
 
 Before uploading each shot, check: no browser chrome or bookmark bar in frame, no clip of
 an unrelated window, no text overlay claiming anything the code does not do, nothing
