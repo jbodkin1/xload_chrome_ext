@@ -524,7 +524,7 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 - [x] Manifest `description` matches the summary above, and `version` is 1.3.0.
 - [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,233 bytes, sha256
       `9c712914e93fc5174d4ea6e6ef8c13c7692c9bb493e7c965e601afc04fc734b6`.
-- [x] Zip holds only the extension files — eight entries, `manifest.json` at the root, no
+- [x] Zip holds only the extension files — nine entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.
 
