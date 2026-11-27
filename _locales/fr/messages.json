@@ -71,9 +71,13 @@
     "message": "5,0 s (lent)",
     "description": "Option de fréquence : un échantillon toutes les 5 secondes."
   },
+  "decimalSeparator": {
+    "message": ",",
+    "description": "Séparateur décimal des nombres de la barre d'état : un point en anglais, une virgule en français. Un seul caractère, lu par popup.js, pour que le format des nombres suive le catalogue choisi par Chrome."
+  },
   "loadPercent": {
-    "message": "CHARGE : $PERCENT$%",
-    "description": "Lecture de gauche dans la barre d'état : le dernier échantillon de charge CPU, en pourcentage avec deux décimales.",
+    "message": "CHARGE : $PERCENT$ %",
+    "description": "Lecture de gauche dans la barre d'état : le dernier échantillon de charge CPU, en pourcentage avec deux décimales séparées par une virgule et une espace avant le signe %.",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -82,8 +86,8 @@
     }
   },
   "memoryPercent": {
-    "message": "MÉMOIRE : $PERCENT$%",
-    "description": "Lecture centrale de la barre d'état : la part de mémoire vive utilisée, en pourcentage entier.",
+    "message": "MÉMOIRE : $PERCENT$ %",
+    "description": "Lecture centrale de la barre d'état : la part de mémoire vive utilisée, en pourcentage entier suivi d'une espace avant le signe %.",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -92,8 +96,8 @@
     }
   },
   "scaleMax": {
-    "message": "ÉCHELLE : $MAX$% MAX",
-    "description": "Lecture de droite dans la barre d'état : le maximum actuel de l'axe Y, arrondi au multiple de dix supérieur.",
+    "message": "ÉCHELLE : $MAX$ % MAX",
+    "description": "Lecture de droite dans la barre d'état : le maximum actuel de l'axe Y, arrondi au multiple de dix supérieur, suivi d'une espace avant le signe %.",
     "placeholders": {
       "max": {
         "content": "$1",

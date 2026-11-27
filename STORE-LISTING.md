@@ -65,13 +65,13 @@ validated and the package is installed in a clean profile first, so a broken zip
 manifest typo fails at this point rather than during review.
 
 Upload the zip attached to the [v1.3.0 release](https://github.com/jbodkin1/xload_chrome_ext/releases/tag/v1.3.0)
-or the copy committed at the repository root; they are the same bytes. It is 12,233 bytes with
+or the copy committed at the repository root; they are the same bytes. It is 12,713 bytes with
 this SHA-256: check it before uploading, because an asset built before a manifest change is
 indistinguishable from the right one by name and would submit the older package.
 
 ```bash
 shasum -a 256 xload-retro-system-monitor-1.3.0.zip
-# 9c712914e93fc5174d4ea6e6ef8c13c7692c9bb493e7c965e601afc04fc734b6
+# 167afd3bfde2b160a055bb884a897bc835f88a23ec5f271f6747d5ee4c96ab55
 ```
 
 Upload limit is 2 GB — this package is 12 KB.
@@ -290,7 +290,8 @@ Upload in this order — the first shot is the one the store shows largest. All 
 | 4 | `04-dense-0.1s.png` | Neon Cyberpunk at 0.1s, dense trace |
 | 5 | `05-scanlines-off.png` | scanlines off with the grid still on |
 
-`store/gallery.html` shows all five at once for review. Three notes on how they were made,
+`store/gallery.html` shows both sets — the English five and the French five — on one page.
+Three notes on how they were made,
 so a future re-capture matches:
 
 - Shot 3 is one theme, not a menu. A native `<select>` dropdown is drawn by the browser UI
@@ -528,8 +529,8 @@ permissions and single purpose — are in [REJECTION-PLAYBOOK.md](REJECTION-PLAY
 **Upload**
 
 - [x] Manifest `description` matches the summary above, and `version` is 1.3.0.
-- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,233 bytes, sha256
-      `9c712914e93fc5174d4ea6e6ef8c13c7692c9bb493e7c965e601afc04fc734b6`.
+- [x] Upload package built: `xload-retro-system-monitor-1.3.0.zip`, 12,713 bytes, sha256
+      `167afd3bfde2b160a055bb884a897bc835f88a23ec5f271f6747d5ee4c96ab55`.
 - [x] Zip holds only the extension files — nine entries, `manifest.json` at the root, no
       `README.md`, `SECURITY.md`, `PRIVACY.md`, `.git` or screenshots.
 - [ ] Package uploaded via **Add new item**.

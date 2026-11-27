@@ -71,6 +71,10 @@
     "message": "5.0s (Slow)",
     "description": "Refresh-rate option: one sample every 5 seconds."
   },
+  "decimalSeparator": {
+    "message": ".",
+    "description": "Decimal separator for the status-bar numbers: a dot in English, a comma in French. One character, read by popup.js, so the number format follows whichever catalog Chrome picked."
+  },
   "loadPercent": {
     "message": "LOAD: $PERCENT$%",
     "description": "Left status-bar readout: the newest CPU load sample as a percentage with two decimals.",

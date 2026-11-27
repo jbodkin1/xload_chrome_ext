@@ -13,17 +13,21 @@
   figure { margin: 0; }
   figcaption { margin-bottom: 8px; color: #b9bcc4; }
   figcaption b { color: #ff4d4d; font-weight: bold; }
+  h2 { margin: 6px 0 0; padding-top: 16px; border-top: 1px solid #2c2e35; font-size: 12px;
+       letter-spacing: .14em; text-transform: uppercase; color: #ff4d4d; }
   img { display: block; width: 100%; max-width: 1280px; height: auto; border: 0; }
 </style>
 </head>
 <body>
 <header>
   <h1>xload — store screenshots</h1>
-  <p>1280×800, captured from the unpacked extension with real CPU samples. The popup is height-filled
-     (74% × 98% of the frame) so <code>LOAD</code> and <code>SCALE</code> survive thumbnail downscaling.
-     Click a caption to open full size.</p>
+  <p>1280×800, captured from the unpacked extension with real CPU samples. Both language sets on one
+     page: English uploaded as the base language, French under <strong>Français</strong>. The popup is
+     height-filled (74% × 98% of the frame) so <code>LOAD</code> and <code>SCALE</code> survive
+     thumbnail downscaling. Click a caption to open full size.</p>
 </header>
 <main>
+  <h2>English (United States) — the base language</h2>
   <figure>
     <figcaption><b>01</b> hero — Classic X11 at 1.0s, full 120-point history</figcaption>
     <a href="01-hero-classic-x11.png"><img src="01-hero-classic-x11.png" alt="Classic X11 theme, 1.0s refresh"></a>
@@ -52,6 +56,30 @@
     <figcaption><b>marquee</b> 1400×560 featured banner — six themes as full-width graph tiles</figcaption>
     <a href="07-marquee-1400x560.png"><img src="07-marquee-1400x560.png" alt="Six themes in a 3x2 grid"></a>
   </figure>
+
+  <h2>Français — the same five frames, French catalog</h2>
+  <figure>
+    <figcaption><b>01</b> accueil — Classique X11 à 1,0 s, historique complet de 120 points</figcaption>
+    <a href="fr/01-hero-classic-x11.png"><img src="fr/01-hero-classic-x11.png" alt="Thème Classique X11, actualisation 1,0 s"></a>
+  </figure>
+  <figure>
+    <figcaption><b>02</b> Vert hacker à 0,1 s sous charge réelle</figcaption>
+    <a href="fr/02-hacker-green-load.png"><img src="fr/02-hacker-green-load.png" alt="Thème Vert hacker sous charge"></a>
+  </figure>
+  <figure>
+    <figcaption><b>03</b> Moniteur ambre à 0,5 s</figcaption>
+    <a href="fr/03-amber-monitor.png"><img src="fr/03-amber-monitor.png" alt="Thème Moniteur ambre, actualisation 0,5 s"></a>
+  </figure>
+  <figure>
+    <figcaption><b>04</b> Cyberpunk néon à 0,1 s, tracé dense</figcaption>
+    <a href="fr/04-dense-0.1s.png"><img src="fr/04-dense-0.1s.png" alt="Thème Cyberpunk néon, actualisation 0,1 s"></a>
+  </figure>
+  <figure>
+    <figcaption><b>05</b> lignes de balayage désactivées, grille conservée</figcaption>
+    <a href="fr/05-scanlines-off.png"><img src="fr/05-scanlines-off.png" alt="Classique X11 sans lignes de balayage"></a>
+  </figure>
+  <p>The promo tile and the marquee carry graph crops and fixed labels rather than popup text, so
+     they have no French version and are shared by both languages.</p>
 </main>
 </body>
 </html>
